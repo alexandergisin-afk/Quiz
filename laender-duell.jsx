@@ -1,0 +1,887 @@
+import { useState, useEffect } from "react";
+
+const COUNTRIES = [
+  // EINFACH – sehr bekannte Länder
+  { name: "Deutschland", code: "de", capital: "Berlin", flag: "🇩🇪", continent: "Europa", difficulty: "einfach", funFact: "In Deutschland gibt es über 1.500 verschiedene Wurstsorten und mehr als 1.300 Brauereien." },
+  { name: "Frankreich", code: "fr", capital: "Paris", flag: "🇫🇷", continent: "Europa", difficulty: "einfach", funFact: "Es ist in Frankreich erlaubt, einen Verstorbenen zu heiraten – mit Genehmigung des Präsidenten." },
+  { name: "Japan", code: "jp", capital: "Tokio", flag: "🇯🇵", continent: "Asien", difficulty: "einfach", funFact: "In Japan gibt es mehr als 5 Millionen Verkaufsautomaten – sogar für frische Eier und heiße Ramen." },
+  { name: "Brasilien", code: "br", capital: "Brasília", flag: "🇧🇷", continent: "Südamerika", difficulty: "einfach", funFact: "Brasilien hat über 60 Tage im Jahr offizielle Feiertage und Festivals irgendwo im Land." },
+  { name: "Kanada", code: "ca", capital: "Ottawa", flag: "🇨🇦", continent: "Nordamerika", difficulty: "einfach", funFact: "Kanada hat mehr Seen als alle anderen Länder der Welt zusammen." },
+  { name: "Australien", code: "au", capital: "Canberra", flag: "🇦🇺", continent: "Ozeanien", difficulty: "einfach", funFact: "In Australien gibt es mehr Kängurus als Menschen – etwa doppelt so viele." },
+  { name: "Italien", code: "it", capital: "Rom", flag: "🇮🇹", continent: "Europa", difficulty: "einfach", funFact: "In Rom werfen Menschen jährlich über 1,5 Millionen Euro in den Trevi-Brunnen." },
+  { name: "Spanien", code: "es", capital: "Madrid", flag: "🇪🇸", continent: "Europa", difficulty: "einfach", funFact: "Spanien hat keine offizielle Nationalhymne mit Text – sie wird nur instrumental gespielt." },
+  { name: "Ägypten", code: "eg", capital: "Kairo", flag: "🇪🇬", continent: "Afrika", difficulty: "einfach", funFact: "Die alten Ägypter erfanden die Zahnpasta – und auch den ersten bekannten Friedensvertrag." },
+  { name: "Indien", code: "in", capital: "Neu-Delhi", flag: "🇮🇳", continent: "Asien", difficulty: "einfach", funFact: "In Indien wurde die Zahl Null erfunden – ohne sie gäbe es keine moderne Mathematik." },
+  { name: "Mexiko", code: "mx", capital: "Mexiko-Stadt", flag: "🇲🇽", continent: "Nordamerika", difficulty: "einfach", funFact: "Mexiko-Stadt sinkt jedes Jahr um bis zu 50 cm, weil sie auf einem ausgetrockneten See gebaut ist." },
+
+  // MITTEL – bekannt, aber Hauptstadt/Details kniffliger
+  { name: "Argentinien", code: "ar", capital: "Buenos Aires", flag: "🇦🇷", continent: "Südamerika", difficulty: "mittel", funFact: "In Argentinien ist der Tango entstanden – und Buenos Aires hat die meisten Buchläden pro Kopf weltweit." },
+  { name: "Südafrika", code: "za", capital: "Pretoria", flag: "🇿🇦", continent: "Afrika", difficulty: "mittel", funFact: "Südafrika hat drei Hauptstädte: Pretoria, Kapstadt und Bloemfontein." },
+  { name: "Norwegen", code: "no", capital: "Oslo", flag: "🇳🇴", continent: "Europa", difficulty: "mittel", funFact: "In Norwegen wurde ein Pinguin zum Ritter geschlagen – er ist Maskottchen der norwegischen Garde." },
+  { name: "Thailand", code: "th", capital: "Bangkok", flag: "🇹🇭", continent: "Asien", difficulty: "mittel", funFact: "Der vollständige Zeremonienname von Bangkok ist mit 168 Buchstaben der längste Ortsname der Welt." },
+  { name: "Portugal", code: "pt", capital: "Lissabon", flag: "🇵🇹", continent: "Europa", difficulty: "mittel", funFact: "Portugal ist eines der ältesten Länder Europas – seine Grenzen sind seit 1139 fast unverändert." },
+  { name: "Griechenland", code: "gr", capital: "Athen", flag: "🇬🇷", continent: "Europa", difficulty: "mittel", funFact: "In Griechenland gibt es keinen Punkt im Land, der weiter als 137 km vom Meer entfernt ist." },
+  { name: "Schweiz", code: "ch", capital: "Bern", flag: "🇨🇭", continent: "Europa", difficulty: "mittel", funFact: "In der Schweiz ist es verboten, nur ein einzelnes Meerschweinchen zu halten – sie gelten als zu sozial." },
+  { name: "Niederlande", code: "nl", capital: "Amsterdam", flag: "🇳🇱", continent: "Europa", difficulty: "mittel", funFact: "In den Niederlanden gibt es mehr Fahrräder als Einwohner." },
+  { name: "Schweden", code: "se", capital: "Stockholm", flag: "🇸🇪", continent: "Europa", difficulty: "mittel", funFact: "Schweden hat eine eigene Telefonnummer, unter der man mit einem zufälligen Schweden plaudern kann." },
+  { name: "Polen", code: "pl", capital: "Warschau", flag: "🇵🇱", continent: "Europa", difficulty: "mittel", funFact: "In Polen steht der einzige Wald der Welt, in dem über 400 Kiefern rätselhaft krumm gewachsen sind." },
+  { name: "Türkei", code: "tr", capital: "Ankara", flag: "🇹🇷", continent: "Asien", difficulty: "mittel", funFact: "Der Weihnachtsmann (St. Nikolaus) stammt aus der heutigen Türkei, nicht vom Nordpol." },
+  { name: "Saudi-Arabien", code: "sa", capital: "Riad", flag: "🇸🇦", continent: "Asien", difficulty: "mittel", funFact: "Saudi-Arabien hat keinen einzigen natürlichen Fluss – das ganze Land kommt ohne aus." },
+  { name: "Nigeria", code: "ng", capital: "Abuja", flag: "🇳🇬", continent: "Afrika", difficulty: "mittel", funFact: "Nigeria produziert so viele Filme, dass seine Industrie 'Nollywood' nach Bollywood die zweitgrößte der Welt ist." },
+  { name: "Kenia", code: "ke", capital: "Nairobi", flag: "🇰🇪", continent: "Afrika", difficulty: "mittel", funFact: "Kenia hat den einzigen Nationalpark der Welt direkt am Rand einer Millionen-Hauptstadt." },
+  { name: "Neuseeland", code: "nz", capital: "Wellington", flag: "🇳🇿", continent: "Ozeanien", difficulty: "mittel", funFact: "In Neuseeland leben rund 6 Schafe pro Mensch – früher waren es sogar über 20." },
+  { name: "Chile", code: "cl", capital: "Santiago", flag: "🇨🇱", continent: "Südamerika", difficulty: "mittel", funFact: "In Chiles Atacama-Wüste hat es an manchen Orten seit Jahrhunderten nicht geregnet." },
+  { name: "Vietnam", code: "vn", capital: "Hanoi", flag: "🇻🇳", continent: "Asien", difficulty: "mittel", funFact: "Vietnam ist der zweitgrößte Kaffeeproduzent der Welt – Eierkaffee ist dort eine Spezialität." },
+  { name: "Marokko", code: "ma", capital: "Rabat", flag: "🇲🇦", continent: "Afrika", difficulty: "mittel", funFact: "In Marokko klettern Ziegen auf Arganbäume und fressen die Früchte – aus deren Kernen wird Arganöl gemacht." },
+  { name: "Österreich", code: "at", capital: "Wien", flag: "🇦🇹", continent: "Europa", difficulty: "mittel", funFact: "Die Schneekugel wurde in Wien erfunden – eher zufällig bei einem Experiment mit OP-Lampen." },
+
+  // SCHWER – weniger bekannte Länder & überraschende Hauptstädte
+  { name: "Kasachstan", code: "kz", capital: "Astana", flag: "🇰🇿", continent: "Asien", difficulty: "schwer", funFact: "Kasachstan ist das größte Binnenland der Welt – größer als ganz Westeuropa." },
+  { name: "Bhutan", code: "bt", capital: "Thimphu", flag: "🇧🇹", continent: "Asien", difficulty: "schwer", funFact: "Bhutan misst sein 'Bruttonationalglück' statt nur das Wirtschaftswachstum." },
+  { name: "Eritrea", code: "er", capital: "Asmara", flag: "🇪🇷", continent: "Afrika", difficulty: "schwer", funFact: "Eritreas Hauptstadt Asmara gilt als eine der besterhaltenen Art-déco-Städte der Welt." },
+  { name: "Suriname", code: "sr", capital: "Paramaribo", flag: "🇸🇷", continent: "Südamerika", difficulty: "schwer", funFact: "Suriname ist das am dichtesten bewaldete Land der Erde – über 90 % sind Regenwald." },
+  { name: "Turkmenistan", code: "tm", capital: "Aschgabat", flag: "🇹🇲", continent: "Asien", difficulty: "schwer", funFact: "In Turkmenistan brennt seit 1971 ein Gaskrater – das 'Tor zur Hölle'." },
+  { name: "Slowenien", code: "si", capital: "Ljubljana", flag: "🇸🇮", continent: "Europa", difficulty: "schwer", funFact: "Sloweniens Name enthält das Wort 'love' – und über die Hälfte des Landes ist Wald." },
+  { name: "Paraguay", code: "py", capital: "Asunción", flag: "🇵🇾", continent: "Südamerika", difficulty: "schwer", funFact: "Paraguays Flagge sieht auf Vorder- und Rückseite unterschiedlich aus – einzigartig weltweit." },
+  { name: "Laos", code: "la", capital: "Vientiane", flag: "🇱🇦", continent: "Asien", difficulty: "schwer", funFact: "Laos ist das am stärksten bombardierte Land der Geschichte – pro Kopf gerechnet." },
+  { name: "Aserbaidschan", code: "az", capital: "Baku", flag: "🇦🇿", continent: "Asien", difficulty: "schwer", funFact: "Aserbaidschan heißt 'Land des Feuers' – aus dem Boden tretendes Gas brennt dort von selbst." },
+  { name: "Sambia", code: "zm", capital: "Lusaka", flag: "🇿🇲", continent: "Afrika", difficulty: "schwer", funFact: "An den Victoriafällen in Sambia kann man im 'Devil's Pool' direkt am Abgrund baden." },
+  { name: "Moldau", code: "md", capital: "Chișinău", flag: "🇲🇩", continent: "Europa", difficulty: "schwer", funFact: "Moldau hat den größten Weinkeller der Welt – mit über 200 km unterirdischen Gängen." },
+  { name: "Brunei", code: "bn", capital: "Bandar Seri Begawan", flag: "🇧🇳", continent: "Asien", difficulty: "schwer", funFact: "Bruneis Sultan besitzt einen Palast mit fast 1.800 Zimmern – den größten Wohnpalast der Welt." },
+];
+
+const DIFFICULTY_META = {
+  einfach: { label: "Einfach", color: "#22c55e", mult: 1 },
+  mittel: { label: "Mittel", color: "#fbbf24", mult: 1.5 },
+  schwer: { label: "Schwer", color: "#ef4444", mult: 2 },
+};
+
+// General-knowledge topics. Each question: { q, display, options, answer, difficulty, funFact }
+const TOPIC_QUESTIONS = {
+  wissenschaft: [
+    { q: "Welches Element hat das chemische Symbol 'Au'?", display: "🧪", options: ["Gold", "Silber", "Aluminium", "Argon"], answer: "Gold", difficulty: "einfach", funFact: "'Au' kommt vom lateinischen 'aurum' – alles Gold der Welt würde in nur etwa 3 Schwimmbecken passen." },
+    { q: "Wie viele Knochen hat ein erwachsener Mensch?", display: "🦴", options: ["206", "187", "224", "198"], answer: "206", difficulty: "einfach", funFact: "Babys werden mit rund 300 Knochen geboren – viele wachsen später zusammen." },
+    { q: "Welches Teilchen hat eine negative Ladung?", display: "⚛️", options: ["Elektron", "Proton", "Neutron", "Positron"], answer: "Elektron", difficulty: "einfach", funFact: "Elektronen bewegen sich in Drähten überraschend langsam – das Signal aber fast lichtschnell." },
+    { q: "Was misst die Einheit 'Pascal'?", display: "📏", options: ["Druck", "Frequenz", "Energie", "Leistung"], answer: "Druck", difficulty: "mittel", funFact: "Der Luftdruck auf Meereshöhe beträgt etwa 101.325 Pascal." },
+    { q: "Welches Organ produziert Insulin?", display: "🩺", options: ["Bauchspeicheldrüse", "Leber", "Nebenniere", "Milz"], answer: "Bauchspeicheldrüse", difficulty: "mittel", funFact: "Die Bauchspeicheldrüse stellt täglich rund 1,5 Liter Verdauungssaft her." },
+    { q: "Welches Gas macht den größten Teil der Erdatmosphäre aus?", display: "🌫️", options: ["Stickstoff", "Sauerstoff", "Kohlendioxid", "Argon"], answer: "Stickstoff", difficulty: "mittel", funFact: "Rund 78 % der Luft sind Stickstoff – Sauerstoff macht nur etwa 21 % aus." },
+    { q: "Wie heißt der Vorgang, bei dem ein Feststoff direkt zu Gas wird?", display: "💨", options: ["Sublimation", "Verdunstung", "Kondensation", "Diffusion"], answer: "Sublimation", difficulty: "mittel", funFact: "Trockeneis sublimiert direkt – es wird nie flüssig." },
+    { q: "Welcher Planet hat die meisten bekannten Monde?", display: "🪐", options: ["Saturn", "Jupiter", "Uranus", "Neptun"], answer: "Saturn", difficulty: "schwer", funFact: "Saturn überholte Jupiter, als 2023 über 60 weitere Monde entdeckt wurden." },
+    { q: "Welches Metall ist bei Raumtemperatur flüssig?", display: "🌡️", options: ["Quecksilber", "Gallium", "Cäsium", "Blei"], answer: "Quecksilber", difficulty: "schwer", funFact: "Auch Gallium schmilzt fast in der Hand – aber Quecksilber ist schon bei Raumtemperatur flüssig." },
+    { q: "Welcher Wissenschaftler stellte das Periodensystem auf?", display: "📋", options: ["Mendelejew", "Bohr", "Rutherford", "Pauling"], answer: "Mendelejew", difficulty: "schwer", funFact: "Mendelejew ließ Lücken für noch unentdeckte Elemente – und sagte ihre Eigenschaften voraus." },
+    { q: "Wie nennt man die Lehre von der Vererbung?", display: "🧬", options: ["Genetik", "Ökologie", "Zytologie", "Physiologie"], answer: "Genetik", difficulty: "schwer", funFact: "Gregor Mendel entdeckte die Vererbungsregeln an Erbsenpflanzen im Klostergarten." },
+    { q: "Welche Einheit beschreibt die elektrische Stromstärke?", display: "🔌", options: ["Ampere", "Volt", "Watt", "Ohm"], answer: "Ampere", difficulty: "schwer", funFact: "Ein Blitz transportiert kurzzeitig bis zu 30.000 Ampere." },
+  ],
+  geschichte: [
+    { q: "In welchem Jahr fiel die Berliner Mauer?", display: "🧱", options: ["1989", "1991", "1987", "1990"], answer: "1989", difficulty: "einfach", funFact: "Der Mauerfall geschah teils durch eine versehentlich zu früh verlesene Pressemitteilung." },
+    { q: "Welches antike Weltwunder stand in Ägypten?", display: "🏛️", options: ["Pyramiden von Gizeh", "Koloss von Rhodos", "Hängende Gärten", "Leuchtturm von Pharos"], answer: "Pyramiden von Gizeh", difficulty: "einfach", funFact: "Die Pyramiden sind das einzige der sieben antiken Weltwunder, das heute noch existiert." },
+    { q: "In welchem Jahr begann der Erste Weltkrieg?", display: "⚔️", options: ["1914", "1912", "1916", "1918"], answer: "1914", difficulty: "einfach", funFact: "1914 gab es einen spontanen Weihnachtsfrieden im Schützengraben." },
+    { q: "Welches Reich beherrschte zur Zeit Caesars das Mittelmeer?", display: "🏺", options: ["Römisches Reich", "Byzantinisches Reich", "Makedonien", "Karthago"], answer: "Römisches Reich", difficulty: "mittel", funFact: "Der Monat Juli ist nach Julius Caesar benannt." },
+    { q: "Wer war die letzte aktive Pharaonin Ägyptens?", display: "👑", options: ["Kleopatra", "Nofretete", "Hatschepsut", "Nitokris"], answer: "Kleopatra", difficulty: "mittel", funFact: "Kleopatra lebte zeitlich näher an der Mondlandung als am Bau der Pyramiden." },
+    { q: "Welche Stadt war das Zentrum des Inka-Reiches?", display: "⛰️", options: ["Cusco", "Lima", "Quito", "Tiwanaku"], answer: "Cusco", difficulty: "mittel", funFact: "Die Inka hatten keine Schrift, aber ein Knotensystem namens 'Quipu' zur Datenspeicherung." },
+    { q: "In welchem Jahr endete der Dreißigjährige Krieg?", display: "🕊️", options: ["1648", "1618", "1659", "1672"], answer: "1648", difficulty: "schwer", funFact: "Der Westfälische Friede von 1648 prägt bis heute das Prinzip souveräner Staaten." },
+    { q: "Wer war der erste römische Kaiser?", display: "🦅", options: ["Augustus", "Julius Caesar", "Nero", "Konstantin"], answer: "Augustus", difficulty: "schwer", funFact: "Augustus hieß ursprünglich Octavian – 'Augustus' war ein Ehrentitel." },
+    { q: "Welche Dynastie baute die Verbotene Stadt in Peking?", display: "🏯", options: ["Ming", "Qing", "Han", "Tang"], answer: "Ming", difficulty: "schwer", funFact: "Die Verbotene Stadt hat fast 1.000 Gebäude und war 500 Jahre für das Volk gesperrt." },
+    { q: "In welchem Jahr stürmte die Menge die Bastille?", display: "🗡️", options: ["1789", "1776", "1799", "1804"], answer: "1789", difficulty: "schwer", funFact: "Der 14. Juli ist bis heute Frankreichs Nationalfeiertag." },
+    { q: "Welches Volk erfand die Keilschrift?", display: "📜", options: ["Sumerer", "Ägypter", "Phönizier", "Babylonier"], answer: "Sumerer", difficulty: "schwer", funFact: "Die sumerische Keilschrift ist über 5.000 Jahre alt – eine der ältesten Schriften überhaupt." },
+    { q: "Wer führte den ersten erfolgreichen Motorflug durch?", display: "✈️", options: ["Gebrüder Wright", "Otto Lilienthal", "Louis Blériot", "Charles Lindbergh"], answer: "Gebrüder Wright", difficulty: "mittel", funFact: "Der erste Motorflug 1903 dauerte nur 12 Sekunden." },
+  ],
+  sport: [
+    { q: "Wie viele Ringe hat das olympische Symbol?", display: "🔵", options: ["5", "4", "6", "7"], answer: "5", difficulty: "einfach", funFact: "Die fünf Ringe stehen für die fünf bewohnten Kontinente." },
+    { q: "Wie lang ist ein Marathon (gerundet)?", display: "🏃", options: ["42 km", "38 km", "45 km", "50 km"], answer: "42 km", difficulty: "einfach", funFact: "Die genaue Distanz beträgt 42,195 km – festgelegt bei den Spielen 1908 in London." },
+    { q: "In welchem Land wurde Judo erfunden?", display: "🥋", options: ["Japan", "China", "Korea", "Mongolei"], answer: "Japan", difficulty: "einfach", funFact: "Judo bedeutet wörtlich 'der sanfte Weg'." },
+    { q: "Wie viele Punkte zählt ein Touchdown im American Football?", display: "🏈", options: ["6", "7", "3", "5"], answer: "6", difficulty: "mittel", funFact: "Nach dem Touchdown kann man durch einen Extrakick noch 1 Punkt holen." },
+    { q: "Welches Land gewann die erste Fußball-WM 1930?", display: "🏆", options: ["Uruguay", "Brasilien", "Argentinien", "Italien"], answer: "Uruguay", difficulty: "mittel", funFact: "Uruguay war auch Gastgeber der allerersten Weltmeisterschaft." },
+    { q: "Wie viele Felder hat ein Schachbrett?", display: "♟️", options: ["64", "100", "81", "72"], answer: "64", difficulty: "mittel", funFact: "Es gibt mehr mögliche Schachpartien als Atome im beobachtbaren Universum." },
+    { q: "In welcher Sportart gibt es den Begriff 'Hattrick' ursprünglich?", display: "🏏", options: ["Cricket", "Fußball", "Eishockey", "Tennis"], answer: "Cricket", difficulty: "schwer", funFact: "Im Cricket bekam ein Spieler für drei Treffer in Folge früher einen Hut geschenkt." },
+    { q: "Wie viele Spieler hat eine Volleyball-Mannschaft auf dem Feld?", display: "🏐", options: ["6", "5", "7", "8"], answer: "6", difficulty: "mittel", funFact: "Beim Beachvolleyball sind es dagegen nur zwei pro Team." },
+    { q: "Welcher Boxer nannte sich selbst 'The Greatest'?", display: "🥊", options: ["Muhammad Ali", "Mike Tyson", "Joe Frazier", "George Foreman"], answer: "Muhammad Ali", difficulty: "schwer", funFact: "Ali weigerte sich aus Gewissensgründen, in den Vietnamkrieg zu ziehen." },
+    { q: "Über welche Distanz läuft ein 'Steeplechase'-Hindernislauf?", display: "🚧", options: ["3000 m", "1500 m", "5000 m", "800 m"], answer: "3000 m", difficulty: "schwer", funFact: "Beim Steeplechase müssen die Läufer auch durch einen Wassergraben." },
+    { q: "Welches Land hat die meisten Tour-de-France-Siege?", display: "🚴", options: ["Frankreich", "Belgien", "Spanien", "Italien"], answer: "Frankreich", difficulty: "schwer", funFact: "Trotz vieler Siege wartet Frankreich seit 1985 auf einen eigenen Gesamtsieger." },
+    { q: "Wie heißt der höchste Wurf beim Bowling (alle Strikes)?", display: "🎳", options: ["Perfektes Spiel", "Royal Strike", "Grand Slam", "Triple Crown"], answer: "Perfektes Spiel", difficulty: "schwer", funFact: "Ein perfektes Bowling-Spiel ergibt genau 300 Punkte." },
+  ],
+  film_musik: [
+    { q: "Wer komponierte die 9. Sinfonie mit der 'Ode an die Freude'?", display: "🎼", options: ["Beethoven", "Mozart", "Bach", "Brahms"], answer: "Beethoven", difficulty: "einfach", funFact: "Beethoven war fast taub, als er seine 9. Sinfonie komponierte." },
+    { q: "Welche Band sang 'Bohemian Rhapsody'?", display: "🎤", options: ["Queen", "The Beatles", "Rolling Stones", "Led Zeppelin"], answer: "Queen", difficulty: "einfach", funFact: "'Bohemian Rhapsody' hat keinen klassischen Refrain und dauert fast 6 Minuten." },
+    { q: "Welches Musikgenre stammt ursprünglich aus Jamaika?", display: "🎶", options: ["Reggae", "Calypso", "Blues", "Ska"], answer: "Reggae", difficulty: "mittel", funFact: "Bob Marleys Album 'Exodus' wurde vom Time Magazine zum Album des Jahrhunderts gekürt." },
+    { q: "Wie viele Tasten hat ein Standard-Klavier?", display: "🎹", options: ["88", "76", "92", "84"], answer: "88", difficulty: "mittel", funFact: "Davon sind 52 weiß und 36 schwarz." },
+    { q: "Wer führte Regie bei 'Inception' und 'Interstellar'?", display: "🎬", options: ["Christopher Nolan", "Steven Spielberg", "Denis Villeneuve", "Ridley Scott"], answer: "Christopher Nolan", difficulty: "mittel", funFact: "Nolan dreht bewusst ohne Handy und E-Mail, um sich besser zu konzentrieren." },
+    { q: "Welche Oper komponierte Mozart?", display: "🎭", options: ["Die Zauberflöte", "Carmen", "Aida", "Rigoletto"], answer: "Die Zauberflöte", difficulty: "mittel", funFact: "Mozart komponierte bereits mit 5 Jahren seine ersten Stücke." },
+    { q: "Welcher Film war der erste abendfüllende Zeichentrickfilm von Disney?", display: "🎞️", options: ["Schneewittchen", "Bambi", "Pinocchio", "Fantasia"], answer: "Schneewittchen", difficulty: "schwer", funFact: "1937 hielten viele 'Schneewittchen' für eine Schnapsidee – es wurde ein Riesenerfolg." },
+    { q: "Welches Tempo bezeichnet 'Allegro' in der Musik?", display: "🎵", options: ["Schnell", "Langsam", "Mäßig", "Sehr langsam"], answer: "Schnell", difficulty: "schwer", funFact: "'Allegro' heißt auf Italienisch eigentlich 'fröhlich'." },
+    { q: "Wer komponierte die Filmmusik zu 'Star Wars' und 'Jurassic Park'?", display: "🎻", options: ["John Williams", "Hans Zimmer", "Ennio Morricone", "Danny Elfman"], answer: "John Williams", difficulty: "schwer", funFact: "John Williams wurde über 50-mal für einen Oscar nominiert." },
+    { q: "Welcher Regisseur drehte 'Pulp Fiction'?", display: "🎥", options: ["Quentin Tarantino", "Martin Scorsese", "Coen-Brüder", "David Lynch"], answer: "Quentin Tarantino", difficulty: "schwer", funFact: "Tarantino nummeriert seine Filme – er will mit dem zehnten aufhören." },
+    { q: "Aus welchem Land stammt die Musikrichtung Fado?", display: "🪗", options: ["Portugal", "Spanien", "Italien", "Griechenland"], answer: "Portugal", difficulty: "schwer", funFact: "Fado bedeutet 'Schicksal' und gehört zum UNESCO-Weltkulturerbe." },
+    { q: "Wie viele Saiten hat eine Standard-Geige?", display: "🎻", options: ["4", "5", "6", "7"], answer: "4", difficulty: "mittel", funFact: "Eine echte Stradivari-Geige kann mehrere Millionen Euro wert sein." },
+  ],
+  tiere: [
+    { q: "Welches Tier hat drei Herzen?", display: "🐙", options: ["Oktopus", "Tintenfisch", "Krake", "Qualle"], answer: "Oktopus", difficulty: "einfach", funFact: "Ein Oktopus hat blaues Blut und kann seine Farbe in Sekunden ändern." },
+    { q: "Wie nennt man eine Gruppe von Löwen?", display: "🦁", options: ["Rudel", "Schwarm", "Herde", "Meute"], answer: "Rudel", difficulty: "einfach", funFact: "In einem Löwenrudel gehen fast immer die Löwinnen gemeinsam auf die Jagd." },
+    { q: "Welches Säugetier kann aktiv fliegen?", display: "🦇", options: ["Fledermaus", "Flughörnchen", "Gleithörnchen", "Flugbeutler"], answer: "Fledermaus", difficulty: "einfach", funFact: "Die anderen 'gleiten' nur – die Fledermaus ist das einzige echt fliegende Säugetier." },
+    { q: "Welches Tier hat den stärksten Biss der Welt?", display: "🐊", options: ["Salzwasserkrokodil", "Weißer Hai", "Nilpferd", "Tiger"], answer: "Salzwasserkrokodil", difficulty: "mittel", funFact: "Das Salzwasserkrokodil beißt mit über 3.000 PSI." },
+    { q: "Wie viele Mägen hat eine Kuh?", display: "🐄", options: ["4", "2", "1", "3"], answer: "4", difficulty: "mittel", funFact: "Genau genommen ist es ein Magen mit vier Kammern." },
+    { q: "Welches ist das schnellste Landtier der Welt?", display: "🐆", options: ["Gepard", "Gabelbock", "Löwe", "Springbock"], answer: "Gepard", difficulty: "mittel", funFact: "Ein Gepard beschleunigt schneller als die meisten Sportwagen." },
+    { q: "Welches Tier kann seinen Kopf fast 270 Grad drehen?", display: "🦉", options: ["Eule", "Chamäleon", "Erdmännchen", "Gottesanbeterin"], answer: "Eule", difficulty: "schwer", funFact: "Eulen können ihre Augen nicht bewegen – darum drehen sie den ganzen Kopf." },
+    { q: "Welches Tier hat keinen Magen?", display: "🐠", options: ["Seepferdchen", "Aal", "Hai", "Rochen"], answer: "Seepferdchen", difficulty: "schwer", funFact: "Beim Seepferdchen trägt das Männchen die Jungen aus." },
+    { q: "Wie heißt das einzige Säugetier, das Eier legt und Gift hat?", display: "🦫", options: ["Schnabeltier", "Ameisenigel", "Biber", "Otter"], answer: "Schnabeltier", difficulty: "schwer", funFact: "Männliche Schnabeltiere haben einen Giftsporn an den Hinterbeinen." },
+    { q: "Welche Tiergruppe umfasst Spinnen, Skorpione und Milben?", display: "🕷️", options: ["Spinnentiere", "Insekten", "Krebstiere", "Tausendfüßer"], answer: "Spinnentiere", difficulty: "schwer", funFact: "Spinnentiere haben acht Beine – Insekten dagegen nur sechs." },
+    { q: "Welches Tier schläft täglich am längsten?", display: "🐨", options: ["Koala", "Faultier", "Katze", "Igel"], answer: "Koala", difficulty: "schwer", funFact: "Koalas schlafen bis zu 22 Stunden am Tag, weil ihre Nahrung kaum Energie liefert." },
+    { q: "Welcher Vogel kann rückwärts fliegen?", display: "🐦", options: ["Kolibri", "Specht", "Schwalbe", "Falke"], answer: "Kolibri", difficulty: "mittel", funFact: "Ein Kolibri schlägt bis zu 80-mal pro Sekunde mit den Flügeln." },
+  ],
+  essen: [
+    { q: "Welches Gewürz ist das teuerste der Welt?", display: "🌸", options: ["Safran", "Vanille", "Kardamom", "Zimt"], answer: "Safran", difficulty: "einfach", funFact: "Für ein Kilo Safran braucht man die Blütenfäden von etwa 150.000 Krokussen." },
+    { q: "Welches scharfe Element steckt in Chili?", display: "🌶️", options: ["Capsaicin", "Piperin", "Allicin", "Menthol"], answer: "Capsaicin", difficulty: "mittel", funFact: "Capsaicin täuscht den Hitzesensor im Mund nur – es brennt nicht wirklich." },
+    { q: "Welches Tier liefert traditionell die Milch für echten Mozzarella?", display: "🧀", options: ["Wasserbüffel", "Kuh", "Ziege", "Schaf"], answer: "Wasserbüffel", difficulty: "mittel", funFact: "Echter 'Mozzarella di Bufala' wird aus Büffelmilch hergestellt." },
+    { q: "Aus welchem Land stammt der Croissant-Vorläufer?", display: "🥐", options: ["Österreich", "Frankreich", "Belgien", "Schweiz"], answer: "Österreich", difficulty: "mittel", funFact: "Das 'Kipferl' aus Wien gilt als Vorläufer des französischen Croissants." },
+    { q: "Welches Land trinkt pro Kopf am meisten Kaffee?", display: "☕", options: ["Finnland", "Italien", "Schweden", "Österreich"], answer: "Finnland", difficulty: "schwer", funFact: "Finnen trinken im Schnitt über 4 Tassen Kaffee pro Tag." },
+    { q: "Welche Grundzutat macht Sojasauce salzig-würzig?", display: "🍶", options: ["Fermentierte Sojabohnen", "Meersalz", "Misopaste", "Reisessig"], answer: "Fermentierte Sojabohnen", difficulty: "schwer", funFact: "Klassische Sojasauce reift oft mehrere Monate bis Jahre." },
+    { q: "Aus welcher Pflanze wird Vanille gewonnen?", display: "🌿", options: ["Orchidee", "Bohnenranke", "Palme", "Farn"], answer: "Orchidee", difficulty: "schwer", funFact: "Vanille ist nach Safran das zweitteuerste Gewürz der Welt." },
+    { q: "Welches Land erfand die Tempura-Frittiertechnik nicht, brachte sie aber nach Japan?", display: "🍤", options: ["Portugal", "China", "Korea", "Niederlande"], answer: "Portugal", difficulty: "schwer", funFact: "Portugiesische Missionare brachten die Frittiertechnik im 16. Jahrhundert nach Japan." },
+    { q: "Welche Käsesorte hat traditionell Löcher?", display: "🧀", options: ["Emmentaler", "Gouda", "Cheddar", "Brie"], answer: "Emmentaler", difficulty: "mittel", funFact: "Die Löcher entstehen durch Bakterien, die beim Reifen Gas bilden." },
+    { q: "Was ist die Hauptzutat von Hummus?", display: "🫘", options: ["Kichererbsen", "Linsen", "Bohnen", "Erbsen"], answer: "Kichererbsen", difficulty: "mittel", funFact: "Hummus heißt auf Arabisch schlicht 'Kichererbse'." },
+    { q: "Welches Süßungsmittel stammt von einer südamerikanischen Pflanze?", display: "🍃", options: ["Stevia", "Aspartam", "Xylit", "Sorbit"], answer: "Stevia", difficulty: "schwer", funFact: "Stevia süßt bis zu 300-mal stärker als Zucker – ganz ohne Kalorien." },
+    { q: "Welche Nuss steckt in echtem Marzipan?", display: "🥜", options: ["Mandel", "Walnuss", "Haselnuss", "Cashew"], answer: "Mandel", difficulty: "mittel", funFact: "Lübecker Marzipan ist als Spezialität sogar EU-weit geschützt." },
+  ],
+};
+
+const TOPICS = [
+  { id: "laender", label: "Länder", icon: "🌍", desc: "Flaggen, Hauptstädte & Kontinente" },
+  { id: "wissenschaft", label: "Wissenschaft & Natur", icon: "🔬", desc: "Physik, Biologie & Weltall" },
+  { id: "geschichte", label: "Geschichte", icon: "🏛️", desc: "Epochen, Ereignisse & Personen" },
+  { id: "sport", label: "Sport", icon: "⚽", desc: "Regeln, Rekorde & Disziplinen" },
+  { id: "film_musik", label: "Filme & Musik", icon: "🎬", desc: "Kino, Bands & Klassik" },
+  { id: "tiere", label: "Tiere", icon: "🐾", desc: "Arten, Rekorde & Kurioses" },
+  { id: "essen", label: "Essen & Trinken", icon: "🍕", desc: "Küchen, Zutaten & Herkunft" },
+];
+
+function shuffle(arr) {
+  return [...arr].sort(() => Math.random() - 0.5);
+}
+
+function generateQuestion(correct, pool, allowedTypes) {
+  const types = allowedTypes && allowedTypes.length > 0 ? allowedTypes : ["flag", "capital", "continent"];
+  const type = types[Math.floor(Math.random() * types.length)];
+  // Distractors: prefer same-difficulty countries, fall back to all others to always get 3
+  const sameDiff = pool.filter(c => c.name !== correct.name && c.difficulty === correct.difficulty);
+  const allOthers = pool.filter(c => c.name !== correct.name);
+  let others = shuffle(sameDiff).slice(0, 3);
+  if (others.length < 3) {
+    // top up from the full pool without duplicates
+    const have = new Set(others.map(o => o.name));
+    for (const c of shuffle(allOthers)) {
+      if (others.length >= 3) break;
+      if (!have.has(c.name)) { others.push(c); have.add(c.name); }
+    }
+  }
+
+  const base = {
+    type,
+    display: correct.flag,
+    code: correct.code,
+    difficulty: correct.difficulty,
+    funFact: correct.funFact,
+    country: correct.name,
+  };
+
+  if (type === "flag") {
+    return {
+      ...base,
+      question: `Welchem Land gehört diese Flagge?`,
+      options: shuffle([correct, ...others]).map(o => o.name),
+      answer: correct.name,
+      fact: `${correct.flag} ${correct.name} – Hauptstadt: ${correct.capital}`,
+    };
+  } else if (type === "capital") {
+    return {
+      ...base,
+      question: `Was ist die Hauptstadt von ${correct.name}?`,
+      options: shuffle([correct, ...others]).map(o => o.capital),
+      answer: correct.capital,
+      fact: `${correct.flag} Die Hauptstadt von ${correct.name} ist ${correct.capital}.`,
+    };
+  } else {
+    const allConts = ["Europa", "Asien", "Afrika", "Nordamerika", "Südamerika", "Ozeanien"];
+    const wrongConts = shuffle(allConts.filter(c => c !== correct.continent)).slice(0, 3);
+    return {
+      ...base,
+      question: `Auf welchem Kontinent liegt ${correct.name}?`,
+      options: shuffle([correct.continent, ...wrongConts]),
+      answer: correct.continent,
+      fact: `${correct.flag} ${correct.name} liegt in ${correct.continent}.`,
+    };
+  }
+}
+
+// Pick n items, weighted toward harder questions (≈20% easy, 40% medium, 40% hard)
+function balancedPick(items, total) {
+  const byDiff = {
+    einfach: shuffle(items.filter(c => c.difficulty === "einfach")),
+    mittel: shuffle(items.filter(c => c.difficulty === "mittel")),
+    schwer: shuffle(items.filter(c => c.difficulty === "schwer")),
+  };
+  const easy = Math.round(total * 0.2);
+  const medium = Math.round(total * 0.4);
+  const hard = total - easy - medium;
+  const counts = { einfach: easy, mittel: medium, schwer: hard };
+  const order = [];
+  Object.entries(counts).forEach(([diff, n]) => {
+    const list = byDiff[diff];
+    if (list.length === 0) return;
+    for (let i = 0; i < n; i++) order.push(list[i % list.length]);
+  });
+  return shuffle(order);
+}
+
+// Build a balanced round for any topic
+const TOPIC_ICONS = {
+  wissenschaft: "🔬",
+  geschichte: "🏛️",
+  sport: "⚽",
+  film_musik: "🎬",
+  tiere: "🐾",
+  essen: "🍽️",
+};
+
+function buildRound(total, topic, allowedTypes) {
+  if (topic === "laender") {
+    const picked = balancedPick(COUNTRIES, total);
+    return picked.map(c => generateQuestion(c, COUNTRIES, allowedTypes));
+  }
+  // Generic topic: questions already have q/options/answer
+  const picked = balancedPick(TOPIC_QUESTIONS[topic] || [], total);
+  return picked.map(item => ({
+    type: topic,
+    question: item.q,
+    display: TOPIC_ICONS[topic] || "❓",
+    options: shuffle(item.options),
+    answer: item.answer,
+    difficulty: item.difficulty,
+    funFact: item.funFact,
+    fact: `Richtige Antwort: ${item.answer}`,
+    country: item.answer,
+  }));
+}
+
+const TOTAL_QUESTIONS = 10;
+const XP_PER_LEVEL = 300;
+
+export default function LaenderDuell() {
+  const [screen, setScreen] = useState("home"); // home | topics | game | result
+  const [selectedTopic, setSelectedTopic] = useState("laender");
+  const [questions, setQuestions] = useState([]);
+  const [current, setCurrent] = useState(0);
+  const [selected, setSelected] = useState(null);
+  const [score, setScore] = useState(0);
+  const [points, setPoints] = useState(0);
+  const [streak, setStreak] = useState(0);
+  const [bestStreak, setBestStreak] = useState(0);
+  const [answered, setAnswered] = useState(false);
+  const [history, setHistory] = useState([]);
+  const [shake, setShake] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(10);
+  const [pointsGained, setPointsGained] = useState(0);
+  const [confirmQuit, setConfirmQuit] = useState(false);
+
+  // Persistent progress (in-memory for this session)
+  const [highscore, setHighscore] = useState(0);
+  const [totalXp, setTotalXp] = useState(0);
+  const [gamesPlayed, setGamesPlayed] = useState(0);
+
+  const level = Math.floor(totalXp / XP_PER_LEVEL) + 1;
+  const xpInLevel = totalXp % XP_PER_LEVEL;
+
+  // Choose topic and start immediately
+  const chooseTopic = (topicId) => {
+    setSelectedTopic(topicId);
+    const qs = buildRound(TOTAL_QUESTIONS, topicId, ["flag", "capital", "continent"]);
+    setQuestions(qs);
+    setCurrent(0);
+    setSelected(null);
+    setScore(0);
+    setPoints(0);
+    setStreak(0);
+    setBestStreak(0);
+    setAnswered(false);
+    setHistory([]);
+    setTimeLeft(10);
+    setPointsGained(0);
+    setConfirmQuit(false);
+    setScreen("game");
+  };
+
+  // Countdown timer per question
+  useEffect(() => {
+    if (screen !== "game" || answered || confirmQuit) return;
+    if (timeLeft <= 0) {
+      handleTimeout();
+      return;
+    }
+    const t = setTimeout(() => setTimeLeft(tl => tl - 0.1), 100);
+    return () => clearTimeout(t);
+  }, [screen, answered, timeLeft, confirmQuit]);
+
+  const handleTimeout = () => {
+    if (answered) return;
+    setAnswered(true);
+    setSelected("__timeout__");
+    setStreak(0);
+    setShake(true);
+    setTimeout(() => setShake(false), 500);
+    const q = questions[current];
+    setHistory(h => [...h, { question: q.question, correct: false, answer: q.answer, selected: "Zeit abgelaufen" }]);
+  };
+
+  const handleSelect = (option) => {
+    if (answered) return;
+    setSelected(option);
+    setAnswered(true);
+    const q = questions[current];
+    const correct = option === q.answer;
+    if (correct) {
+      // Base 20 + small time bonus + modest streak bonus, scaled by difficulty
+      const diffMult = DIFFICULTY_META[q.difficulty]?.mult || 1;
+      const timeBonus = Math.round(timeLeft * 2);      // 0–20
+      const streakBonus = Math.min(streak, 5) * 5;     // capped at +25
+      const gained = Math.round((20 + timeBonus + streakBonus) * diffMult);
+      setPointsGained(gained);
+      setPoints(p => p + gained);
+      setScore(s => s + 1);
+      setStreak(s => {
+        const next = s + 1;
+        setBestStreak(b => Math.max(b, next));
+        return next;
+      });
+    } else {
+      setPointsGained(0);
+      setStreak(0);
+      setShake(true);
+      setTimeout(() => setShake(false), 500);
+    }
+    setHistory(h => [...h, { question: q.question, correct, answer: q.answer, selected: option }]);
+  };
+
+  const next = () => {
+    if (current + 1 >= TOTAL_QUESTIONS) {
+      // Persist progress at end of round
+      setHighscore(h => Math.max(h, points));
+      setTotalXp(xp => xp + points);
+      setGamesPlayed(g => g + 1);
+      setScreen("result");
+    } else {
+      setCurrent(c => c + 1);
+      setSelected(null);
+      setAnswered(false);
+      setTimeLeft(10);
+      setPointsGained(0);
+    }
+  };
+
+  const q = questions[current];
+
+  const medal = score >= 9 ? "🥇" : score >= 7 ? "🥈" : score >= 5 ? "🥉" : "🎯";
+  const remark = score >= 9 ? "Weltklasse! Fast alles richtig!" : score >= 7 ? "Stark! Du kennst dich wirklich gut aus." : score >= 5 ? "Solide! Mit etwas Übung wird's noch besser." : "Bleib dran – Übung macht den Meister!";
+  const topicMeta = TOPICS.find(t => t.id === selectedTopic) || TOPICS[0];
+
+  return (
+    <div style={{
+      minHeight: "100vh",
+      background: "linear-gradient(135deg, #0f2027 0%, #1a3a4a 50%, #0f2027 100%)",
+      fontFamily: "'Segoe UI', system-ui, sans-serif",
+      color: "#e8f4f8",
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      padding: "16px",
+    }}>
+
+      {/* HOME */}
+      {screen === "home" && (
+        <div style={{ textAlign: "center", maxWidth: 380, width: "100%" }}>
+          <div style={{ fontSize: 72, marginBottom: 8, filter: "drop-shadow(0 0 24px rgba(100,200,255,0.4))" }}>🧠</div>
+          <h1 style={{
+            fontSize: 36,
+            fontWeight: 800,
+            margin: "0 0 6px",
+            background: "linear-gradient(90deg, #64d8ff, #a78bfa)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            letterSpacing: "-1px",
+          }}>Quiz-Duell</h1>
+          <p style={{ color: "#94c8d8", fontSize: 15, margin: "0 0 32px", lineHeight: 1.5 }}>
+            7 Themenwelten, je 10 Fragen –<br />wie viel weißt du wirklich?
+          </p>
+
+          <div style={{ display: "flex", gap: 8, justifyContent: "center", marginBottom: 24, flexWrap: "wrap" }}>
+            {TOPICS.slice(0, 4).map(t => (
+              <span key={t.id} style={{
+                background: "rgba(100,216,255,0.1)",
+                border: "1px solid rgba(100,216,255,0.25)",
+                borderRadius: 20,
+                padding: "4px 12px",
+                fontSize: 13,
+                color: "#64d8ff",
+              }}>{t.icon} {t.label.split(" ")[0]}</span>
+            ))}
+            <span style={{
+              background: "rgba(167,139,250,0.1)",
+              border: "1px solid rgba(167,139,250,0.25)",
+              borderRadius: 20,
+              padding: "4px 12px",
+              fontSize: 13,
+              color: "#a78bfa",
+            }}>+3 mehr</span>
+          </div>
+
+          {/* Level + Highscore */}
+          {gamesPlayed > 0 && (
+            <div style={{
+              background: "rgba(255,255,255,0.04)",
+              border: "1px solid rgba(255,255,255,0.08)",
+              borderRadius: 16,
+              padding: "16px",
+              marginBottom: 20,
+            }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+                <span style={{ fontSize: 14, fontWeight: 700, color: "#a78bfa" }}>⭐ Level {level}</span>
+                <span style={{ fontSize: 13, color: "#fbbf24", fontWeight: 600 }}>🏆 Highscore: {highscore}</span>
+              </div>
+              <div style={{ height: 6, background: "rgba(255,255,255,0.08)", borderRadius: 4, overflow: "hidden" }}>
+                <div style={{
+                  height: "100%",
+                  width: `${(xpInLevel / XP_PER_LEVEL) * 100}%`,
+                  background: "linear-gradient(90deg, #8b5cf6, #ec4899)",
+                  borderRadius: 4,
+                  transition: "width 0.5s ease",
+                }} />
+              </div>
+              <div style={{ fontSize: 11, color: "#6a9aaa", marginTop: 6, textAlign: "right" }}>{xpInLevel} / {XP_PER_LEVEL} XP bis Level {level + 1}</div>
+            </div>
+          )}
+
+          <button onClick={() => setScreen("topics")} style={{
+            width: "100%",
+            padding: "16px",
+            fontSize: 18,
+            fontWeight: 700,
+            background: "linear-gradient(135deg, #3b82f6, #8b5cf6)",
+            color: "#fff",
+            border: "none",
+            borderRadius: 16,
+            cursor: "pointer",
+            boxShadow: "0 8px 32px rgba(59,130,246,0.4)",
+            transition: "transform 0.1s",
+          }}
+            onMouseDown={e => e.currentTarget.style.transform = "scale(0.97)"}
+            onMouseUp={e => e.currentTarget.style.transform = "scale(1)"}
+          >
+            {gamesPlayed > 0 ? "Weiterspielen" : "Spielen"} →
+          </button>
+          <p style={{ marginTop: 16, fontSize: 12, color: "#4a7a8a" }}>Thema wählen & losraten</p>
+        </div>
+      )}
+
+      {/* TOPICS */}
+      {screen === "topics" && (
+        <div style={{ textAlign: "center", maxWidth: 440, width: "100%" }}>
+          <div style={{ fontSize: 44, marginBottom: 6 }}>🗂️</div>
+          <h2 style={{ fontSize: 26, fontWeight: 800, margin: "0 0 6px", color: "#e8f4f8" }}>Thema wählen</h2>
+          <p style={{ color: "#94c8d8", fontSize: 14, margin: "0 0 24px" }}>Worüber willst du raten?</p>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 20 }}>
+            {TOPICS.map(topic => (
+              <button key={topic.id} onClick={() => chooseTopic(topic.id)} style={{
+                width: "100%",
+                padding: "16px 18px",
+                background: "rgba(255,255,255,0.04)",
+                border: "1px solid rgba(255,255,255,0.1)",
+                borderRadius: 16,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: 14,
+                textAlign: "left",
+                transition: "all 0.15s",
+              }}
+                onMouseEnter={e => { e.currentTarget.style.background = "rgba(59,130,246,0.12)"; e.currentTarget.style.borderColor = "rgba(59,130,246,0.4)"; }}
+                onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.04)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"; }}
+              >
+                <span style={{ fontSize: 32, lineHeight: 1 }}>{topic.icon}</span>
+                <span style={{ flex: 1 }}>
+                  <span style={{ display: "block", fontSize: 17, fontWeight: 700, color: "#e8f4f8" }}>{topic.label}</span>
+                  <span style={{ display: "block", fontSize: 13, color: "#7aa8b8", marginTop: 2 }}>{topic.desc}</span>
+                </span>
+                <span style={{ fontSize: 20, color: "#64d8ff" }}>›</span>
+              </button>
+            ))}
+          </div>
+
+          <button onClick={() => setScreen("home")} style={{
+            background: "none", border: "none", color: "#6a9aaa", fontSize: 14, cursor: "pointer",
+          }}>← Zurück</button>
+        </div>
+      )}
+
+      {/* GAME */}
+      {screen === "game" && q && (
+        <div style={{ width: "100%", maxWidth: 420 }}>
+          {/* Header */}
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <button
+                onClick={() => setConfirmQuit(true)}
+                aria-label="Zurück zum Menü"
+                style={{
+                  width: 32, height: 32, borderRadius: 10,
+                  background: "rgba(255,255,255,0.06)",
+                  border: "1px solid rgba(255,255,255,0.12)",
+                  color: "#94c8d8", fontSize: 16, cursor: "pointer",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  padding: 0, lineHeight: 1,
+                }}
+              >←</button>
+              <div style={{ fontSize: 13, color: "#64d8ff", fontWeight: 600 }}>
+                {topicMeta.icon} {current + 1} / {TOTAL_QUESTIONS}
+              </div>
+            </div>
+            <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+              {streak >= 2 && (
+                <span style={{
+                  background: "rgba(251,191,36,0.15)",
+                  border: "1px solid rgba(251,191,36,0.4)",
+                  borderRadius: 12,
+                  padding: "2px 10px",
+                  fontSize: 13,
+                  color: "#fbbf24",
+                }}>🔥 {streak}er Serie</span>
+              )}
+              <span style={{
+                background: "rgba(100,216,255,0.1)",
+                border: "1px solid rgba(100,216,255,0.2)",
+                borderRadius: 12,
+                padding: "2px 10px",
+                fontSize: 13,
+                color: "#64d8ff",
+              }}>💎 {points}</span>
+            </div>
+          </div>
+
+          {/* Timer bar */}
+          <div style={{ height: 6, background: "rgba(255,255,255,0.08)", borderRadius: 4, marginBottom: 10, overflow: "hidden" }}>
+            <div style={{
+              height: "100%",
+              width: `${(timeLeft / 10) * 100}%`,
+              background: timeLeft > 4 ? "linear-gradient(90deg, #22c55e, #4ade80)" : timeLeft > 2 ? "linear-gradient(90deg, #fbbf24, #f59e0b)" : "linear-gradient(90deg, #ef4444, #f87171)",
+              borderRadius: 4,
+              transition: answered ? "none" : "width 0.1s linear",
+            }} />
+          </div>
+
+          {/* Progress bar */}
+          <div style={{ height: 4, background: "rgba(255,255,255,0.08)", borderRadius: 4, marginBottom: 24, overflow: "hidden" }}>
+            <div style={{
+              height: "100%",
+              width: `${((current + 1) / TOTAL_QUESTIONS) * 100}%`,
+              background: "linear-gradient(90deg, #3b82f6, #8b5cf6)",
+              borderRadius: 4,
+              transition: "width 0.4s ease",
+            }} />
+          </div>
+
+          {/* Question card */}
+          <div style={{
+            background: "rgba(255,255,255,0.04)",
+            border: "1px solid rgba(255,255,255,0.08)",
+            borderRadius: 20,
+            padding: "28px 24px",
+            marginBottom: 16,
+            textAlign: "center",
+          }}>
+            <div style={{
+              display: "inline-block",
+              background: `${DIFFICULTY_META[q.difficulty].color}22`,
+              border: `1px solid ${DIFFICULTY_META[q.difficulty].color}66`,
+              color: DIFFICULTY_META[q.difficulty].color,
+              fontSize: 12,
+              fontWeight: 700,
+              padding: "3px 12px",
+              borderRadius: 12,
+              marginBottom: 16,
+              textTransform: "uppercase",
+              letterSpacing: "0.5px",
+            }}>
+              {DIFFICULTY_META[q.difficulty].label} · ×{DIFFICULTY_META[q.difficulty].mult}
+            </div>
+            {q.type === "flag" && q.code ? (
+              <img
+                src={`https://flagcdn.com/w320/${q.code}.png`}
+                alt="Flagge"
+                style={{ width: 200, maxWidth: "70%", height: "auto", borderRadius: 8, marginBottom: 12, boxShadow: "0 4px 16px rgba(0,0,0,0.4)" }}
+              />
+            ) : (
+              <div style={{ fontSize: 80, marginBottom: 12, lineHeight: 1 }}>{q.display}</div>
+            )}
+            <p style={{ fontSize: 17, fontWeight: 600, margin: 0, color: "#c8e8f0", lineHeight: 1.4 }}>{q.question}</p>
+          </div>
+
+          {/* Options */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 10, animation: shake ? "shake 0.4s ease" : "none" }}>
+            {q.options.map(option => {
+              const isCorrect = option === q.answer;
+              const isSelected = option === selected;
+              let bg = "rgba(255,255,255,0.05)";
+              let border = "1px solid rgba(255,255,255,0.1)";
+              let color = "#e8f4f8";
+              let icon = null;
+
+              if (answered) {
+                if (isCorrect) {
+                  bg = "rgba(34,197,94,0.15)";
+                  border = "1px solid rgba(34,197,94,0.5)";
+                  color = "#86efac";
+                  icon = "✓";
+                } else if (isSelected && !isCorrect) {
+                  bg = "rgba(239,68,68,0.15)";
+                  border = "1px solid rgba(239,68,68,0.5)";
+                  color = "#fca5a5";
+                  icon = "✗";
+                }
+              }
+
+              return (
+                <button key={option} onClick={() => handleSelect(option)} style={{
+                  width: "100%",
+                  padding: "14px 18px",
+                  background: bg,
+                  border,
+                  borderRadius: 14,
+                  color,
+                  fontSize: 16,
+                  fontWeight: 500,
+                  cursor: answered ? "default" : "pointer",
+                  textAlign: "left",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  transition: "all 0.2s",
+                }}>
+                  {option}
+                  {icon && <span style={{ fontWeight: 700, fontSize: 18 }}>{icon}</span>}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Fact + Next */}
+          {answered && (
+            <div style={{ marginTop: 16 }}>
+              {pointsGained > 0 && (
+                <div style={{
+                  textAlign: "center",
+                  marginBottom: 12,
+                  animation: "pop 0.4s ease",
+                }}>
+                  <span style={{
+                    display: "inline-block",
+                    background: "linear-gradient(135deg, #22c55e, #16a34a)",
+                    color: "#fff",
+                    fontWeight: 800,
+                    fontSize: 18,
+                    padding: "6px 20px",
+                    borderRadius: 20,
+                    boxShadow: "0 4px 16px rgba(34,197,94,0.4)",
+                  }}>+{pointsGained} 💎{streak >= 2 ? `  🔥 ${streak}x Serie!` : ""}</span>
+                </div>
+              )}
+              {selectedTopic === "laender" && (
+                <div style={{
+                  background: "rgba(167,139,250,0.1)",
+                  border: "1px solid rgba(167,139,250,0.25)",
+                  borderRadius: 12,
+                  padding: "12px 16px",
+                  fontSize: 14,
+                  color: "#c4b5fd",
+                  marginBottom: 12,
+                }}>💡 {q.fact}</div>
+              )}
+              <div style={{
+                background: "rgba(251,191,36,0.1)",
+                border: "1px solid rgba(251,191,36,0.3)",
+                borderRadius: 12,
+                padding: "12px 16px",
+                fontSize: 14,
+                color: "#fcd34d",
+                marginBottom: 12,
+                lineHeight: 1.5,
+              }}>🤓 <strong>Unnützes Wissen:</strong> {q.funFact}</div>
+              <button onClick={next} style={{
+                width: "100%",
+                padding: "14px",
+                fontSize: 16,
+                fontWeight: 700,
+                background: "linear-gradient(135deg, #3b82f6, #8b5cf6)",
+                color: "#fff",
+                border: "none",
+                borderRadius: 14,
+                cursor: "pointer",
+              }}>
+                {current + 1 >= TOTAL_QUESTIONS ? "Ergebnis anzeigen →" : "Weiter →"}
+              </button>
+            </div>
+          )}
+
+          {/* Quit confirmation */}
+          {confirmQuit && (
+            <div style={{
+              position: "fixed", inset: 0, zIndex: 50,
+              background: "rgba(8,18,24,0.8)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              padding: 24,
+            }}>
+              <div style={{
+                background: "#13252e",
+                border: "1px solid rgba(255,255,255,0.12)",
+                borderRadius: 20,
+                padding: "26px 22px",
+                maxWidth: 340, width: "100%",
+                textAlign: "center",
+                boxShadow: "0 20px 60px rgba(0,0,0,0.5)",
+              }}>
+                <div style={{ fontSize: 36, marginBottom: 8 }}>🚪</div>
+                <h3 style={{ margin: "0 0 6px", fontSize: 19, fontWeight: 800, color: "#e8f4f8" }}>Spiel verlassen?</h3>
+                <p style={{ margin: "0 0 22px", fontSize: 14, color: "#94c8d8", lineHeight: 1.5 }}>
+                  Dein aktueller Punktestand in dieser Runde geht verloren.
+                </p>
+                <button onClick={() => { setConfirmQuit(false); setScreen("home"); }} style={{
+                  width: "100%", padding: "14px", fontSize: 16, fontWeight: 700,
+                  background: "linear-gradient(135deg, #ef4444, #dc2626)",
+                  color: "#fff", border: "none", borderRadius: 14, cursor: "pointer",
+                  marginBottom: 10,
+                }}>Ja, zum Hauptmenü</button>
+                <button onClick={() => setConfirmQuit(false)} style={{
+                  width: "100%", padding: "13px", fontSize: 15, fontWeight: 600,
+                  background: "rgba(255,255,255,0.06)", color: "#94c8d8",
+                  border: "1px solid rgba(255,255,255,0.12)", borderRadius: 14, cursor: "pointer",
+                }}>Weiterspielen</button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+      {screen === "result" && (
+        <div style={{ textAlign: "center", maxWidth: 400, width: "100%" }}>
+          <div style={{ fontSize: 72, marginBottom: 12 }}>{medal}</div>
+
+          {points >= highscore && points > 0 && (
+            <div style={{
+              display: "inline-block",
+              background: "linear-gradient(135deg, #fbbf24, #f59e0b)",
+              color: "#1a1a1a",
+              fontWeight: 800,
+              fontSize: 13,
+              padding: "4px 16px",
+              borderRadius: 20,
+              marginBottom: 12,
+              animation: "pop 0.5s ease",
+            }}>🏆 NEUER HIGHSCORE!</div>
+          )}
+
+          <div style={{
+            fontSize: 44,
+            fontWeight: 800,
+            margin: "0 0 4px",
+            background: "linear-gradient(90deg, #64d8ff, #a78bfa)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+          }}>{points} 💎</div>
+          <h2 style={{ fontSize: 20, fontWeight: 700, margin: "0 0 8px", color: "#c8e8f0" }}>
+            {score} / {TOTAL_QUESTIONS} richtig
+          </h2>
+          <p style={{ color: "#94c8d8", fontSize: 15, margin: "0 0 28px" }}>{remark}</p>
+
+          {/* Stats */}
+          <div style={{ display: "flex", gap: 12, justifyContent: "center", marginBottom: 28 }}>
+            {[
+              { label: "Richtig", value: score, color: "#22c55e" },
+              { label: "Beste Serie", value: `🔥${bestStreak}`, color: "#fbbf24" },
+              { label: "Level", value: `⭐${level}`, color: "#a78bfa" },
+            ].map(stat => (
+              <div key={stat.label} style={{
+                flex: 1,
+                background: "rgba(255,255,255,0.05)",
+                border: "1px solid rgba(255,255,255,0.08)",
+                borderRadius: 14,
+                padding: "14px 8px",
+              }}>
+                <div style={{ fontSize: 22, fontWeight: 800, color: stat.color }}>{stat.value}</div>
+                <div style={{ fontSize: 11, color: "#6a9aaa", marginTop: 2 }}>{stat.label}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* History */}
+          <div style={{ textAlign: "left", marginBottom: 24 }}>
+            {history.map((h, i) => (
+              <div key={i} style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+                padding: "8px 0",
+                borderBottom: "1px solid rgba(255,255,255,0.05)",
+                fontSize: 13,
+              }}>
+                <span style={{ fontSize: 16 }}>{h.correct ? "✅" : "❌"}</span>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ color: "#c8e8f0", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{h.question}</div>
+                  {!h.correct && <div style={{ color: "#86efac", fontSize: 12 }}>✓ {h.answer}</div>}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <button onClick={() => chooseTopic(selectedTopic)} style={{
+            width: "100%",
+            padding: "16px",
+            fontSize: 17,
+            fontWeight: 700,
+            background: "linear-gradient(135deg, #3b82f6, #8b5cf6)",
+            color: "#fff",
+            border: "none",
+            borderRadius: 16,
+            cursor: "pointer",
+            boxShadow: "0 8px 32px rgba(59,130,246,0.4)",
+          }}>
+            🔄 Nochmal: {topicMeta.label}
+          </button>
+          <button onClick={() => setScreen("topics")} style={{
+            width: "100%",
+            marginTop: 10,
+            padding: "14px",
+            fontSize: 15,
+            fontWeight: 600,
+            background: "rgba(255,255,255,0.05)",
+            color: "#94c8d8",
+            border: "1px solid rgba(255,255,255,0.1)",
+            borderRadius: 14,
+            cursor: "pointer",
+          }}>
+            🗂️ Anderes Thema wählen
+          </button>
+        </div>
+      )}
+
+      <style>{`
+        @keyframes shake {
+          0%, 100% { transform: translateX(0); }
+          25% { transform: translateX(-6px); }
+          75% { transform: translateX(6px); }
+        }
+        @keyframes pop {
+          0% { transform: scale(0.6); opacity: 0; }
+          60% { transform: scale(1.1); }
+          100% { transform: scale(1); opacity: 1; }
+        }
+      `}</style>
+    </div>
+  );
+}
