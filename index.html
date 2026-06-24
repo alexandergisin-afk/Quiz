@@ -22,55 +22,54 @@
 const { useState, useEffect } = React;
 
 
-
 const COUNTRIES = [
   // EINFACH – sehr bekannte Länder
-  { name: "Deutschland", capital: "Berlin", flag: "🇩🇪", continent: "Europa", difficulty: "einfach", funFact: "In Deutschland gibt es über 1.500 verschiedene Wurstsorten und mehr als 1.300 Brauereien." },
-  { name: "Frankreich", capital: "Paris", flag: "🇫🇷", continent: "Europa", difficulty: "einfach", funFact: "Es ist in Frankreich erlaubt, einen Verstorbenen zu heiraten – mit Genehmigung des Präsidenten." },
-  { name: "Japan", capital: "Tokio", flag: "🇯🇵", continent: "Asien", difficulty: "einfach", funFact: "In Japan gibt es mehr als 5 Millionen Verkaufsautomaten – sogar für frische Eier und heiße Ramen." },
-  { name: "Brasilien", capital: "Brasília", flag: "🇧🇷", continent: "Südamerika", difficulty: "einfach", funFact: "Brasilien hat über 60 Tage im Jahr offizielle Feiertage und Festivals irgendwo im Land." },
-  { name: "Kanada", capital: "Ottawa", flag: "🇨🇦", continent: "Nordamerika", difficulty: "einfach", funFact: "Kanada hat mehr Seen als alle anderen Länder der Welt zusammen." },
-  { name: "Australien", capital: "Canberra", flag: "🇦🇺", continent: "Ozeanien", difficulty: "einfach", funFact: "In Australien gibt es mehr Kängurus als Menschen – etwa doppelt so viele." },
-  { name: "Italien", capital: "Rom", flag: "🇮🇹", continent: "Europa", difficulty: "einfach", funFact: "In Rom werfen Menschen jährlich über 1,5 Millionen Euro in den Trevi-Brunnen." },
-  { name: "Spanien", capital: "Madrid", flag: "🇪🇸", continent: "Europa", difficulty: "einfach", funFact: "Spanien hat keine offizielle Nationalhymne mit Text – sie wird nur instrumental gespielt." },
-  { name: "Ägypten", capital: "Kairo", flag: "🇪🇬", continent: "Afrika", difficulty: "einfach", funFact: "Die alten Ägypter erfanden die Zahnpasta – und auch den ersten bekannten Friedensvertrag." },
-  { name: "Indien", capital: "Neu-Delhi", flag: "🇮🇳", continent: "Asien", difficulty: "einfach", funFact: "In Indien wurde die Zahl Null erfunden – ohne sie gäbe es keine moderne Mathematik." },
-  { name: "Mexiko", capital: "Mexiko-Stadt", flag: "🇲🇽", continent: "Nordamerika", difficulty: "einfach", funFact: "Mexiko-Stadt sinkt jedes Jahr um bis zu 50 cm, weil sie auf einem ausgetrockneten See gebaut ist." },
+  { name: "Deutschland", code: "de", capital: "Berlin", flag: "🇩🇪", continent: "Europa", difficulty: "einfach", funFact: "In Deutschland gibt es über 1.500 verschiedene Wurstsorten und mehr als 1.300 Brauereien." },
+  { name: "Frankreich", code: "fr", capital: "Paris", flag: "🇫🇷", continent: "Europa", difficulty: "einfach", funFact: "Es ist in Frankreich erlaubt, einen Verstorbenen zu heiraten – mit Genehmigung des Präsidenten." },
+  { name: "Japan", code: "jp", capital: "Tokio", flag: "🇯🇵", continent: "Asien", difficulty: "einfach", funFact: "In Japan gibt es mehr als 5 Millionen Verkaufsautomaten – sogar für frische Eier und heiße Ramen." },
+  { name: "Brasilien", code: "br", capital: "Brasília", flag: "🇧🇷", continent: "Südamerika", difficulty: "einfach", funFact: "Brasilien hat über 60 Tage im Jahr offizielle Feiertage und Festivals irgendwo im Land." },
+  { name: "Kanada", code: "ca", capital: "Ottawa", flag: "🇨🇦", continent: "Nordamerika", difficulty: "einfach", funFact: "Kanada hat mehr Seen als alle anderen Länder der Welt zusammen." },
+  { name: "Australien", code: "au", capital: "Canberra", flag: "🇦🇺", continent: "Ozeanien", difficulty: "einfach", funFact: "In Australien gibt es mehr Kängurus als Menschen – etwa doppelt so viele." },
+  { name: "Italien", code: "it", capital: "Rom", flag: "🇮🇹", continent: "Europa", difficulty: "einfach", funFact: "In Rom werfen Menschen jährlich über 1,5 Millionen Euro in den Trevi-Brunnen." },
+  { name: "Spanien", code: "es", capital: "Madrid", flag: "🇪🇸", continent: "Europa", difficulty: "einfach", funFact: "Spanien hat keine offizielle Nationalhymne mit Text – sie wird nur instrumental gespielt." },
+  { name: "Ägypten", code: "eg", capital: "Kairo", flag: "🇪🇬", continent: "Afrika", difficulty: "einfach", funFact: "Die alten Ägypter erfanden die Zahnpasta – und auch den ersten bekannten Friedensvertrag." },
+  { name: "Indien", code: "in", capital: "Neu-Delhi", flag: "🇮🇳", continent: "Asien", difficulty: "einfach", funFact: "In Indien wurde die Zahl Null erfunden – ohne sie gäbe es keine moderne Mathematik." },
+  { name: "Mexiko", code: "mx", capital: "Mexiko-Stadt", flag: "🇲🇽", continent: "Nordamerika", difficulty: "einfach", funFact: "Mexiko-Stadt sinkt jedes Jahr um bis zu 50 cm, weil sie auf einem ausgetrockneten See gebaut ist." },
 
   // MITTEL – bekannt, aber Hauptstadt/Details kniffliger
-  { name: "Argentinien", capital: "Buenos Aires", flag: "🇦🇷", continent: "Südamerika", difficulty: "mittel", funFact: "In Argentinien ist der Tango entstanden – und Buenos Aires hat die meisten Buchläden pro Kopf weltweit." },
-  { name: "Südafrika", capital: "Pretoria", flag: "🇿🇦", continent: "Afrika", difficulty: "mittel", funFact: "Südafrika hat drei Hauptstädte: Pretoria, Kapstadt und Bloemfontein." },
-  { name: "Norwegen", capital: "Oslo", flag: "🇳🇴", continent: "Europa", difficulty: "mittel", funFact: "In Norwegen wurde ein Pinguin zum Ritter geschlagen – er ist Maskottchen der norwegischen Garde." },
-  { name: "Thailand", capital: "Bangkok", flag: "🇹🇭", continent: "Asien", difficulty: "mittel", funFact: "Der vollständige Zeremonienname von Bangkok ist mit 168 Buchstaben der längste Ortsname der Welt." },
-  { name: "Portugal", capital: "Lissabon", flag: "🇵🇹", continent: "Europa", difficulty: "mittel", funFact: "Portugal ist eines der ältesten Länder Europas – seine Grenzen sind seit 1139 fast unverändert." },
-  { name: "Griechenland", capital: "Athen", flag: "🇬🇷", continent: "Europa", difficulty: "mittel", funFact: "In Griechenland gibt es keinen Punkt im Land, der weiter als 137 km vom Meer entfernt ist." },
-  { name: "Schweiz", capital: "Bern", flag: "🇨🇭", continent: "Europa", difficulty: "mittel", funFact: "In der Schweiz ist es verboten, nur ein einzelnes Meerschweinchen zu halten – sie gelten als zu sozial." },
-  { name: "Niederlande", capital: "Amsterdam", flag: "🇳🇱", continent: "Europa", difficulty: "mittel", funFact: "In den Niederlanden gibt es mehr Fahrräder als Einwohner." },
-  { name: "Schweden", capital: "Stockholm", flag: "🇸🇪", continent: "Europa", difficulty: "mittel", funFact: "Schweden hat eine eigene Telefonnummer, unter der man mit einem zufälligen Schweden plaudern kann." },
-  { name: "Polen", capital: "Warschau", flag: "🇵🇱", continent: "Europa", difficulty: "mittel", funFact: "In Polen steht der einzige Wald der Welt, in dem über 400 Kiefern rätselhaft krumm gewachsen sind." },
-  { name: "Türkei", capital: "Ankara", flag: "🇹🇷", continent: "Asien", difficulty: "mittel", funFact: "Der Weihnachtsmann (St. Nikolaus) stammt aus der heutigen Türkei, nicht vom Nordpol." },
-  { name: "Saudi-Arabien", capital: "Riad", flag: "🇸🇦", continent: "Asien", difficulty: "mittel", funFact: "Saudi-Arabien hat keinen einzigen natürlichen Fluss – das ganze Land kommt ohne aus." },
-  { name: "Nigeria", capital: "Abuja", flag: "🇳🇬", continent: "Afrika", difficulty: "mittel", funFact: "Nigeria produziert so viele Filme, dass seine Industrie 'Nollywood' nach Bollywood die zweitgrößte der Welt ist." },
-  { name: "Kenia", capital: "Nairobi", flag: "🇰🇪", continent: "Afrika", difficulty: "mittel", funFact: "Kenia hat den einzigen Nationalpark der Welt direkt am Rand einer Millionen-Hauptstadt." },
-  { name: "Neuseeland", capital: "Wellington", flag: "🇳🇿", continent: "Ozeanien", difficulty: "mittel", funFact: "In Neuseeland leben rund 6 Schafe pro Mensch – früher waren es sogar über 20." },
-  { name: "Chile", capital: "Santiago", flag: "🇨🇱", continent: "Südamerika", difficulty: "mittel", funFact: "In Chiles Atacama-Wüste hat es an manchen Orten seit Jahrhunderten nicht geregnet." },
-  { name: "Vietnam", capital: "Hanoi", flag: "🇻🇳", continent: "Asien", difficulty: "mittel", funFact: "Vietnam ist der zweitgrößte Kaffeeproduzent der Welt – Eierkaffee ist dort eine Spezialität." },
-  { name: "Marokko", capital: "Rabat", flag: "🇲🇦", continent: "Afrika", difficulty: "mittel", funFact: "In Marokko klettern Ziegen auf Arganbäume und fressen die Früchte – aus deren Kernen wird Arganöl gemacht." },
-  { name: "Österreich", capital: "Wien", flag: "🇦🇹", continent: "Europa", difficulty: "mittel", funFact: "Die Schneekugel wurde in Wien erfunden – eher zufällig bei einem Experiment mit OP-Lampen." },
+  { name: "Argentinien", code: "ar", capital: "Buenos Aires", flag: "🇦🇷", continent: "Südamerika", difficulty: "mittel", funFact: "In Argentinien ist der Tango entstanden – und Buenos Aires hat die meisten Buchläden pro Kopf weltweit." },
+  { name: "Südafrika", code: "za", capital: "Pretoria", flag: "🇿🇦", continent: "Afrika", difficulty: "mittel", funFact: "Südafrika hat drei Hauptstädte: Pretoria, Kapstadt und Bloemfontein." },
+  { name: "Norwegen", code: "no", capital: "Oslo", flag: "🇳🇴", continent: "Europa", difficulty: "mittel", funFact: "In Norwegen wurde ein Pinguin zum Ritter geschlagen – er ist Maskottchen der norwegischen Garde." },
+  { name: "Thailand", code: "th", capital: "Bangkok", flag: "🇹🇭", continent: "Asien", difficulty: "mittel", funFact: "Der vollständige Zeremonienname von Bangkok ist mit 168 Buchstaben der längste Ortsname der Welt." },
+  { name: "Portugal", code: "pt", capital: "Lissabon", flag: "🇵🇹", continent: "Europa", difficulty: "mittel", funFact: "Portugal ist eines der ältesten Länder Europas – seine Grenzen sind seit 1139 fast unverändert." },
+  { name: "Griechenland", code: "gr", capital: "Athen", flag: "🇬🇷", continent: "Europa", difficulty: "mittel", funFact: "In Griechenland gibt es keinen Punkt im Land, der weiter als 137 km vom Meer entfernt ist." },
+  { name: "Schweiz", code: "ch", capital: "Bern", flag: "🇨🇭", continent: "Europa", difficulty: "mittel", funFact: "In der Schweiz ist es verboten, nur ein einzelnes Meerschweinchen zu halten – sie gelten als zu sozial." },
+  { name: "Niederlande", code: "nl", capital: "Amsterdam", flag: "🇳🇱", continent: "Europa", difficulty: "mittel", funFact: "In den Niederlanden gibt es mehr Fahrräder als Einwohner." },
+  { name: "Schweden", code: "se", capital: "Stockholm", flag: "🇸🇪", continent: "Europa", difficulty: "mittel", funFact: "Schweden hat eine eigene Telefonnummer, unter der man mit einem zufälligen Schweden plaudern kann." },
+  { name: "Polen", code: "pl", capital: "Warschau", flag: "🇵🇱", continent: "Europa", difficulty: "mittel", funFact: "In Polen steht der einzige Wald der Welt, in dem über 400 Kiefern rätselhaft krumm gewachsen sind." },
+  { name: "Türkei", code: "tr", capital: "Ankara", flag: "🇹🇷", continent: "Asien", difficulty: "mittel", funFact: "Der Weihnachtsmann (St. Nikolaus) stammt aus der heutigen Türkei, nicht vom Nordpol." },
+  { name: "Saudi-Arabien", code: "sa", capital: "Riad", flag: "🇸🇦", continent: "Asien", difficulty: "mittel", funFact: "Saudi-Arabien hat keinen einzigen natürlichen Fluss – das ganze Land kommt ohne aus." },
+  { name: "Nigeria", code: "ng", capital: "Abuja", flag: "🇳🇬", continent: "Afrika", difficulty: "mittel", funFact: "Nigeria produziert so viele Filme, dass seine Industrie 'Nollywood' nach Bollywood die zweitgrößte der Welt ist." },
+  { name: "Kenia", code: "ke", capital: "Nairobi", flag: "🇰🇪", continent: "Afrika", difficulty: "mittel", funFact: "Kenia hat den einzigen Nationalpark der Welt direkt am Rand einer Millionen-Hauptstadt." },
+  { name: "Neuseeland", code: "nz", capital: "Wellington", flag: "🇳🇿", continent: "Ozeanien", difficulty: "mittel", funFact: "In Neuseeland leben rund 6 Schafe pro Mensch – früher waren es sogar über 20." },
+  { name: "Chile", code: "cl", capital: "Santiago", flag: "🇨🇱", continent: "Südamerika", difficulty: "mittel", funFact: "In Chiles Atacama-Wüste hat es an manchen Orten seit Jahrhunderten nicht geregnet." },
+  { name: "Vietnam", code: "vn", capital: "Hanoi", flag: "🇻🇳", continent: "Asien", difficulty: "mittel", funFact: "Vietnam ist der zweitgrößte Kaffeeproduzent der Welt – Eierkaffee ist dort eine Spezialität." },
+  { name: "Marokko", code: "ma", capital: "Rabat", flag: "🇲🇦", continent: "Afrika", difficulty: "mittel", funFact: "In Marokko klettern Ziegen auf Arganbäume und fressen die Früchte – aus deren Kernen wird Arganöl gemacht." },
+  { name: "Österreich", code: "at", capital: "Wien", flag: "🇦🇹", continent: "Europa", difficulty: "mittel", funFact: "Die Schneekugel wurde in Wien erfunden – eher zufällig bei einem Experiment mit OP-Lampen." },
 
   // SCHWER – weniger bekannte Länder & überraschende Hauptstädte
-  { name: "Kasachstan", capital: "Astana", flag: "🇰🇿", continent: "Asien", difficulty: "schwer", funFact: "Kasachstan ist das größte Binnenland der Welt – größer als ganz Westeuropa." },
-  { name: "Bhutan", capital: "Thimphu", flag: "🇧🇹", continent: "Asien", difficulty: "schwer", funFact: "Bhutan misst sein 'Bruttonationalglück' statt nur das Wirtschaftswachstum." },
-  { name: "Eritrea", capital: "Asmara", flag: "🇪🇷", continent: "Afrika", difficulty: "schwer", funFact: "Eritreas Hauptstadt Asmara gilt als eine der besterhaltenen Art-déco-Städte der Welt." },
-  { name: "Suriname", capital: "Paramaribo", flag: "🇸🇷", continent: "Südamerika", difficulty: "schwer", funFact: "Suriname ist das am dichtesten bewaldete Land der Erde – über 90 % sind Regenwald." },
-  { name: "Turkmenistan", capital: "Aschgabat", flag: "🇹🇲", continent: "Asien", difficulty: "schwer", funFact: "In Turkmenistan brennt seit 1971 ein Gaskrater – das 'Tor zur Hölle'." },
-  { name: "Slowenien", capital: "Ljubljana", flag: "🇸🇮", continent: "Europa", difficulty: "schwer", funFact: "Sloweniens Name enthält das Wort 'love' – und über die Hälfte des Landes ist Wald." },
-  { name: "Paraguay", capital: "Asunción", flag: "🇵🇾", continent: "Südamerika", difficulty: "schwer", funFact: "Paraguays Flagge sieht auf Vorder- und Rückseite unterschiedlich aus – einzigartig weltweit." },
-  { name: "Laos", capital: "Vientiane", flag: "🇱🇦", continent: "Asien", difficulty: "schwer", funFact: "Laos ist das am stärksten bombardierte Land der Geschichte – pro Kopf gerechnet." },
-  { name: "Aserbaidschan", capital: "Baku", flag: "🇦🇿", continent: "Asien", difficulty: "schwer", funFact: "Aserbaidschan heißt 'Land des Feuers' – aus dem Boden tretendes Gas brennt dort von selbst." },
-  { name: "Sambia", capital: "Lusaka", flag: "🇿🇲", continent: "Afrika", difficulty: "schwer", funFact: "An den Victoriafällen in Sambia kann man im 'Devil's Pool' direkt am Abgrund baden." },
-  { name: "Moldau", capital: "Chișinău", flag: "🇲🇩", continent: "Europa", difficulty: "schwer", funFact: "Moldau hat den größten Weinkeller der Welt – mit über 200 km unterirdischen Gängen." },
-  { name: "Brunei", capital: "Bandar Seri Begawan", flag: "🇧🇳", continent: "Asien", difficulty: "schwer", funFact: "Bruneis Sultan besitzt einen Palast mit fast 1.800 Zimmern – den größten Wohnpalast der Welt." },
+  { name: "Kasachstan", code: "kz", capital: "Astana", flag: "🇰🇿", continent: "Asien", difficulty: "schwer", funFact: "Kasachstan ist das größte Binnenland der Welt – größer als ganz Westeuropa." },
+  { name: "Bhutan", code: "bt", capital: "Thimphu", flag: "🇧🇹", continent: "Asien", difficulty: "schwer", funFact: "Bhutan misst sein 'Bruttonationalglück' statt nur das Wirtschaftswachstum." },
+  { name: "Eritrea", code: "er", capital: "Asmara", flag: "🇪🇷", continent: "Afrika", difficulty: "schwer", funFact: "Eritreas Hauptstadt Asmara gilt als eine der besterhaltenen Art-déco-Städte der Welt." },
+  { name: "Suriname", code: "sr", capital: "Paramaribo", flag: "🇸🇷", continent: "Südamerika", difficulty: "schwer", funFact: "Suriname ist das am dichtesten bewaldete Land der Erde – über 90 % sind Regenwald." },
+  { name: "Turkmenistan", code: "tm", capital: "Aschgabat", flag: "🇹🇲", continent: "Asien", difficulty: "schwer", funFact: "In Turkmenistan brennt seit 1971 ein Gaskrater – das 'Tor zur Hölle'." },
+  { name: "Slowenien", code: "si", capital: "Ljubljana", flag: "🇸🇮", continent: "Europa", difficulty: "schwer", funFact: "Sloweniens Name enthält das Wort 'love' – und über die Hälfte des Landes ist Wald." },
+  { name: "Paraguay", code: "py", capital: "Asunción", flag: "🇵🇾", continent: "Südamerika", difficulty: "schwer", funFact: "Paraguays Flagge sieht auf Vorder- und Rückseite unterschiedlich aus – einzigartig weltweit." },
+  { name: "Laos", code: "la", capital: "Vientiane", flag: "🇱🇦", continent: "Asien", difficulty: "schwer", funFact: "Laos ist das am stärksten bombardierte Land der Geschichte – pro Kopf gerechnet." },
+  { name: "Aserbaidschan", code: "az", capital: "Baku", flag: "🇦🇿", continent: "Asien", difficulty: "schwer", funFact: "Aserbaidschan heißt 'Land des Feuers' – aus dem Boden tretendes Gas brennt dort von selbst." },
+  { name: "Sambia", code: "zm", capital: "Lusaka", flag: "🇿🇲", continent: "Afrika", difficulty: "schwer", funFact: "An den Victoriafällen in Sambia kann man im 'Devil's Pool' direkt am Abgrund baden." },
+  { name: "Moldau", code: "md", capital: "Chișinău", flag: "🇲🇩", continent: "Europa", difficulty: "schwer", funFact: "Moldau hat den größten Weinkeller der Welt – mit über 200 km unterirdischen Gängen." },
+  { name: "Brunei", code: "bn", capital: "Bandar Seri Begawan", flag: "🇧🇳", continent: "Asien", difficulty: "schwer", funFact: "Bruneis Sultan besitzt einen Palast mit fast 1.800 Zimmern – den größten Wohnpalast der Welt." },
 ];
 
 const DIFFICULTY_META = {
@@ -184,14 +183,23 @@ function shuffle(arr) {
 function generateQuestion(correct, pool, allowedTypes) {
   const types = allowedTypes && allowedTypes.length > 0 ? allowedTypes : ["flag", "capital", "continent"];
   const type = types[Math.floor(Math.random() * types.length)];
-  // Distractors prefer same-or-harder countries so options aren't a giveaway
+  // Distractors: prefer same-difficulty countries, fall back to all others to always get 3
   const sameDiff = pool.filter(c => c.name !== correct.name && c.difficulty === correct.difficulty);
-  const distractorPool = sameDiff.length >= 3 ? sameDiff : pool.filter(c => c.name !== correct.name);
-  const others = shuffle(distractorPool).slice(0, 3);
+  const allOthers = pool.filter(c => c.name !== correct.name);
+  let others = shuffle(sameDiff).slice(0, 3);
+  if (others.length < 3) {
+    // top up from the full pool without duplicates
+    const have = new Set(others.map(o => o.name));
+    for (const c of shuffle(allOthers)) {
+      if (others.length >= 3) break;
+      if (!have.has(c.name)) { others.push(c); have.add(c.name); }
+    }
+  }
 
   const base = {
     type,
     display: correct.flag,
+    code: correct.code,
     difficulty: correct.difficulty,
     funFact: correct.funFact,
     country: correct.name,
@@ -214,10 +222,12 @@ function generateQuestion(correct, pool, allowedTypes) {
       fact: `${correct.flag} Die Hauptstadt von ${correct.name} ist ${correct.capital}.`,
     };
   } else {
+    const allConts = ["Europa", "Asien", "Afrika", "Nordamerika", "Südamerika", "Ozeanien"];
+    const wrongConts = shuffle(allConts.filter(c => c !== correct.continent)).slice(0, 3);
     return {
       ...base,
       question: `Auf welchem Kontinent liegt ${correct.name}?`,
-      options: shuffle([...new Set([correct.continent, "Europa", "Asien", "Afrika", "Nordamerika", "Südamerika", "Ozeanien"])]).slice(0, 4),
+      options: shuffle([correct.continent, ...wrongConts]),
       answer: correct.continent,
       fact: `${correct.flag} ${correct.name} liegt in ${correct.continent}.`,
     };
@@ -245,6 +255,15 @@ function balancedPick(items, total) {
 }
 
 // Build a balanced round for any topic
+const TOPIC_ICONS = {
+  wissenschaft: "🔬",
+  geschichte: "🏛️",
+  sport: "⚽",
+  film_musik: "🎬",
+  tiere: "🐾",
+  essen: "🍽️",
+};
+
 function buildRound(total, topic, allowedTypes) {
   if (topic === "laender") {
     const picked = balancedPick(COUNTRIES, total);
@@ -255,7 +274,7 @@ function buildRound(total, topic, allowedTypes) {
   return picked.map(item => ({
     type: topic,
     question: item.q,
-    display: item.display,
+    display: TOPIC_ICONS[topic] || "❓",
     options: shuffle(item.options),
     answer: item.answer,
     difficulty: item.difficulty,
@@ -283,6 +302,7 @@ function LaenderDuell() {
   const [shake, setShake] = useState(false);
   const [timeLeft, setTimeLeft] = useState(10);
   const [pointsGained, setPointsGained] = useState(0);
+  const [confirmQuit, setConfirmQuit] = useState(false);
 
   // Persistent progress (in-memory for this session)
   const [highscore, setHighscore] = useState(0);
@@ -307,19 +327,20 @@ function LaenderDuell() {
     setHistory([]);
     setTimeLeft(10);
     setPointsGained(0);
+    setConfirmQuit(false);
     setScreen("game");
   };
 
   // Countdown timer per question
   useEffect(() => {
-    if (screen !== "game" || answered) return;
+    if (screen !== "game" || answered || confirmQuit) return;
     if (timeLeft <= 0) {
       handleTimeout();
       return;
     }
     const t = setTimeout(() => setTimeLeft(tl => tl - 0.1), 100);
     return () => clearTimeout(t);
-  }, [screen, answered, timeLeft]);
+  }, [screen, answered, timeLeft, confirmQuit]);
 
   const handleTimeout = () => {
     if (answered) return;
@@ -528,8 +549,22 @@ function LaenderDuell() {
         <div style={{ width: "100%", maxWidth: 420 }}>
           {/* Header */}
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-            <div style={{ fontSize: 13, color: "#64d8ff", fontWeight: 600 }}>
-              {topicMeta.icon} {current + 1} / {TOTAL_QUESTIONS}
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <button
+                onClick={() => setConfirmQuit(true)}
+                aria-label="Zurück zum Menü"
+                style={{
+                  width: 32, height: 32, borderRadius: 10,
+                  background: "rgba(255,255,255,0.06)",
+                  border: "1px solid rgba(255,255,255,0.12)",
+                  color: "#94c8d8", fontSize: 16, cursor: "pointer",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  padding: 0, lineHeight: 1,
+                }}
+              >←</button>
+              <div style={{ fontSize: 13, color: "#64d8ff", fontWeight: 600 }}>
+                {topicMeta.icon} {current + 1} / {TOTAL_QUESTIONS}
+              </div>
             </div>
             <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
               {streak >= 2 && (
@@ -599,7 +634,15 @@ function LaenderDuell() {
             }}>
               {DIFFICULTY_META[q.difficulty].label} · ×{DIFFICULTY_META[q.difficulty].mult}
             </div>
-            <div style={{ fontSize: 80, marginBottom: 12, lineHeight: 1 }}>{q.display}</div>
+            {q.type === "flag" && q.code ? (
+              <img
+                src={`https://flagcdn.com/w320/${q.code}.png`}
+                alt="Flagge"
+                style={{ width: 200, maxWidth: "70%", height: "auto", borderRadius: 8, marginBottom: 12, boxShadow: "0 4px 16px rgba(0,0,0,0.4)" }}
+              />
+            ) : (
+              <div style={{ fontSize: 80, marginBottom: 12, lineHeight: 1 }}>{q.display}</div>
+            )}
             <p style={{ fontSize: 17, fontWeight: 600, margin: 0, color: "#c8e8f0", lineHeight: 1.4 }}>{q.question}</p>
           </div>
 
@@ -708,10 +751,45 @@ function LaenderDuell() {
               </button>
             </div>
           )}
+
+          {/* Quit confirmation */}
+          {confirmQuit && (
+            <div style={{
+              position: "fixed", inset: 0, zIndex: 50,
+              background: "rgba(8,18,24,0.8)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              padding: 24,
+            }}>
+              <div style={{
+                background: "#13252e",
+                border: "1px solid rgba(255,255,255,0.12)",
+                borderRadius: 20,
+                padding: "26px 22px",
+                maxWidth: 340, width: "100%",
+                textAlign: "center",
+                boxShadow: "0 20px 60px rgba(0,0,0,0.5)",
+              }}>
+                <div style={{ fontSize: 36, marginBottom: 8 }}>🚪</div>
+                <h3 style={{ margin: "0 0 6px", fontSize: 19, fontWeight: 800, color: "#e8f4f8" }}>Spiel verlassen?</h3>
+                <p style={{ margin: "0 0 22px", fontSize: 14, color: "#94c8d8", lineHeight: 1.5 }}>
+                  Dein aktueller Punktestand in dieser Runde geht verloren.
+                </p>
+                <button onClick={() => { setConfirmQuit(false); setScreen("home"); }} style={{
+                  width: "100%", padding: "14px", fontSize: 16, fontWeight: 700,
+                  background: "linear-gradient(135deg, #ef4444, #dc2626)",
+                  color: "#fff", border: "none", borderRadius: 14, cursor: "pointer",
+                  marginBottom: 10,
+                }}>Ja, zum Hauptmenü</button>
+                <button onClick={() => setConfirmQuit(false)} style={{
+                  width: "100%", padding: "13px", fontSize: 15, fontWeight: 600,
+                  background: "rgba(255,255,255,0.06)", color: "#94c8d8",
+                  border: "1px solid rgba(255,255,255,0.12)", borderRadius: 14, cursor: "pointer",
+                }}>Weiterspielen</button>
+              </div>
+            </div>
+          )}
         </div>
       )}
-
-      {/* RESULT */}
       {screen === "result" && (
         <div style={{ textAlign: "center", maxWidth: 400, width: "100%" }}>
           <div style={{ fontSize: 72, marginBottom: 12 }}>{medal}</div>
@@ -829,7 +907,6 @@ function LaenderDuell() {
     </div>
   );
 }
-
 
 const rootEl = document.getElementById("root");
 ReactDOM.createRoot(rootEl).render(<LaenderDuell />);
