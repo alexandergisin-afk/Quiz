@@ -15,13 +15,10 @@
   html, body { margin: 0; padding: 0; background: #0f2027; overscroll-behavior: none; }
   #root { min-height: 100vh; min-height: 100dvh; }
 </style>
-<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 </head>
 <body>
-<div id="root"></div>
-<script type="text/babel" data-presets="react">
+<div id="root"><div style="min-height:100vh;display:flex;align-items:center;justify-content:center;color:#64d8ff;font-family:system-ui,sans-serif;font-size:16px">Lädt…</div></div>
+<script type="text/plain" id="app-source">
 const { useState, useEffect } = React;
 
 
@@ -836,6 +833,88 @@ function LaenderDuell() {
 
 const rootEl = document.getElementById("root");
 ReactDOM.createRoot(rootEl).render(<LaenderDuell />);
+</script>
+
+<script>
+// Robust loader: tries jsDelivr first, falls back to unpkg, then compiles the app once.
+(function () {
+  var root = document.getElementById("root");
+
+  function showError(msg) {
+    root.innerHTML = '<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;color:#fca5a5;font-family:system-ui,sans-serif;font-size:15px;line-height:1.6">'
+      + msg + '</div>';
+  }
+
+  // Each library lists primary + fallback URLs
+  var libs = [
+    {
+      name: "React",
+      check: function () { return typeof React !== "undefined"; },
+      urls: [
+        "https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js",
+        "https://unpkg.com/react@18.2.0/umd/react.production.min.js"
+      ]
+    },
+    {
+      name: "ReactDOM",
+      check: function () { return typeof ReactDOM !== "undefined"; },
+      urls: [
+        "https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.production.min.js",
+        "https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js"
+      ]
+    },
+    {
+      name: "Babel",
+      check: function () { return typeof Babel !== "undefined"; },
+      urls: [
+        "https://cdn.jsdelivr.net/npm/@babel/standalone@7.24.7/babel.min.js",
+        "https://unpkg.com/@babel/standalone@7.24.7/babel.min.js"
+      ]
+    }
+  ];
+
+  // Load one library, trying its URLs in order
+  function loadLib(lib, done) {
+    var i = 0;
+    function tryNext() {
+      if (lib.check()) { done(true); return; }
+      if (i >= lib.urls.length) { done(false); return; }
+      var url = lib.urls[i++];
+      var s = document.createElement("script");
+      s.src = url;
+      s.crossOrigin = "anonymous";
+      s.onload = function () { done(true); };
+      s.onerror = function () { tryNext(); };
+      document.head.appendChild(s);
+    }
+    tryNext();
+  }
+
+  // Load all libs in sequence
+  function loadAll(idx) {
+    if (idx >= libs.length) { compileAndRun(); return; }
+    loadLib(libs[idx], function (ok) {
+      if (!ok) {
+        showError("Konnte " + libs[idx].name + " nicht laden.<br>Bitte Internetverbindung prüfen und die Seite neu laden.");
+        return;
+      }
+      loadAll(idx + 1);
+    });
+  }
+
+  function compileAndRun() {
+    try {
+      var src = document.getElementById("app-source").textContent;
+      var out = Babel.transform(src, { presets: ["react"] }).code;
+      // Run the compiled code
+      (0, eval)(out);
+    } catch (err) {
+      showError("Fehler beim Starten der App:<br>" + (err && err.message ? err.message : err));
+    }
+  }
+
+  loadAll(0);
+})();
 </script>
 </body>
 </html>
