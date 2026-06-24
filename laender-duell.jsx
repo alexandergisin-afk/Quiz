@@ -265,9 +265,47 @@ function buildRound(total, topic, allowedTypes) {
 const TOTAL_QUESTIONS = 10;
 const XP_PER_LEVEL = 300;
 
+const TIME_MODES = [
+  { id: "entspannt", label: "Entspannt", desc: "Kein Zeitlimit", icon: "🌿", seconds: 0 },
+  { id: "locker", label: "Locker", desc: "20 Sekunden", icon: "🙂", seconds: 20 },
+  { id: "normal", label: "Normal", desc: "15 Sekunden", icon: "⏱️", seconds: 15 },
+  { id: "schnell", label: "Schnell", desc: "10 Sekunden", icon: "⚡", seconds: 10 },
+];
+
+// ── Online-Rangliste (Supabase) ───────────────────────────────
+// Trage hier deine zwei Supabase-Werte ein, dann ist die Rangliste live.
+// Anleitung bekommst du von Claude. Solange leer, zeigt die App einen Hinweis.
+const SUPABASE_URL = "";      // z.B. "https://abcdxyz.supabase.co"
+const SUPABASE_KEY = "";      // der "anon public" Key
+const LEADERBOARD_ENABLED = SUPABASE_URL !== "" && SUPABASE_KEY !== "";
+
+async function fetchLeaderboard() {
+  const res = await fetch(
+    `${SUPABASE_URL}/rest/v1/scores?select=name,score,topic,created_at&order=score.desc&limit=20`,
+    { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } }
+  );
+  if (!res.ok) throw new Error("Rangliste konnte nicht geladen werden.");
+  return res.json();
+}
+
+async function submitScore(name, score, topic) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/scores`, {
+    method: "POST",
+    headers: {
+      apikey: SUPABASE_KEY,
+      Authorization: `Bearer ${SUPABASE_KEY}`,
+      "Content-Type": "application/json",
+      Prefer: "return=minimal",
+    },
+    body: JSON.stringify({ name: name.slice(0, 20), score, topic }),
+  });
+  if (!res.ok) throw new Error("Eintrag konnte nicht gespeichert werden.");
+}
+
 export default function LaenderDuell() {
   const [screen, setScreen] = useState("home"); // home | topics | game | result
   const [selectedTopic, setSelectedTopic] = useState("laender");
+  const [timeMode, setTimeMode] = useState("normal");
   const [questions, setQuestions] = useState([]);
   const [current, setCurrent] = useState(0);
   const [selected, setSelected] = useState(null);
@@ -282,6 +320,14 @@ export default function LaenderDuell() {
   const [pointsGained, setPointsGained] = useState(0);
   const [confirmQuit, setConfirmQuit] = useState(false);
 
+  // Leaderboard
+  const [lbEntries, setLbEntries] = useState([]);
+  const [lbLoading, setLbLoading] = useState(false);
+  const [lbError, setLbError] = useState("");
+  const [playerName, setPlayerName] = useState("");
+  const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+
   // Persistent progress (in-memory for this session)
   const [highscore, setHighscore] = useState(0);
   const [totalXp, setTotalXp] = useState(0);
@@ -289,6 +335,9 @@ export default function LaenderDuell() {
 
   const level = Math.floor(totalXp / XP_PER_LEVEL) + 1;
   const xpInLevel = totalXp % XP_PER_LEVEL;
+  const timeModeMeta = TIME_MODES.find(m => m.id === timeMode) || TIME_MODES[2];
+  const roundSeconds = timeModeMeta.seconds; // 0 = no timer
+  const timed = roundSeconds > 0;
 
   // Choose topic and start immediately
   const chooseTopic = (topicId) => {
@@ -303,22 +352,22 @@ export default function LaenderDuell() {
     setBestStreak(0);
     setAnswered(false);
     setHistory([]);
-    setTimeLeft(10);
+    setTimeLeft(roundSeconds);
     setPointsGained(0);
     setConfirmQuit(false);
     setScreen("game");
   };
 
-  // Countdown timer per question
+  // Countdown timer per question (skipped in relaxed mode)
   useEffect(() => {
-    if (screen !== "game" || answered || confirmQuit) return;
+    if (!timed || screen !== "game" || answered || confirmQuit) return;
     if (timeLeft <= 0) {
       handleTimeout();
       return;
     }
     const t = setTimeout(() => setTimeLeft(tl => tl - 0.1), 100);
     return () => clearTimeout(t);
-  }, [screen, answered, timeLeft, confirmQuit]);
+  }, [timed, screen, answered, timeLeft, confirmQuit]);
 
   const handleTimeout = () => {
     if (answered) return;
@@ -340,7 +389,8 @@ export default function LaenderDuell() {
     if (correct) {
       // Base 20 + small time bonus + modest streak bonus, scaled by difficulty
       const diffMult = DIFFICULTY_META[q.difficulty]?.mult || 1;
-      const timeBonus = Math.round(timeLeft * 2);      // 0–20
+      // Time bonus: up to +20, proportional to time left (0 in relaxed mode)
+      const timeBonus = timed ? Math.round((timeLeft / roundSeconds) * 20) : 0;
       const streakBonus = Math.min(streak, 5) * 5;     // capped at +25
       const gained = Math.round((20 + timeBonus + streakBonus) * diffMult);
       setPointsGained(gained);
@@ -366,13 +416,43 @@ export default function LaenderDuell() {
       setHighscore(h => Math.max(h, points));
       setTotalXp(xp => xp + points);
       setGamesPlayed(g => g + 1);
+      setSubmitted(false);
       setScreen("result");
     } else {
       setCurrent(c => c + 1);
       setSelected(null);
       setAnswered(false);
-      setTimeLeft(10);
+      setTimeLeft(roundSeconds);
       setPointsGained(0);
+    }
+  };
+
+  const openLeaderboard = async () => {
+    setScreen("leaderboard");
+    if (!LEADERBOARD_ENABLED) return;
+    setLbLoading(true);
+    setLbError("");
+    try {
+      const data = await fetchLeaderboard();
+      setLbEntries(data);
+    } catch (e) {
+      setLbError(e.message || "Fehler beim Laden.");
+    } finally {
+      setLbLoading(false);
+    }
+  };
+
+  const handleSubmitScore = async () => {
+    if (!playerName.trim() || submitting) return;
+    setSubmitting(true);
+    setLbError("");
+    try {
+      await submitScore(playerName.trim(), points, topicMeta.label);
+      setSubmitted(true);
+    } catch (e) {
+      setLbError(e.message || "Fehler beim Speichern.");
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -459,6 +539,31 @@ export default function LaenderDuell() {
             </div>
           )}
 
+          {/* Time mode selector */}
+          <div style={{ marginBottom: 16 }}>
+            <div style={{ fontSize: 12, color: "#7aa8b8", marginBottom: 8, textAlign: "left", fontWeight: 600 }}>⏱️ Zeit pro Frage</div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+              {TIME_MODES.map(m => {
+                const active = timeMode === m.id;
+                return (
+                  <button key={m.id} onClick={() => setTimeMode(m.id)} style={{
+                    padding: "10px 8px",
+                    background: active ? "rgba(59,130,246,0.18)" : "rgba(255,255,255,0.04)",
+                    border: active ? "2px solid #3b82f6" : "2px solid rgba(255,255,255,0.08)",
+                    borderRadius: 12,
+                    cursor: "pointer",
+                    textAlign: "center",
+                    transition: "all 0.15s",
+                  }}>
+                    <div style={{ fontSize: 18, lineHeight: 1, marginBottom: 3 }}>{m.icon}</div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: active ? "#e8f4f8" : "#94c8d8" }}>{m.label}</div>
+                    <div style={{ fontSize: 10, color: "#6a9aaa", marginTop: 1 }}>{m.desc}</div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
           <button onClick={() => setScreen("topics")} style={{
             width: "100%",
             padding: "16px",
@@ -477,7 +582,18 @@ export default function LaenderDuell() {
           >
             {gamesPlayed > 0 ? "Weiterspielen" : "Spielen"} →
           </button>
-          <p style={{ marginTop: 16, fontSize: 12, color: "#4a7a8a" }}>Thema wählen & losraten</p>
+          <button onClick={openLeaderboard} style={{
+            width: "100%",
+            marginTop: 10,
+            padding: "13px",
+            fontSize: 15,
+            fontWeight: 600,
+            background: "rgba(255,255,255,0.05)",
+            color: "#fbbf24",
+            border: "1px solid rgba(251,191,36,0.3)",
+            borderRadius: 14,
+            cursor: "pointer",
+          }}>🏆 Rangliste</button>
         </div>
       )}
 
@@ -566,16 +682,20 @@ export default function LaenderDuell() {
             </div>
           </div>
 
-          {/* Timer bar */}
-          <div style={{ height: 6, background: "rgba(255,255,255,0.08)", borderRadius: 4, marginBottom: 10, overflow: "hidden" }}>
-            <div style={{
-              height: "100%",
-              width: `${(timeLeft / 10) * 100}%`,
-              background: timeLeft > 4 ? "linear-gradient(90deg, #22c55e, #4ade80)" : timeLeft > 2 ? "linear-gradient(90deg, #fbbf24, #f59e0b)" : "linear-gradient(90deg, #ef4444, #f87171)",
-              borderRadius: 4,
-              transition: answered ? "none" : "width 0.1s linear",
-            }} />
-          </div>
+          {/* Timer bar (only in timed modes) */}
+          {timed ? (
+            <div style={{ height: 6, background: "rgba(255,255,255,0.08)", borderRadius: 4, marginBottom: 10, overflow: "hidden" }}>
+              <div style={{
+                height: "100%",
+                width: `${(timeLeft / roundSeconds) * 100}%`,
+                background: timeLeft > roundSeconds * 0.4 ? "linear-gradient(90deg, #22c55e, #4ade80)" : timeLeft > roundSeconds * 0.2 ? "linear-gradient(90deg, #fbbf24, #f59e0b)" : "linear-gradient(90deg, #ef4444, #f87171)",
+                borderRadius: 4,
+                transition: answered ? "none" : "width 0.1s linear",
+              }} />
+            </div>
+          ) : (
+            <div style={{ marginBottom: 10, textAlign: "center", fontSize: 12, color: "#7aa8b8" }}>🌿 Entspannt – ohne Zeitdruck</div>
+          )}
 
           {/* Progress bar */}
           <div style={{ height: 4, background: "rgba(255,255,255,0.08)", borderRadius: 4, marginBottom: 24, overflow: "hidden" }}>
@@ -839,6 +959,59 @@ export default function LaenderDuell() {
             ))}
           </div>
 
+          {/* Leaderboard submission */}
+          {LEADERBOARD_ENABLED && (
+            <div style={{
+              background: "rgba(251,191,36,0.08)",
+              border: "1px solid rgba(251,191,36,0.25)",
+              borderRadius: 16,
+              padding: "16px",
+              marginBottom: 16,
+            }}>
+              {submitted ? (
+                <div style={{ textAlign: "center", color: "#fcd34d", fontSize: 14, fontWeight: 600 }}>
+                  ✅ In der Rangliste eingetragen!
+                  <button onClick={openLeaderboard} style={{
+                    display: "block", margin: "10px auto 0", padding: "8px 16px",
+                    background: "rgba(251,191,36,0.15)", border: "1px solid rgba(251,191,36,0.4)",
+                    borderRadius: 10, color: "#fbbf24", fontSize: 13, fontWeight: 600, cursor: "pointer",
+                  }}>🏆 Rangliste ansehen</button>
+                </div>
+              ) : (
+                <div>
+                  <div style={{ fontSize: 13, color: "#fcd34d", marginBottom: 8, fontWeight: 600, textAlign: "center" }}>
+                    🏆 Trag dich in die Rangliste ein
+                  </div>
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <input
+                      value={playerName}
+                      onChange={e => setPlayerName(e.target.value)}
+                      placeholder="Dein Name"
+                      maxLength={20}
+                      style={{
+                        flex: 1, padding: "11px 14px", fontSize: 15,
+                        background: "rgba(0,0,0,0.25)", border: "1px solid rgba(255,255,255,0.15)",
+                        borderRadius: 12, color: "#e8f4f8", outline: "none",
+                      }}
+                    />
+                    <button
+                      onClick={handleSubmitScore}
+                      disabled={!playerName.trim() || submitting}
+                      style={{
+                        padding: "11px 18px", fontSize: 15, fontWeight: 700,
+                        background: !playerName.trim() || submitting ? "rgba(255,255,255,0.08)" : "linear-gradient(135deg, #fbbf24, #f59e0b)",
+                        color: !playerName.trim() || submitting ? "#5a7a8a" : "#1a1a1a",
+                        border: "none", borderRadius: 12,
+                        cursor: !playerName.trim() || submitting ? "not-allowed" : "pointer",
+                      }}
+                    >{submitting ? "…" : "Senden"}</button>
+                  </div>
+                  {lbError && <div style={{ fontSize: 12, color: "#fca5a5", marginTop: 8, textAlign: "center" }}>{lbError}</div>}
+                </div>
+              )}
+            </div>
+          )}
+
           <button onClick={() => chooseTopic(selectedTopic)} style={{
             width: "100%",
             padding: "16px",
@@ -867,6 +1040,66 @@ export default function LaenderDuell() {
           }}>
             🗂️ Anderes Thema wählen
           </button>
+        </div>
+      )}
+
+      {/* LEADERBOARD */}
+      {screen === "leaderboard" && (
+        <div style={{ textAlign: "center", maxWidth: 440, width: "100%" }}>
+          <div style={{ fontSize: 48, marginBottom: 6 }}>🏆</div>
+          <h2 style={{ fontSize: 26, fontWeight: 800, margin: "0 0 6px", color: "#e8f4f8" }}>Rangliste</h2>
+          <p style={{ color: "#94c8d8", fontSize: 14, margin: "0 0 24px" }}>Die besten 20 Ergebnisse weltweit</p>
+
+          {!LEADERBOARD_ENABLED ? (
+            <div style={{
+              background: "rgba(255,255,255,0.04)",
+              border: "1px solid rgba(255,255,255,0.1)",
+              borderRadius: 16,
+              padding: "24px 20px",
+              marginBottom: 20,
+              color: "#94c8d8",
+              fontSize: 14,
+              lineHeight: 1.6,
+            }}>
+              🔧 Die Online-Rangliste wird noch eingerichtet.<br />
+              Sobald der kostenlose Speicher verbunden ist, erscheinen hier die Bestenlisten aller Spieler.
+            </div>
+          ) : lbLoading ? (
+            <div style={{ padding: "40px 0", color: "#64d8ff", fontSize: 15 }}>Lädt…</div>
+          ) : lbError ? (
+            <div style={{ padding: "24px", color: "#fca5a5", fontSize: 14 }}>{lbError}</div>
+          ) : lbEntries.length === 0 ? (
+            <div style={{ padding: "40px 20px", color: "#7aa8b8", fontSize: 14 }}>
+              Noch keine Einträge – sei der Erste!
+            </div>
+          ) : (
+            <div style={{ marginBottom: 20 }}>
+              {lbEntries.map((e, i) => {
+                const medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `${i + 1}.`;
+                return (
+                  <div key={i} style={{
+                    display: "flex", alignItems: "center", gap: 12,
+                    padding: "12px 14px",
+                    background: i < 3 ? "rgba(251,191,36,0.08)" : "rgba(255,255,255,0.03)",
+                    border: "1px solid " + (i < 3 ? "rgba(251,191,36,0.2)" : "rgba(255,255,255,0.06)"),
+                    borderRadius: 12,
+                    marginBottom: 6,
+                  }}>
+                    <span style={{ fontSize: 16, fontWeight: 700, width: 32, textAlign: "center", color: i < 3 ? "#fbbf24" : "#7aa8b8" }}>{medal}</span>
+                    <div style={{ flex: 1, textAlign: "left", minWidth: 0 }}>
+                      <div style={{ fontSize: 15, fontWeight: 600, color: "#e8f4f8", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{e.name}</div>
+                      <div style={{ fontSize: 12, color: "#6a9aaa" }}>{e.topic}</div>
+                    </div>
+                    <span style={{ fontSize: 16, fontWeight: 800, color: "#64d8ff" }}>{e.score} 💎</span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          <button onClick={() => setScreen("home")} style={{
+            background: "none", border: "none", color: "#6a9aaa", fontSize: 14, cursor: "pointer", marginTop: 8,
+          }}>← Zurück zum Menü</button>
         </div>
       )}
 
