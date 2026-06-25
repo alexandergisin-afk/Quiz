@@ -482,6 +482,27 @@ async function submitScore(name, score, topic) {
   if (!res.ok) throw new Error("Eintrag konnte nicht gespeichert werden.");
 }
 
+// ── App-Version & lokaler Speicher ────────────────────────────
+const APP_VERSION = "2.0"; // bei neuen Updates hochzählen, dann erscheint "Was ist neu?"
+
+const store = {
+  get(key, fallback) {
+    try {
+      const v = window.localStorage.getItem(key);
+      return v === null ? fallback : JSON.parse(v);
+    } catch (e) {
+      return fallback;
+    }
+  },
+  set(key, value) {
+    try {
+      window.localStorage.setItem(key, JSON.stringify(value));
+    } catch (e) {
+      // Speicher nicht verfügbar (z.B. Vorschau) – einfach ignorieren
+    }
+  },
+};
+
 function LaenderDuell() {
   const [screen, setScreen] = useState("home"); // home | topics | game | result
   const [selectedTopic, setSelectedTopic] = useState("laender");
@@ -519,16 +540,37 @@ function LaenderDuell() {
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
-  // Persistent progress (in-memory for this session)
-  const [highscore, setHighscore] = useState(0);
-  const [totalXp, setTotalXp] = useState(0);
-  const [gamesPlayed, setGamesPlayed] = useState(0);
+  // Persistent progress (saved to device storage)
+  const [highscore, setHighscore] = useState(() => store.get("qd_highscore", 0));
+  const [totalXp, setTotalXp] = useState(() => store.get("qd_totalXp", 0));
+  const [gamesPlayed, setGamesPlayed] = useState(() => store.get("qd_gamesPlayed", 0));
+
+  // "Was ist neu?" – show once per new version
+  const [showWhatsNew, setShowWhatsNew] = useState(false);
 
   const level = Math.floor(totalXp / XP_PER_LEVEL) + 1;
   const xpInLevel = totalXp % XP_PER_LEVEL;
   const timeModeMeta = TIME_MODES.find(m => m.id === timeMode) || TIME_MODES[2];
   const roundSeconds = timeModeMeta.seconds; // 0 = no timer
   const timed = roundSeconds > 0;
+
+  // Save progress whenever it changes
+  useEffect(() => { store.set("qd_highscore", highscore); }, [highscore]);
+  useEffect(() => { store.set("qd_totalXp", totalXp); }, [totalXp]);
+  useEffect(() => { store.set("qd_gamesPlayed", gamesPlayed); }, [gamesPlayed]);
+
+  // Show "Was ist neu?" once after a version update
+  useEffect(() => {
+    const seen = store.get("qd_seenVersion", null);
+    if (seen !== APP_VERSION) {
+      setShowWhatsNew(true);
+    }
+  }, []);
+
+  const dismissWhatsNew = () => {
+    store.set("qd_seenVersion", APP_VERSION);
+    setShowWhatsNew(false);
+  };
 
   // Reset all per-round state and jokers
   const resetRoundState = () => {
@@ -732,6 +774,58 @@ function LaenderDuell() {
       justifyContent: "center",
       padding: "16px",
     }}>
+
+      {/* WAS IST NEU? */}
+      {showWhatsNew && (
+        <div style={{
+          position: "fixed", inset: 0, zIndex: 100,
+          background: "rgba(8,18,24,0.85)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          padding: 20,
+        }}>
+          <div style={{
+            background: "#13252e",
+            border: "1px solid rgba(100,216,255,0.2)",
+            borderRadius: 22,
+            padding: "26px 22px",
+            maxWidth: 380, width: "100%",
+            maxHeight: "85vh", overflowY: "auto",
+            boxShadow: "0 20px 60px rgba(0,0,0,0.6)",
+          }}>
+            <div style={{ textAlign: "center", marginBottom: 18 }}>
+              <div style={{ fontSize: 40, marginBottom: 6 }}>🎉</div>
+              <h2 style={{
+                margin: 0, fontSize: 22, fontWeight: 800,
+                background: "linear-gradient(90deg, #64d8ff, #a78bfa)",
+                WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
+              }}>Was ist neu?</h2>
+              <p style={{ margin: "4px 0 0", fontSize: 12, color: "#6a9aaa" }}>Version {APP_VERSION}</p>
+            </div>
+
+            {[
+              { icon: "🎲", title: "Bunter Mix", text: "Fragen aus allen Themen wild gemischt." },
+              { icon: "📅", title: "Tägliche Challenge", text: "Jeden Tag 10 Fragen – für alle gleich. Vergleicht euch!" },
+              { icon: "⚔️", title: "Duell zu zweit", text: "Tretet am selben Gerät gegeneinander an." },
+              { icon: "🃏", title: "Joker", text: "50:50 und Überspringen helfen bei kniffligen Fragen." },
+            ].map((f, i) => (
+              <div key={i} style={{ display: "flex", gap: 12, alignItems: "flex-start", marginBottom: 14 }}>
+                <span style={{ fontSize: 24, lineHeight: 1.2 }}>{f.icon}</span>
+                <div style={{ textAlign: "left" }}>
+                  <div style={{ fontSize: 15, fontWeight: 700, color: "#e8f4f8" }}>{f.title}</div>
+                  <div style={{ fontSize: 13, color: "#94c8d8", lineHeight: 1.4 }}>{f.text}</div>
+                </div>
+              </div>
+            ))}
+
+            <button onClick={dismissWhatsNew} style={{
+              width: "100%", marginTop: 8, padding: "14px",
+              fontSize: 16, fontWeight: 700,
+              background: "linear-gradient(135deg, #3b82f6, #8b5cf6)",
+              color: "#fff", border: "none", borderRadius: 14, cursor: "pointer",
+            }}>Los geht's! 🚀</button>
+          </div>
+        </div>
+      )}
 
       {/* HOME */}
       {screen === "home" && (
