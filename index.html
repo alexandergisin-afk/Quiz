@@ -81,179 +81,620 @@ const DIFFICULTY_META = {
 // General-knowledge topics. Each question: { q, display, options, answer, difficulty, funFact }
 const TOPIC_QUESTIONS = {
   wissenschaft: [
-    { q: "Welches Element hat das chemische Symbol 'Au'?", display: "🧪", options: ["Gold", "Silber", "Aluminium", "Argon"], answer: "Gold", difficulty: "einfach", funFact: "'Au' kommt vom lateinischen 'aurum' – alles Gold der Welt würde in nur etwa 3 Schwimmbecken passen." },
-    { q: "Wie viele Knochen hat ein erwachsener Mensch?", display: "🦴", options: ["206", "187", "224", "198"], answer: "206", difficulty: "einfach", funFact: "Babys werden mit rund 300 Knochen geboren – viele wachsen später zusammen." },
-    { q: "Welches Teilchen hat eine negative Ladung?", display: "⚛️", options: ["Elektron", "Proton", "Neutron", "Positron"], answer: "Elektron", difficulty: "einfach", funFact: "Elektronen bewegen sich in Drähten überraschend langsam – das Signal aber fast lichtschnell." },
-    { q: "Was misst die Einheit 'Pascal'?", display: "📏", options: ["Druck", "Frequenz", "Energie", "Leistung"], answer: "Druck", difficulty: "mittel", funFact: "Der Luftdruck auf Meereshöhe beträgt etwa 101.325 Pascal." },
-    { q: "Welches Organ produziert Insulin?", display: "🩺", options: ["Bauchspeicheldrüse", "Leber", "Nebenniere", "Milz"], answer: "Bauchspeicheldrüse", difficulty: "mittel", funFact: "Die Bauchspeicheldrüse stellt täglich rund 1,5 Liter Verdauungssaft her." },
-    { q: "Welches Gas macht den größten Teil der Erdatmosphäre aus?", display: "🌫️", options: ["Stickstoff", "Sauerstoff", "Kohlendioxid", "Argon"], answer: "Stickstoff", difficulty: "mittel", funFact: "Rund 78 % der Luft sind Stickstoff – Sauerstoff macht nur etwa 21 % aus." },
-    { q: "Wie heißt der Vorgang, bei dem ein Feststoff direkt zu Gas wird?", display: "💨", options: ["Sublimation", "Verdunstung", "Kondensation", "Diffusion"], answer: "Sublimation", difficulty: "mittel", funFact: "Trockeneis sublimiert direkt – es wird nie flüssig." },
-    { q: "Welcher Planet hat die meisten bekannten Monde?", display: "🪐", options: ["Saturn", "Jupiter", "Uranus", "Neptun"], answer: "Saturn", difficulty: "schwer", funFact: "Saturn überholte Jupiter, als 2023 über 60 weitere Monde entdeckt wurden." },
-    { q: "Welches Metall ist bei Raumtemperatur flüssig?", display: "🌡️", options: ["Quecksilber", "Gallium", "Cäsium", "Blei"], answer: "Quecksilber", difficulty: "schwer", funFact: "Auch Gallium schmilzt fast in der Hand – aber Quecksilber ist schon bei Raumtemperatur flüssig." },
-    { q: "Welcher Wissenschaftler stellte das Periodensystem auf?", display: "📋", options: ["Mendelejew", "Bohr", "Rutherford", "Pauling"], answer: "Mendelejew", difficulty: "schwer", funFact: "Mendelejew ließ Lücken für noch unentdeckte Elemente – und sagte ihre Eigenschaften voraus." },
-    { q: "Wie nennt man die Lehre von der Vererbung?", display: "🧬", options: ["Genetik", "Ökologie", "Zytologie", "Physiologie"], answer: "Genetik", difficulty: "schwer", funFact: "Gregor Mendel entdeckte die Vererbungsregeln an Erbsenpflanzen im Klostergarten." },
-    { q: "Welche Einheit beschreibt die elektrische Stromstärke?", display: "🔌", options: ["Ampere", "Volt", "Watt", "Ohm"], answer: "Ampere", difficulty: "schwer", funFact: "Ein Blitz transportiert kurzzeitig bis zu 30.000 Ampere." },
-    { q: "Welcher Planet ist der Sonne am nächsten?", display: "☀️", options: ["Merkur", "Venus", "Mars", "Erde"], answer: "Merkur", difficulty: "einfach", funFact: "Trotz der Nähe zur Sonne ist Venus heißer als Merkur." },
-    { q: "Wie viele Beine hat ein Insekt?", display: "🐜", options: ["6", "8", "4", "10"], answer: "6", difficulty: "einfach", funFact: "Spinnen sind keine Insekten – sie haben acht Beine." },
-    { q: "Welches Organ pumpt das Blut durch den Körper?", display: "❤️", options: ["Herz", "Lunge", "Leber", "Niere"], answer: "Herz", difficulty: "einfach", funFact: "Das menschliche Herz schlägt rund 100.000-mal am Tag." },
-    { q: "Was entsteht, wenn Wasser gefriert?", display: "🧊", options: ["Eis", "Dampf", "Nebel", "Schnee"], answer: "Eis", difficulty: "einfach", funFact: "Wasser dehnt sich beim Gefrieren aus – darum platzen Rohre." },
-    { q: "Welches Vitamin bildet der Körper bei Sonnenlicht?", display: "🌞", options: ["Vitamin D", "Vitamin C", "Vitamin B12", "Vitamin A"], answer: "Vitamin D", difficulty: "mittel", funFact: "Schon 15 Minuten Sonne am Tag können den Bedarf decken." },
-    { q: "Was ist der chemische Hauptbestandteil von Diamant?", display: "💎", options: ["Kohlenstoff", "Silizium", "Calcium", "Quarz"], answer: "Kohlenstoff", difficulty: "mittel", funFact: "Diamant und Graphit bestehen beide aus reinem Kohlenstoff." },
-    { q: "Wie heißt die Kraft, die uns auf dem Boden hält?", display: "🌍", options: ["Gravitation", "Magnetismus", "Reibung", "Trägheit"], answer: "Gravitation", difficulty: "einfach", funFact: "Auf dem Mond ist die Gravitation nur etwa ein Sechstel der Erde." },
-    { q: "Welches Gas brauchen Menschen zum Atmen?", display: "🫁", options: ["Sauerstoff", "Stickstoff", "Helium", "Methan"], answer: "Sauerstoff", difficulty: "einfach", funFact: "Das Gehirn verbraucht rund 20 % des eingeatmeten Sauerstoffs." },
-    { q: "Wie viele Planeten hat unser Sonnensystem?", display: "🪐", options: ["8", "9", "7", "10"], answer: "8", difficulty: "mittel", funFact: "Pluto wurde 2006 zum Zwergplaneten herabgestuft." },
-    { q: "Welche Blutgruppe gilt als Universalspender?", display: "🩸", options: ["0 negativ", "AB positiv", "A positiv", "B negativ"], answer: "0 negativ", difficulty: "schwer", funFact: "0-negativ-Blut kann fast jedem Menschen übertragen werden." },
-    { q: "Wie schnell ist das Licht ungefähr?", display: "💡", options: ["300.000 km/s", "150.000 km/s", "1.000 km/s", "30.000 km/s"], answer: "300.000 km/s", difficulty: "mittel", funFact: "Sonnenlicht braucht gut 8 Minuten bis zur Erde." },
-    { q: "Welches Tier nutzt man oft als Modell in der Genforschung?", display: "🐭", options: ["Maus", "Katze", "Taube", "Frosch"], answer: "Maus", difficulty: "schwer", funFact: "Mäuse teilen rund 85 % ihrer Gene mit dem Menschen." },
-    { q: "Was misst ein Seismograph?", display: "📈", options: ["Erdbeben", "Temperatur", "Luftdruck", "Strahlung"], answer: "Erdbeben", difficulty: "schwer", funFact: "Die Richterskala ist logarithmisch – Stärke 6 ist zehnmal stärker als 5." },
-    { q: "Welches Element ist das häufigste im Universum?", display: "🌌", options: ["Wasserstoff", "Sauerstoff", "Helium", "Kohlenstoff"], answer: "Wasserstoff", difficulty: "schwer", funFact: "Sterne bestehen größtenteils aus Wasserstoff, den sie zu Helium fusionieren." },
-    { q: "Wo wird die DNA in einer Zelle gespeichert?", display: "🧬", options: ["Zellkern", "Mitochondrium", "Zellwand", "Ribosom"], answer: "Zellkern", difficulty: "mittel", funFact: "Aufgerollt wäre die DNA einer Zelle fast zwei Meter lang." },
-  ],
+  // ── EINFACH (solides Schulwissen, nicht trivial) ─────────
+  { q: "Welches Element hat das chemische Symbol 'Fe'?", options: ["Eisen", "Fluor", "Francium", "Kupfer"], answer: "Eisen", difficulty: "einfach", funFact: "'Fe' stammt vom lateinischen 'ferrum'." },
+  { q: "Welcher Planet wird wegen seiner Farbe 'roter Planet' genannt?", options: ["Mars", "Jupiter", "Venus", "Merkur"], answer: "Mars", difficulty: "einfach", funFact: "Die Farbe stammt von Eisenoxid – also Rost." },
+  { q: "Welches Organ entgiftet hauptsächlich den Körper?", options: ["Leber", "Herz", "Lunge", "Magen"], answer: "Leber", difficulty: "einfach", funFact: "Die Leber kann sich teilweise selbst regenerieren." },
+  { q: "Welches Gas macht den größten Teil der Erdatmosphäre aus?", options: ["Stickstoff", "Sauerstoff", "Kohlendioxid", "Argon"], answer: "Stickstoff", difficulty: "einfach", funFact: "Rund 78 % der Luft sind Stickstoff." },
+  { q: "Welcher Planet hat ein auffälliges Ringsystem?", options: ["Saturn", "Mars", "Merkur", "Venus"], answer: "Saturn", difficulty: "einfach", funFact: "Die Ringe bestehen vor allem aus Eis und Gestein." },
+  { q: "Welches Tier nutzt Echoortung zur Orientierung?", options: ["Fledermaus", "Adler", "Hase", "Pferd"], answer: "Fledermaus", difficulty: "einfach", funFact: "Auch Delfine orientieren sich mit Echoortung." },
+  { q: "Wie nennt man die Umwandlung von Raupe zu Schmetterling?", options: ["Metamorphose", "Mutation", "Symbiose", "Osmose"], answer: "Metamorphose", difficulty: "einfach" },
+  { q: "Welcher Knochen ist der längste im menschlichen Körper?", options: ["Oberschenkelknochen", "Oberarmknochen", "Schienbein", "Elle"], answer: "Oberschenkelknochen", difficulty: "einfach" },
+  { q: "Welcher Teil des Blutes transportiert Sauerstoff?", options: ["Rote Blutkörperchen", "Weiße Blutkörperchen", "Blutplättchen", "Plasma"], answer: "Rote Blutkörperchen", difficulty: "einfach", funFact: "Der rote Farbstoff Hämoglobin enthält Eisen." },
+  { q: "Welche Tierklasse umfasst Frösche und Kröten?", options: ["Amphibien", "Reptilien", "Säugetiere", "Fische"], answer: "Amphibien", difficulty: "einfach" },
+  { q: "Welcher Vorgang lässt Eisen rosten?", options: ["Oxidation", "Verdampfung", "Gärung", "Schmelzen"], answer: "Oxidation", difficulty: "einfach" },
+  { q: "Was misst die Richterskala?", options: ["Erdbebenstärke", "Windgeschwindigkeit", "Temperatur", "Lautstärke"], answer: "Erdbebenstärke", difficulty: "einfach" },
+  { q: "Was beschreibt der Begriff 'Fotosynthese'?", options: ["Energiegewinnung aus Licht", "Zellteilung", "Atmung", "Verdauung"], answer: "Energiegewinnung aus Licht", difficulty: "einfach", funFact: "Dabei wird Kohlendioxid in Sauerstoff umgewandelt." },
+  { q: "Welcher deutsche Physiker entdeckte die nach ihm benannten Strahlen?", options: ["Röntgen", "Planck", "Hertz", "Ohm"], answer: "Röntgen", difficulty: "einfach", funFact: "Röntgen erhielt 1901 den ersten Physik-Nobelpreis." },
+  { q: "Wie heißt die kleinste Einheit eines chemischen Elements?", options: ["Atom", "Molekül", "Zelle", "Ion"], answer: "Atom", difficulty: "einfach" },
+
+  // ── MITTEL ───────────────────────────────────────────────
+  { q: "Welches Teilchen hat eine negative Ladung?", options: ["Elektron", "Proton", "Neutron", "Positron"], answer: "Elektron", difficulty: "mittel" },
+  { q: "Welches Organell wird als 'Kraftwerk der Zelle' bezeichnet?", options: ["Mitochondrium", "Zellkern", "Ribosom", "Golgi-Apparat"], answer: "Mitochondrium", difficulty: "mittel", funFact: "Mitochondrien haben sogar ihre eigene DNA." },
+  { q: "Welche Blutgruppe gilt als Universalspender?", options: ["0 negativ", "AB positiv", "A positiv", "B negativ"], answer: "0 negativ", difficulty: "mittel" },
+  { q: "Wie heißt der Vorgang, bei dem ein Feststoff direkt zu Gas wird?", options: ["Sublimation", "Verdunstung", "Kondensation", "Diffusion"], answer: "Sublimation", difficulty: "mittel", funFact: "Trockeneis sublimiert direkt, ohne flüssig zu werden." },
+  { q: "Welche Strahlung hat die kürzeste Wellenlänge?", options: ["Gammastrahlung", "Infrarot", "Radiowellen", "Mikrowellen"], answer: "Gammastrahlung", difficulty: "mittel" },
+  { q: "Welcher Forscher entwickelte die Evolutionstheorie?", options: ["Darwin", "Mendel", "Lamarck", "Linné"], answer: "Darwin", difficulty: "mittel", funFact: "Seine Reise auf der HMS Beagle prägte seine Ideen." },
+  { q: "Was beschreibt der pH-Wert?", options: ["Säuregrad", "Temperatur", "Dichte", "Leitfähigkeit"], answer: "Säuregrad", difficulty: "mittel", funFact: "Ein pH-Wert von 7 gilt als neutral." },
+  { q: "Welche Einheit misst die Frequenz?", options: ["Hertz", "Watt", "Joule", "Newton"], answer: "Hertz", difficulty: "mittel" },
+  { q: "Welcher Teil des Gehirns steuert das Gleichgewicht?", options: ["Kleinhirn", "Großhirn", "Stammhirn", "Zwischenhirn"], answer: "Kleinhirn", difficulty: "mittel" },
+  { q: "Welcher Wissenschaftler entdeckte das Penicillin?", options: ["Fleming", "Pasteur", "Koch", "Curie"], answer: "Fleming", difficulty: "mittel", funFact: "Die Entdeckung 1928 war ein glücklicher Zufall." },
+  { q: "Welche Teilchen bilden den Atomkern?", options: ["Protonen und Neutronen", "Elektronen und Protonen", "Nur Neutronen", "Nur Elektronen"], answer: "Protonen und Neutronen", difficulty: "mittel" },
+  { q: "Welches chemische Element hat die Ordnungszahl 1?", options: ["Wasserstoff", "Helium", "Sauerstoff", "Kohlenstoff"], answer: "Wasserstoff", difficulty: "mittel" },
+  { q: "Wie nennt man die Wissenschaft von Erdbeben?", options: ["Seismologie", "Geologie", "Meteorologie", "Vulkanologie"], answer: "Seismologie", difficulty: "mittel" },
+  { q: "Welche Blutgefäße transportieren Blut zum Herzen zurück?", options: ["Venen", "Arterien", "Kapillaren", "Aorta"], answer: "Venen", difficulty: "mittel" },
+  { q: "Welches Hormon wird oft 'Stresshormon' genannt?", options: ["Cortisol", "Insulin", "Melatonin", "Testosteron"], answer: "Cortisol", difficulty: "mittel" },
+  { q: "Welches Gas entsteht bei der Zellatmung als Abfallprodukt?", options: ["Kohlendioxid", "Sauerstoff", "Wasserstoff", "Stickstoff"], answer: "Kohlendioxid", difficulty: "mittel" },
+  { q: "Welche Kraft wirkt zwischen elektrischen Ladungen?", options: ["Coulomb-Kraft", "Gravitation", "Reibung", "Auftrieb"], answer: "Coulomb-Kraft", difficulty: "mittel" },
+  { q: "Welcher Stoff macht Pflanzenblätter grün?", options: ["Chlorophyll", "Karotin", "Melanin", "Hämoglobin"], answer: "Chlorophyll", difficulty: "mittel" },
+  { q: "Welches Subatomare Teilchen hat keine Ladung?", options: ["Neutron", "Elektron", "Proton", "Myon"], answer: "Neutron", difficulty: "mittel" },
+  { q: "Welche Einheit beschreibt die elektrische Stromstärke?", options: ["Ampere", "Volt", "Watt", "Ohm"], answer: "Ampere", difficulty: "mittel", funFact: "Ein Blitz transportiert kurzzeitig bis zu 30.000 Ampere." },
+  { q: "Welcher Planet hat die meisten bekannten Monde?", options: ["Saturn", "Jupiter", "Uranus", "Neptun"], answer: "Saturn", difficulty: "mittel" },
+  { q: "Was bezeichnet der Begriff 'Osmose'?", options: ["Wanderung von Wasser durch eine Membran", "Zellteilung", "Lichtbrechung", "Wärmeleitung"], answer: "Wanderung von Wasser durch eine Membran", difficulty: "mittel" },
+  { q: "Welcher Wissenschaftler formulierte die Bewegungsgesetze?", options: ["Newton", "Einstein", "Galilei", "Kepler"], answer: "Newton", difficulty: "mittel", funFact: "Sein Werk 'Principia' erschien 1687." },
+  { q: "Welches Element ist für die Schilddrüsenfunktion wichtig?", options: ["Jod", "Eisen", "Kalzium", "Zink"], answer: "Jod", difficulty: "mittel" },
+  { q: "Was misst ein Voltmeter?", options: ["Spannung", "Stromstärke", "Widerstand", "Leistung"], answer: "Spannung", difficulty: "mittel" },
+  { q: "Welche Zellen leiten Nervensignale weiter?", options: ["Neuronen", "Erythrozyten", "Osteozyten", "Adipozyten"], answer: "Neuronen", difficulty: "mittel" },
+  { q: "Welches Edelgas wird in Leuchtreklamen verwendet?", options: ["Neon", "Helium", "Argon", "Krypton"], answer: "Neon", difficulty: "mittel", funFact: "Daher der Begriff 'Neonröhre'." },
+  { q: "Wie nennt man die Verschmelzung von Atomkernen?", options: ["Kernfusion", "Kernspaltung", "Ionisation", "Oxidation"], answer: "Kernfusion", difficulty: "mittel", funFact: "Die Sonne gewinnt ihre Energie durch Kernfusion." },
+  { q: "Welcher Effekt erklärt die Tonhöhenänderung vorbeifahrender Sirenen?", options: ["Doppler-Effekt", "Treibhauseffekt", "Tunneleffekt", "Foto-Effekt"], answer: "Doppler-Effekt", difficulty: "mittel" },
+  { q: "Welches Vitamin entsteht in der Haut durch Sonnenlicht?", options: ["Vitamin D", "Vitamin C", "Vitamin K", "Vitamin B12"], answer: "Vitamin D", difficulty: "mittel" },
+  { q: "Welcher Begriff beschreibt Tiere mit gleichbleibender Körpertemperatur?", options: ["Gleichwarm", "Wechselwarm", "Kaltblütig", "Winterstarr"], answer: "Gleichwarm", difficulty: "mittel", funFact: "Säugetiere und Vögel sind gleichwarm." },
+  { q: "Welches Modell beschreibt den Atomaufbau mit Elektronenschalen?", options: ["Bohrsches Modell", "Urknallmodell", "Schalenmodell der Erde", "Zellmodell"], answer: "Bohrsches Modell", difficulty: "mittel" },
+  { q: "Welcher Planet dreht sich rückläufig, also entgegengesetzt zu den meisten?", options: ["Venus", "Mars", "Jupiter", "Erde"], answer: "Venus", difficulty: "mittel", funFact: "Auf der Venus geht die Sonne im Westen auf." },
+  { q: "Welche Säure ist im Magen für die Verdauung wichtig?", options: ["Salzsäure", "Schwefelsäure", "Essigsäure", "Zitronensäure"], answer: "Salzsäure", difficulty: "mittel" },
+  { q: "Welcher Wissenschaftler gilt als Begründer der modernen Genetik?", options: ["Mendel", "Darwin", "Watson", "Pasteur"], answer: "Mendel", difficulty: "mittel" },
+  { q: "Welche physikalische Größe wird in Joule gemessen?", options: ["Energie", "Kraft", "Druck", "Geschwindigkeit"], answer: "Energie", difficulty: "mittel" },
+  { q: "Welcher Bestandteil der Zelle steuert die Vererbung?", options: ["DNA", "Membran", "Zytoplasma", "Vakuole"], answer: "DNA", difficulty: "mittel" },
+  { q: "Welches Element ist nach einem Land Europas benannt?", options: ["Germanium", "Helium", "Titan", "Neon"], answer: "Germanium", difficulty: "mittel", funFact: "Germanium ist nach Deutschland benannt." },
+  { q: "Wie nennt man Lebewesen, die ihre Nahrung selbst erzeugen?", options: ["Produzenten", "Konsumenten", "Destruenten", "Parasiten"], answer: "Produzenten", difficulty: "mittel" },
+  { q: "Welche Wolkenart bringt typischerweise Gewitter?", options: ["Cumulonimbus", "Cirrus", "Stratus", "Nimbostratus"], answer: "Cumulonimbus", difficulty: "mittel" },
+  { q: "Welche Maßeinheit beschreibt die Stoffmenge?", options: ["Mol", "Gramm", "Liter", "Kelvin"], answer: "Mol", difficulty: "mittel" },
+  { q: "Welcher Prozess beschreibt das Aufspalten von Wasser durch Strom?", options: ["Elektrolyse", "Oxidation", "Destillation", "Filtration"], answer: "Elektrolyse", difficulty: "mittel" },
+  { q: "Welche Temperatur entspricht dem absoluten Nullpunkt?", options: ["−273 °C", "0 °C", "−100 °C", "−459 °C"], answer: "−273 °C", difficulty: "mittel", funFact: "Am absoluten Nullpunkt steht jede Teilchenbewegung still." },
+
+  // ── SCHWER ───────────────────────────────────────────────
+  { q: "Welche Zahl beschreibt die Avogadro-Konstante grob?", options: ["6 × 10²³", "3 × 10⁸", "9 × 10⁹", "1 × 10⁶"], answer: "6 × 10²³", difficulty: "schwer", funFact: "Sie gibt die Zahl der Teilchen in einem Mol an." },
+  { q: "Welcher Wissenschaftler stellte das Periodensystem auf?", options: ["Mendelejew", "Bohr", "Rutherford", "Pauling"], answer: "Mendelejew", difficulty: "schwer", funFact: "Er ließ Lücken für noch unentdeckte Elemente." },
+  { q: "Welches Enzym entwindet die DNA bei der Replikation?", options: ["Helikase", "Polymerase", "Ligase", "Protease"], answer: "Helikase", difficulty: "schwer" },
+  { q: "Welche Kraft hält Quarks in Protonen zusammen?", options: ["Starke Kernkraft", "Schwache Kernkraft", "Gravitation", "Elektromagnetismus"], answer: "Starke Kernkraft", difficulty: "schwer" },
+  { q: "Welcher Stoff transportiert genetische Information aus dem Zellkern?", options: ["mRNA", "ATP", "Glukose", "Hämoglobin"], answer: "mRNA", difficulty: "schwer" },
+  { q: "Welche Einheit beschreibt die radioaktive Aktivität?", options: ["Becquerel", "Pascal", "Tesla", "Lumen"], answer: "Becquerel", difficulty: "schwer" },
+  { q: "Welcher Physiker formulierte die Unschärferelation?", options: ["Heisenberg", "Schrödinger", "Bohr", "Dirac"], answer: "Heisenberg", difficulty: "schwer", funFact: "Sie besagt, dass Ort und Impuls nicht gleichzeitig exakt messbar sind." },
+  { q: "Welches Molekül ist der Hauptenergieträger der Zelle?", options: ["ATP", "DNA", "RNA", "NaCl"], answer: "ATP", difficulty: "schwer", funFact: "ATP wird oft 'Energiewährung' der Zelle genannt." },
+  { q: "Welche Teilchen werden bei der Beta-Strahlung ausgesendet?", options: ["Elektronen", "Protonen", "Photonen", "Neutronen"], answer: "Elektronen", difficulty: "schwer" },
+  { q: "Welcher Begriff beschreibt die Lichtbrechung in einem Prisma?", options: ["Dispersion", "Reflexion", "Beugung", "Absorption"], answer: "Dispersion", difficulty: "schwer", funFact: "Dabei wird weißes Licht in seine Farben zerlegt." },
+  { q: "Welches Element ist das schwerste natürlich vorkommende?", options: ["Uran", "Blei", "Plutonium", "Gold"], answer: "Uran", difficulty: "schwer" },
+  { q: "Welche Zellteilung erzeugt Keimzellen mit halbem Chromosomensatz?", options: ["Meiose", "Mitose", "Knospung", "Spaltung"], answer: "Meiose", difficulty: "schwer" },
+  { q: "Welches Gesetz beschreibt die Beziehung von Druck und Volumen eines Gases?", options: ["Boyle-Mariotte", "Ohm", "Hooke", "Faraday"], answer: "Boyle-Mariotte", difficulty: "schwer" },
+  { q: "Welche Galaxie ist unserer Milchstraße am nächsten?", options: ["Andromeda", "Sombrero", "Whirlpool", "Triangulum"], answer: "Andromeda", difficulty: "schwer", funFact: "Andromeda nähert sich uns und wird einst mit uns verschmelzen." },
+  { q: "Welcher Wissenschaftler entschlüsselte mit Watson die DNA-Struktur?", options: ["Crick", "Franklin", "Pauling", "Mendel"], answer: "Crick", difficulty: "schwer", funFact: "Rosalind Franklins Röntgenbilder waren dafür entscheidend." },
+  { q: "Welche Größe bleibt in einem abgeschlossenen System konstant?", options: ["Energie", "Temperatur", "Volumen", "Druck"], answer: "Energie", difficulty: "schwer", funFact: "Das ist der Energieerhaltungssatz." },
+  { q: "Welches Element verleiht der Sonne ihre gelbe Färbung im Spektrum?", options: ["Natrium", "Eisen", "Helium", "Calcium"], answer: "Natrium", difficulty: "schwer" },
+  { q: "Welcher pH-Bereich gilt als stark sauer?", options: ["0 bis 3", "7 bis 8", "10 bis 12", "6 bis 7"], answer: "0 bis 3", difficulty: "schwer" },
+  { q: "Welche physikalische Konstante hat den Wert von etwa 9,81 m/s²?", options: ["Erdbeschleunigung", "Lichtgeschwindigkeit", "Schallgeschwindigkeit", "Gaskonstante"], answer: "Erdbeschleunigung", difficulty: "schwer" },
+  { q: "Welcher Prozess beschreibt die Umwandlung von Stickstoff in nutzbare Form durch Bakterien?", options: ["Stickstofffixierung", "Nitrifikation", "Photosynthese", "Gärung"], answer: "Stickstofffixierung", difficulty: "schwer" },
+  { q: "Welches Teilchen vermittelt die elektromagnetische Kraft?", options: ["Photon", "Gluon", "Boson", "Neutrino"], answer: "Photon", difficulty: "schwer" },
+  { q: "Welcher Wissenschaftler prägte den Begriff der Quanten?", options: ["Max Planck", "Albert Einstein", "Niels Bohr", "Werner Heisenberg"], answer: "Max Planck", difficulty: "schwer", funFact: "Planck gilt als Begründer der Quantenphysik." },
+  { q: "Welche Blutgefäße sind am dünnsten?", options: ["Kapillaren", "Arterien", "Venen", "Aorta"], answer: "Kapillaren", difficulty: "schwer" },
+  { q: "Welcher Stoff ist für die Blutgerinnung notwendig?", options: ["Vitamin K", "Vitamin C", "Vitamin D", "Vitamin A"], answer: "Vitamin K", difficulty: "schwer" },
+  { q: "Welche Reaktion läuft in der Sonne ab und erzeugt ihre Energie?", options: ["Wasserstofffusion", "Urankernspaltung", "Verbrennung", "Oxidation"], answer: "Wasserstofffusion", difficulty: "schwer" },
+  { q: "Welches Element hat das chemische Symbol 'W'?", options: ["Wolfram", "Wasserstoff", "Wismut", "Vanadium"], answer: "Wolfram", difficulty: "schwer", funFact: "Wolfram hat den höchsten Schmelzpunkt aller Metalle." },
+  { q: "Welche Theorie erklärt die Entstehung des Universums?", options: ["Urknalltheorie", "Relativitätstheorie", "Evolutionstheorie", "Quantentheorie"], answer: "Urknalltheorie", difficulty: "schwer" },
+  { q: "Welche Wellenart ist Schall?", options: ["Longitudinalwelle", "Transversalwelle", "Elektromagnetische Welle", "Stehende Welle"], answer: "Longitudinalwelle", difficulty: "schwer" },
+  { q: "Welcher Teil des Ohrs wandelt Schall in Nervensignale um?", options: ["Schnecke", "Trommelfell", "Hammer", "Steigbügel"], answer: "Schnecke", difficulty: "schwer" },
+  { q: "Welches Hormon senkt den Blutzuckerspiegel?", options: ["Insulin", "Glukagon", "Adrenalin", "Cortisol"], answer: "Insulin", difficulty: "schwer" },
+  { q: "Welche Einheit beschreibt die magnetische Flussdichte?", options: ["Tesla", "Weber", "Henry", "Gauss"], answer: "Tesla", difficulty: "schwer" },
+  { q: "Welcher Begriff beschreibt das gleichzeitige Vorkommen zweier Arten zum gegenseitigen Nutzen?", options: ["Symbiose", "Parasitismus", "Konkurrenz", "Mimikry"], answer: "Symbiose", difficulty: "schwer" },
+  { q: "Welche Schicht der Erde ist flüssig?", options: ["Äußerer Erdkern", "Erdkruste", "Innerer Erdkern", "Lithosphäre"], answer: "Äußerer Erdkern", difficulty: "schwer", funFact: "Der innere Erdkern ist trotz größerer Hitze fest." },
+  { q: "Welcher Wissenschaftler entdeckte die Radioaktivität?", options: ["Becquerel", "Curie", "Röntgen", "Rutherford"], answer: "Becquerel", difficulty: "schwer", funFact: "Marie Curie prägte später den Begriff 'Radioaktivität'." },
+  { q: "Welches Gas entsteht bei der alkoholischen Gärung neben Ethanol?", options: ["Kohlendioxid", "Sauerstoff", "Methan", "Wasserstoff"], answer: "Kohlendioxid", difficulty: "schwer" },
+  { q: "Welcher Begriff beschreibt die Anzahl der Protonen eines Atoms?", options: ["Ordnungszahl", "Massenzahl", "Wertigkeit", "Isotopenzahl"], answer: "Ordnungszahl", difficulty: "schwer" },
+  { q: "Welche Strahlung wird von der Ozonschicht abgefangen?", options: ["UV-Strahlung", "Infrarot", "Radiowellen", "Mikrowellen"], answer: "UV-Strahlung", difficulty: "schwer" },
+  { q: "Welcher Planet hat die höchste Oberflächentemperatur?", options: ["Venus", "Merkur", "Mars", "Jupiter"], answer: "Venus", difficulty: "schwer", funFact: "Ihre dichte Atmosphäre staut die Hitze wie ein Treibhaus." },
+  { q: "Welche organische Verbindungsklasse umfasst Traubenzucker?", options: ["Kohlenhydrate", "Fette", "Proteine", "Nukleinsäuren"], answer: "Kohlenhydrate", difficulty: "schwer" },
+  { q: "Welcher Wissenschaftler entwickelte die Impfung gegen Tollwut?", options: ["Pasteur", "Koch", "Fleming", "Jenner"], answer: "Pasteur", difficulty: "schwer" },
+  { q: "Welche Kraft beschreibt das Trägheitsverhalten von Körpern?", options: ["Erstes Newtonsches Gesetz", "Auftrieb", "Zentripetalkraft", "Reibung"], answer: "Erstes Newtonsches Gesetz", difficulty: "schwer" },
+  { q: "Welches Element ist Hauptbestandteil organischer Verbindungen?", options: ["Kohlenstoff", "Sauerstoff", "Stickstoff", "Silizium"], answer: "Kohlenstoff", difficulty: "schwer" },
+  { q: "Welcher Vorgang beschreibt die Aufnahme von Teilchen in eine Zelle durch Einstülpung?", options: ["Endozytose", "Exozytose", "Osmose", "Diffusion"], answer: "Endozytose", difficulty: "schwer" },
+  { q: "Welche Sternenklasse beschreibt unsere Sonne?", options: ["Gelber Zwerg", "Roter Riese", "Weißer Zwerg", "Blauer Überriese"], answer: "Gelber Zwerg", difficulty: "schwer" },
+  { q: "Welcher Stoffwechselweg baut Glukose ohne Sauerstoff ab?", options: ["Glykolyse", "Zitronensäurezyklus", "Atmungskette", "Photosynthese"], answer: "Glykolyse", difficulty: "schwer" },
+],
   geschichte: [
-    { q: "In welchem Jahr fiel die Berliner Mauer?", display: "🧱", options: ["1989", "1991", "1987", "1990"], answer: "1989", difficulty: "einfach", funFact: "Der Mauerfall geschah teils durch eine versehentlich zu früh verlesene Pressemitteilung." },
-    { q: "Welches antike Weltwunder stand in Ägypten?", display: "🏛️", options: ["Pyramiden von Gizeh", "Koloss von Rhodos", "Hängende Gärten", "Leuchtturm von Pharos"], answer: "Pyramiden von Gizeh", difficulty: "einfach", funFact: "Die Pyramiden sind das einzige der sieben antiken Weltwunder, das heute noch existiert." },
-    { q: "In welchem Jahr begann der Erste Weltkrieg?", display: "⚔️", options: ["1914", "1912", "1916", "1918"], answer: "1914", difficulty: "einfach", funFact: "1914 gab es einen spontanen Weihnachtsfrieden im Schützengraben." },
-    { q: "Welches Reich beherrschte zur Zeit Caesars das Mittelmeer?", display: "🏺", options: ["Römisches Reich", "Byzantinisches Reich", "Makedonien", "Karthago"], answer: "Römisches Reich", difficulty: "mittel", funFact: "Der Monat Juli ist nach Julius Caesar benannt." },
-    { q: "Wer war die letzte aktive Pharaonin Ägyptens?", display: "👑", options: ["Kleopatra", "Nofretete", "Hatschepsut", "Nitokris"], answer: "Kleopatra", difficulty: "mittel", funFact: "Kleopatra lebte zeitlich näher an der Mondlandung als am Bau der Pyramiden." },
-    { q: "Welche Stadt war das Zentrum des Inka-Reiches?", display: "⛰️", options: ["Cusco", "Lima", "Quito", "Tiwanaku"], answer: "Cusco", difficulty: "mittel", funFact: "Die Inka hatten keine Schrift, aber ein Knotensystem namens 'Quipu' zur Datenspeicherung." },
-    { q: "In welchem Jahr endete der Dreißigjährige Krieg?", display: "🕊️", options: ["1648", "1618", "1659", "1672"], answer: "1648", difficulty: "schwer", funFact: "Der Westfälische Friede von 1648 prägt bis heute das Prinzip souveräner Staaten." },
-    { q: "Wer war der erste römische Kaiser?", display: "🦅", options: ["Augustus", "Julius Caesar", "Nero", "Konstantin"], answer: "Augustus", difficulty: "schwer", funFact: "Augustus hieß ursprünglich Octavian – 'Augustus' war ein Ehrentitel." },
-    { q: "Welche Dynastie baute die Verbotene Stadt in Peking?", display: "🏯", options: ["Ming", "Qing", "Han", "Tang"], answer: "Ming", difficulty: "schwer", funFact: "Die Verbotene Stadt hat fast 1.000 Gebäude und war 500 Jahre für das Volk gesperrt." },
-    { q: "In welchem Jahr stürmte die Menge die Bastille?", display: "🗡️", options: ["1789", "1776", "1799", "1804"], answer: "1789", difficulty: "schwer", funFact: "Der 14. Juli ist bis heute Frankreichs Nationalfeiertag." },
-    { q: "Welches Volk erfand die Keilschrift?", display: "📜", options: ["Sumerer", "Ägypter", "Phönizier", "Babylonier"], answer: "Sumerer", difficulty: "schwer", funFact: "Die sumerische Keilschrift ist über 5.000 Jahre alt – eine der ältesten Schriften überhaupt." },
-    { q: "Wer führte den ersten erfolgreichen Motorflug durch?", display: "✈️", options: ["Gebrüder Wright", "Otto Lilienthal", "Louis Blériot", "Charles Lindbergh"], answer: "Gebrüder Wright", difficulty: "mittel", funFact: "Der erste Motorflug 1903 dauerte nur 12 Sekunden." },
-    { q: "Wer war der erste Mensch auf dem Mond?", display: "🌕", options: ["Neil Armstrong", "Buzz Aldrin", "Juri Gagarin", "Michael Collins"], answer: "Neil Armstrong", difficulty: "einfach", funFact: "Armstrongs Fußabdrücke könnten Millionen Jahre auf dem Mond bleiben." },
-    { q: "Wer malte die Mona Lisa?", display: "🖼️", options: ["Leonardo da Vinci", "Michelangelo", "Raffael", "Tizian"], answer: "Leonardo da Vinci", difficulty: "einfach", funFact: "Die Mona Lisa hat keine sichtbaren Augenbrauen." },
-    { q: "Welches Schiff sank 1912 auf seiner Jungfernfahrt?", display: "🚢", options: ["Titanic", "Lusitania", "Bismarck", "Mayflower"], answer: "Titanic", difficulty: "einfach", funFact: "Die Titanic hatte Rettungsboote für nur etwa die Hälfte der Passagiere." },
-    { q: "In welchem Land begann die Industrielle Revolution?", display: "⚙️", options: ["England", "Deutschland", "Frankreich", "USA"], answer: "England", difficulty: "mittel", funFact: "Die Dampfmaschine war der Motor dieser Umwälzung." },
-    { q: "Welche Mauer wurde 1961 errichtet?", display: "🧱", options: ["Berliner Mauer", "Chinesische Mauer", "Hadrianswall", "Klagemauer"], answer: "Berliner Mauer", difficulty: "einfach", funFact: "Die Berliner Mauer stand 28 Jahre lang." },
-    { q: "Wer war ein berühmter Anführer im antiken Makedonien?", display: "🏇", options: ["Alexander der Große", "Hannibal", "Caesar", "Leonidas"], answer: "Alexander der Große", difficulty: "mittel", funFact: "Alexander hatte mit 30 eines der größten Reiche der Geschichte erobert." },
-    { q: "Welche Revolution begann 1789?", display: "🇫🇷", options: ["Französische Revolution", "Russische Revolution", "Amerikanische Revolution", "Industrielle Revolution"], answer: "Französische Revolution", difficulty: "mittel", funFact: "Ihr Motto war 'Freiheit, Gleichheit, Brüderlichkeit'." },
-    { q: "Wer schrieb die Relativitätstheorie?", display: "🧠", options: ["Albert Einstein", "Isaac Newton", "Galileo Galilei", "Nikola Tesla"], answer: "Albert Einstein", difficulty: "einfach", funFact: "Einstein erhielt den Nobelpreis nicht für die Relativitätstheorie." },
-    { q: "Welche antike Stadt wurde vom Vesuv verschüttet?", display: "🌋", options: ["Pompeji", "Karthago", "Troja", "Sparta"], answer: "Pompeji", difficulty: "mittel", funFact: "Der Ascheregen von 79 n. Chr. konservierte die Stadt fast vollständig." },
-    { q: "Wer war die erste Frau mit einem Nobelpreis?", display: "🔬", options: ["Marie Curie", "Rosalind Franklin", "Ada Lovelace", "Lise Meitner"], answer: "Marie Curie", difficulty: "schwer", funFact: "Marie Curie gewann den Nobelpreis sogar zweimal – in Physik und Chemie." },
-    { q: "Welches Reich baute das Kolosseum?", display: "🏟️", options: ["Römisches Reich", "Griechenland", "Ägypten", "Persien"], answer: "Römisches Reich", difficulty: "einfach", funFact: "Im Kolosseum fanden bis zu 50.000 Zuschauer Platz." },
-    { q: "In welchem Jahrhundert lebte Martin Luther?", display: "📜", options: ["16. Jahrhundert", "14. Jahrhundert", "18. Jahrhundert", "12. Jahrhundert"], answer: "16. Jahrhundert", difficulty: "schwer", funFact: "Luthers Thesenanschlag 1517 löste die Reformation aus." },
-    { q: "Wer entdeckte 1492 Amerika für Europa?", display: "⛵", options: ["Christoph Kolumbus", "Vasco da Gama", "Magellan", "Marco Polo"], answer: "Christoph Kolumbus", difficulty: "einfach", funFact: "Kolumbus glaubte bis zuletzt, er sei in Asien gelandet." },
-    { q: "Welcher Pharao ließ sich in einem berühmten goldenen Sarg bestatten?", display: "⚱️", options: ["Tutanchamun", "Ramses II.", "Echnaton", "Cheops"], answer: "Tutanchamun", difficulty: "schwer", funFact: "Sein Grab wurde 1922 fast unberührt entdeckt." },
-    { q: "Welcher Krieg fand zwischen 1939 und 1945 statt?", display: "🌍", options: ["Zweiter Weltkrieg", "Erster Weltkrieg", "Kalter Krieg", "Dreißigjähriger Krieg"], answer: "Zweiter Weltkrieg", difficulty: "einfach", funFact: "Es war der verlustreichste Konflikt der Menschheitsgeschichte." },
-  ],
+  // ── EINFACH ──
+  { q: "In welchem Jahr fiel die Berliner Mauer?", options: ["1989", "1991", "1987", "1990"], answer: "1989", difficulty: "einfach", funFact: "Der Mauerfall geschah teils durch eine zu früh verlesene Pressemitteilung." },
+  { q: "Welches antike Weltwunder steht noch heute?", options: ["Pyramiden von Gizeh", "Koloss von Rhodos", "Hängende Gärten", "Leuchtturm von Pharos"], answer: "Pyramiden von Gizeh", difficulty: "einfach" },
+  { q: "Wer malte die Mona Lisa?", options: ["Leonardo da Vinci", "Michelangelo", "Raffael", "Tizian"], answer: "Leonardo da Vinci", difficulty: "einfach", funFact: "Die Mona Lisa hat keine sichtbaren Augenbrauen." },
+  { q: "In welchem Jahr begann der Erste Weltkrieg?", options: ["1914", "1912", "1916", "1918"], answer: "1914", difficulty: "einfach" },
+  { q: "Welches Schiff sank 1912 auf seiner Jungfernfahrt?", options: ["Titanic", "Lusitania", "Bismarck", "Mayflower"], answer: "Titanic", difficulty: "einfach", funFact: "Sie hatte Rettungsboote für nur etwa die Hälfte der Passagiere." },
+  { q: "Wer war der erste Mensch auf dem Mond?", options: ["Neil Armstrong", "Buzz Aldrin", "Juri Gagarin", "Michael Collins"], answer: "Neil Armstrong", difficulty: "einfach" },
+  { q: "Welches Reich baute das Kolosseum?", options: ["Römisches Reich", "Griechenland", "Ägypten", "Persien"], answer: "Römisches Reich", difficulty: "einfach", funFact: "Im Kolosseum fanden bis zu 50.000 Zuschauer Platz." },
+  { q: "Welcher Krieg fand zwischen 1939 und 1945 statt?", options: ["Zweiter Weltkrieg", "Erster Weltkrieg", "Kalter Krieg", "Dreißigjähriger Krieg"], answer: "Zweiter Weltkrieg", difficulty: "einfach" },
+  { q: "Wer entdeckte 1492 Amerika für Europa?", options: ["Christoph Kolumbus", "Vasco da Gama", "Magellan", "Marco Polo"], answer: "Christoph Kolumbus", difficulty: "einfach" },
+  { q: "Welche Mauer wurde 1961 errichtet?", options: ["Berliner Mauer", "Chinesische Mauer", "Hadrianswall", "Klagemauer"], answer: "Berliner Mauer", difficulty: "einfach" },
+  { q: "In welchem Land stehen die Pyramiden von Gizeh?", options: ["Ägypten", "Mexiko", "Sudan", "Irak"], answer: "Ägypten", difficulty: "einfach" },
+  { q: "Welche Revolution begann 1789?", options: ["Französische Revolution", "Russische Revolution", "Amerikanische Revolution", "Industrielle Revolution"], answer: "Französische Revolution", difficulty: "einfach", funFact: "Ihr Motto war 'Freiheit, Gleichheit, Brüderlichkeit'." },
+  { q: "Welcher antike Herrscher eroberte ein riesiges Reich bis nach Indien?", options: ["Alexander der Große", "Hannibal", "Caesar", "Nero"], answer: "Alexander der Große", difficulty: "einfach" },
+  { q: "Welche antike Stadt wurde vom Vesuv verschüttet?", options: ["Pompeji", "Karthago", "Troja", "Sparta"], answer: "Pompeji", difficulty: "einfach" },
+  { q: "In welchem Land begann die Industrielle Revolution?", options: ["England", "Deutschland", "Frankreich", "USA"], answer: "England", difficulty: "einfach", funFact: "Die Dampfmaschine war ihr Motor." },
+
+  // ── MITTEL ──
+  { q: "Wer war die letzte aktive Pharaonin Ägyptens?", options: ["Kleopatra", "Nofretete", "Hatschepsut", "Nitokris"], answer: "Kleopatra", difficulty: "mittel", funFact: "Sie lebte näher an der Mondlandung als am Bau der Pyramiden." },
+  { q: "Welche Stadt war das Zentrum des Inka-Reiches?", options: ["Cusco", "Lima", "Quito", "Tiwanaku"], answer: "Cusco", difficulty: "mittel", funFact: "Die Inka nutzten Knotenschnüre namens 'Quipu' zur Datenspeicherung." },
+  { q: "Wer war der erste römische Kaiser?", options: ["Augustus", "Julius Caesar", "Nero", "Konstantin"], answer: "Augustus", difficulty: "mittel", funFact: "Er hieß ursprünglich Octavian." },
+  { q: "In welchem Jahr endete der Zweite Weltkrieg in Europa?", options: ["1945", "1944", "1946", "1943"], answer: "1945", difficulty: "mittel" },
+  { q: "Wer führte den ersten erfolgreichen Motorflug durch?", options: ["Gebrüder Wright", "Otto Lilienthal", "Louis Blériot", "Charles Lindbergh"], answer: "Gebrüder Wright", difficulty: "mittel", funFact: "Der erste Motorflug 1903 dauerte nur 12 Sekunden." },
+  { q: "Welcher Pharao wurde 1922 in einem fast unberührten Grab gefunden?", options: ["Tutanchamun", "Ramses II.", "Echnaton", "Cheops"], answer: "Tutanchamun", difficulty: "mittel" },
+  { q: "Wer war die erste Frau, die einen Nobelpreis erhielt?", options: ["Marie Curie", "Rosalind Franklin", "Ada Lovelace", "Lise Meitner"], answer: "Marie Curie", difficulty: "mittel", funFact: "Sie gewann ihn sogar zweimal." },
+  { q: "In welchem Jahrhundert lebte Martin Luther?", options: ["16. Jahrhundert", "14. Jahrhundert", "18. Jahrhundert", "12. Jahrhundert"], answer: "16. Jahrhundert", difficulty: "mittel", funFact: "Sein Thesenanschlag 1517 löste die Reformation aus." },
+  { q: "Welches Land war im Kalten Krieg der Gegenspieler der USA?", options: ["Sowjetunion", "China", "Frankreich", "Japan"], answer: "Sowjetunion", difficulty: "mittel" },
+  { q: "Wer schrieb das 'Kommunistische Manifest' mit?", options: ["Karl Marx", "Lenin", "Stalin", "Bismarck"], answer: "Karl Marx", difficulty: "mittel", funFact: "Er verfasste es zusammen mit Friedrich Engels." },
+  { q: "Welche Dynastie regierte Frankreich vor der Revolution von 1789?", options: ["Bourbonen", "Habsburger", "Tudor", "Romanow"], answer: "Bourbonen", difficulty: "mittel" },
+  { q: "Welcher Feldherr überquerte mit Elefanten die Alpen?", options: ["Hannibal", "Caesar", "Scipio", "Alexander"], answer: "Hannibal", difficulty: "mittel", funFact: "Er kämpfte für Karthago gegen Rom." },
+  { q: "Welcher deutsche Kanzler stand für die Wiedervereinigung 1990?", options: ["Helmut Kohl", "Willy Brandt", "Helmut Schmidt", "Konrad Adenauer"], answer: "Helmut Kohl", difficulty: "mittel" },
+  { q: "Welche Königin regierte England im 'goldenen Zeitalter' um 1600?", options: ["Elisabeth I.", "Victoria", "Maria Stuart", "Anne"], answer: "Elisabeth I.", difficulty: "mittel" },
+  { q: "Wer war der erste Bundeskanzler der Bundesrepublik Deutschland?", options: ["Konrad Adenauer", "Ludwig Erhard", "Willy Brandt", "Kurt Georg Kiesinger"], answer: "Konrad Adenauer", difficulty: "mittel" },
+  { q: "In welchem Jahr wurde die Unabhängigkeitserklärung der USA unterzeichnet?", options: ["1776", "1789", "1763", "1801"], answer: "1776", difficulty: "mittel" },
+  { q: "Welche Stadt war Hauptstadt des Byzantinischen Reiches?", options: ["Konstantinopel", "Rom", "Athen", "Alexandria"], answer: "Konstantinopel", difficulty: "mittel", funFact: "Heute heißt sie Istanbul." },
+  { q: "Welcher Entdecker umsegelte als Erster die Welt (seine Crew vollendete es)?", options: ["Magellan", "Kolumbus", "Vasco da Gama", "Drake"], answer: "Magellan", difficulty: "mittel" },
+  { q: "Welches Volk schuf das erste bekannte Schriftsystem?", options: ["Sumerer", "Ägypter", "Griechen", "Römer"], answer: "Sumerer", difficulty: "mittel", funFact: "Ihre Keilschrift ist über 5.000 Jahre alt." },
+  { q: "Welcher US-Präsident wurde 1865 ermordet?", options: ["Abraham Lincoln", "John F. Kennedy", "George Washington", "Andrew Jackson"], answer: "Abraham Lincoln", difficulty: "mittel" },
+  { q: "Welche Epoche folgte auf das Mittelalter?", options: ["Renaissance", "Antike", "Aufklärung", "Romantik"], answer: "Renaissance", difficulty: "mittel" },
+  { q: "Wer war der bekannteste Anführer der Hunnen?", options: ["Attila", "Dschingis Khan", "Spartacus", "Vercingetorix"], answer: "Attila", difficulty: "mittel" },
+  { q: "Welches Ereignis löste den Ersten Weltkrieg aus?", options: ["Attentat von Sarajevo", "Sturm auf die Bastille", "Mauerfall", "Pearl Harbor"], answer: "Attentat von Sarajevo", difficulty: "mittel" },
+  { q: "Welcher Forschungsreisende erreichte 1911 als Erster den Südpol?", options: ["Roald Amundsen", "Robert Scott", "Ernest Shackleton", "Fridtjof Nansen"], answer: "Roald Amundsen", difficulty: "mittel" },
+  { q: "Welche Stadt wurde im Jahr 79 n. Chr. vom Vesuv begraben?", options: ["Pompeji", "Rom", "Neapel", "Ostia"], answer: "Pompeji", difficulty: "mittel" },
+  { q: "Welcher englische König hatte sechs Ehefrauen?", options: ["Heinrich VIII.", "Richard Löwenherz", "Eduard I.", "Georg III."], answer: "Heinrich VIII.", difficulty: "mittel" },
+  { q: "In welchem Jahr endete der Vietnamkrieg?", options: ["1975", "1968", "1980", "1972"], answer: "1975", difficulty: "mittel" },
+  { q: "Wer erfand den Buchdruck mit beweglichen Lettern in Europa?", options: ["Johannes Gutenberg", "Leonardo da Vinci", "Galileo Galilei", "Martin Luther"], answer: "Johannes Gutenberg", difficulty: "mittel", funFact: "Sein berühmtestes Werk ist die Gutenberg-Bibel." },
+  { q: "Welcher französische Herrscher krönte sich 1804 selbst zum Kaiser?", options: ["Napoleon Bonaparte", "Ludwig XIV.", "Karl der Große", "Robespierre"], answer: "Napoleon Bonaparte", difficulty: "mittel" },
+  { q: "Welches Land entsandte die erste Sonde zum Mond?", options: ["Sowjetunion", "USA", "China", "Deutschland"], answer: "Sowjetunion", difficulty: "mittel", funFact: "Luna 2 erreichte den Mond 1959." },
+  { q: "Welcher römische Politiker wurde an den Iden des März ermordet?", options: ["Julius Caesar", "Augustus", "Cicero", "Pompeius"], answer: "Julius Caesar", difficulty: "mittel" },
+  { q: "Welche Mauer schützte das römische Britannien im Norden?", options: ["Hadrianswall", "Limes", "Große Mauer", "Antoninuswall"], answer: "Hadrianswall", difficulty: "mittel" },
+  { q: "Welches Reich wurde von Dschingis Khan gegründet?", options: ["Mongolisches Reich", "Osmanisches Reich", "Perserreich", "Mauryareich"], answer: "Mongolisches Reich", difficulty: "mittel" },
+  { q: "Welche deutsche Stadt war Schauplatz der Kriegsverbrecherprozesse 1945/46?", options: ["Nürnberg", "Berlin", "München", "Frankfurt"], answer: "Nürnberg", difficulty: "mittel" },
+  { q: "Wer war die Jungfrau von Orléans?", options: ["Jeanne d'Arc", "Maria Theresia", "Elisabeth I.", "Katharina die Große"], answer: "Jeanne d'Arc", difficulty: "mittel" },
+  { q: "Welches Volk gründete das antike Karthago?", options: ["Phönizier", "Griechen", "Römer", "Ägypter"], answer: "Phönizier", difficulty: "mittel" },
+  { q: "Welcher Vertrag beendete 1919 offiziell den Ersten Weltkrieg?", options: ["Versailler Vertrag", "Wiener Kongress", "Vertrag von Maastricht", "Westfälischer Frieden"], answer: "Versailler Vertrag", difficulty: "mittel" },
+
+  // ── SCHWER ──
+  { q: "In welchem Jahr endete der Dreißigjährige Krieg?", options: ["1648", "1618", "1659", "1672"], answer: "1648", difficulty: "schwer", funFact: "Der Westfälische Friede prägt bis heute das Völkerrecht." },
+  { q: "Welche Dynastie baute die Verbotene Stadt in Peking?", options: ["Ming", "Qing", "Han", "Tang"], answer: "Ming", difficulty: "schwer" },
+  { q: "Welcher byzantinische Kaiser ließ die Hagia Sophia errichten?", options: ["Justinian I.", "Konstantin I.", "Basileios II.", "Heraclius"], answer: "Justinian I.", difficulty: "schwer" },
+  { q: "In welchem Jahr wurde Konstantinopel von den Osmanen erobert?", options: ["1453", "1492", "1389", "1517"], answer: "1453", difficulty: "schwer" },
+  { q: "Wer war der erste Zar von Russland?", options: ["Iwan IV.", "Peter der Große", "Boris Godunow", "Michael Romanow"], answer: "Iwan IV.", difficulty: "schwer", funFact: "Er ist als 'Iwan der Schreckliche' bekannt." },
+  { q: "Welche Schlacht 1815 beendete die Herrschaft Napoleons endgültig?", options: ["Waterloo", "Austerlitz", "Leipzig", "Trafalgar"], answer: "Waterloo", difficulty: "schwer" },
+  { q: "Welcher Kontinent wurde während des 'Wettlaufs' im 19. Jh. unter Europa aufgeteilt?", options: ["Afrika", "Asien", "Südamerika", "Australien"], answer: "Afrika", difficulty: "schwer", funFact: "Die Aufteilung wurde auf der Berliner Konferenz 1884/85 geregelt." },
+  { q: "Welcher Herrscher ließ den Taj Mahal erbauen?", options: ["Shah Jahan", "Akbar", "Aurangzeb", "Babur"], answer: "Shah Jahan", difficulty: "schwer", funFact: "Er ließ ihn als Mausoleum für seine Frau errichten." },
+  { q: "In welchem Jahr wurde die Französische Republik erstmals ausgerufen?", options: ["1792", "1789", "1799", "1804"], answer: "1792", difficulty: "schwer" },
+  { q: "Welcher Pharao gilt als Begründer des Monotheismus im alten Ägypten?", options: ["Echnaton", "Tutanchamun", "Ramses II.", "Cheops"], answer: "Echnaton", difficulty: "schwer", funFact: "Er verehrte den Sonnengott Aton." },
+  { q: "Welches Reich wurde 1806 von Napoleon aufgelöst?", options: ["Heiliges Römisches Reich", "Osmanisches Reich", "Habsburgerreich", "Preußen"], answer: "Heiliges Römisches Reich", difficulty: "schwer" },
+  { q: "Welcher griechische Stadtstaat besiegte Persien bei Marathon?", options: ["Athen", "Sparta", "Theben", "Korinth"], answer: "Athen", difficulty: "schwer", funFact: "Der Marathonlauf erinnert an den Boten von dieser Schlacht." },
+  { q: "Welcher Mongolenherrscher eroberte China und gründete die Yuan-Dynastie?", options: ["Kublai Khan", "Dschingis Khan", "Timur", "Ögedei"], answer: "Kublai Khan", difficulty: "schwer" },
+  { q: "In welchem Jahr wurde die Magna Carta unterzeichnet?", options: ["1215", "1066", "1348", "1415"], answer: "1215", difficulty: "schwer", funFact: "Sie begrenzte erstmals die Macht des englischen Königs." },
+  { q: "Welcher Feldherr besiegte 9 n. Chr. die Römer in der Varusschlacht?", options: ["Arminius", "Vercingetorix", "Spartacus", "Boudicca"], answer: "Arminius", difficulty: "schwer", funFact: "Die Schlacht fand im Teutoburger Wald statt." },
+  { q: "Welche Epoche prägte Voltaire und Rousseau im 18. Jahrhundert?", options: ["Aufklärung", "Renaissance", "Barock", "Romantik"], answer: "Aufklärung", difficulty: "schwer" },
+  { q: "Welcher osmanische Sultan eroberte 1453 Konstantinopel?", options: ["Mehmed II.", "Süleyman I.", "Selim I.", "Bayezid I."], answer: "Mehmed II.", difficulty: "schwer" },
+  { q: "Welcher Krieg tobte 1337 bis 1453 zwischen England und Frankreich?", options: ["Hundertjähriger Krieg", "Rosenkrieg", "Dreißigjähriger Krieg", "Siebenjähriger Krieg"], answer: "Hundertjähriger Krieg", difficulty: "schwer" },
+  { q: "Welche Zivilisation baute die Stadt Machu Picchu?", options: ["Inka", "Maya", "Azteken", "Olmeken"], answer: "Inka", difficulty: "schwer" },
+  { q: "Wer war der letzte Kaiser von China?", options: ["Puyi", "Guangxu", "Kangxi", "Qianlong"], answer: "Puyi", difficulty: "schwer", funFact: "Er bestieg den Thron im Alter von zwei Jahren." },
+  { q: "Welche Seemacht besiegte 1588 die spanische Armada?", options: ["England", "Frankreich", "Niederlande", "Portugal"], answer: "England", difficulty: "schwer" },
+  { q: "Welcher Kanzler einte 1871 das Deutsche Reich?", options: ["Otto von Bismarck", "Wilhelm I.", "Helmut Kohl", "Friedrich Ebert"], answer: "Otto von Bismarck", difficulty: "schwer" },
+  { q: "Welcher Vertrag teilte 1494 die Neue Welt zwischen Spanien und Portugal?", options: ["Vertrag von Tordesillas", "Vertrag von Utrecht", "Frieden von Augsburg", "Pariser Vertrag"], answer: "Vertrag von Tordesillas", difficulty: "schwer" },
+  { q: "Welche Königin bestieg 1837 den britischen Thron?", options: ["Victoria", "Elisabeth I.", "Anne", "Maria I."], answer: "Victoria", difficulty: "schwer", funFact: "Sie regierte über 63 Jahre." },
+  { q: "Welche Revolution stürzte 1917 den russischen Zaren?", options: ["Oktoberrevolution", "Französische Revolution", "Märzrevolution 1848", "Kulturrevolution"], answer: "Oktoberrevolution", difficulty: "schwer" },
+  { q: "Welcher antike Gesetzgeber schuf einen der ältesten Gesetzeskodizes?", options: ["Hammurabi", "Solon", "Drakon", "Justinian"], answer: "Hammurabi", difficulty: "schwer", funFact: "Der Kodex Hammurabi ist fast 4.000 Jahre alt." },
+  { q: "In welchem Jahr begann die Reformation mit Luthers Thesen?", options: ["1517", "1492", "1453", "1555"], answer: "1517", difficulty: "schwer" },
+  { q: "Welches Volk plünderte 410 n. Chr. Rom?", options: ["Westgoten", "Vandalen", "Hunnen", "Franken"], answer: "Westgoten", difficulty: "schwer", funFact: "Ihr Anführer war Alarich I." },
+  { q: "Welcher Pharao regierte am längsten und schloss den ersten Friedensvertrag?", options: ["Ramses II.", "Tutanchamun", "Cheops", "Echnaton"], answer: "Ramses II.", difficulty: "schwer" },
+  { q: "Welche Familie beherrschte über Jahrhunderte das Heilige Römische Reich?", options: ["Habsburger", "Bourbonen", "Tudor", "Medici"], answer: "Habsburger", difficulty: "schwer" },
+  { q: "Welche italienische Familie förderte in Florenz die Renaissance?", options: ["Medici", "Borgia", "Sforza", "Visconti"], answer: "Medici", difficulty: "schwer" },
+  { q: "Welcher Krieg endete 1648 mit dem Westfälischen Frieden?", options: ["Dreißigjähriger Krieg", "Hundertjähriger Krieg", "Siebenjähriger Krieg", "Spanischer Erbfolgekrieg"], answer: "Dreißigjähriger Krieg", difficulty: "schwer" },
+  { q: "Welcher Entdecker fand 1498 den Seeweg nach Indien?", options: ["Vasco da Gama", "Kolumbus", "Magellan", "Cabral"], answer: "Vasco da Gama", difficulty: "schwer" },
+  { q: "Welche Schlacht 1066 brachte die Normannen an die Macht in England?", options: ["Schlacht bei Hastings", "Schlacht von Agincourt", "Schlacht bei Bouvines", "Schlacht von Tours"], answer: "Schlacht bei Hastings", difficulty: "schwer" },
+  { q: "Welcher chinesische Kaiser ließ die erste Große Mauer verbinden?", options: ["Qin Shihuangdi", "Kublai Khan", "Wu Zetian", "Kangxi"], answer: "Qin Shihuangdi", difficulty: "schwer", funFact: "Er war auch der erste Kaiser eines geeinten China." },
+  { q: "Welche Stadt war Zentrum des antiken Maya-Reichs?", options: ["Tikal", "Cusco", "Tenochtitlan", "Teotihuacan"], answer: "Tikal", difficulty: "schwer" },
+  { q: "Welcher russische Zar modernisierte das Land und gründete St. Petersburg?", options: ["Peter der Große", "Iwan IV.", "Nikolaus II.", "Alexander I."], answer: "Peter der Große", difficulty: "schwer" },
+  { q: "Welcher Aztekenherrscher empfing 1519 die Spanier?", options: ["Moctezuma II.", "Cuauhtémoc", "Atahualpa", "Tizoc"], answer: "Moctezuma II.", difficulty: "schwer" },
+  { q: "Welcher Krieg 1756–1763 gilt als erster 'Weltkrieg' der Geschichte?", options: ["Siebenjähriger Krieg", "Dreißigjähriger Krieg", "Spanischer Erbfolgekrieg", "Napoleonische Kriege"], answer: "Siebenjähriger Krieg", difficulty: "schwer" },
+  { q: "Welches Reich beherrschte vor den Spaniern weite Teile der Anden?", options: ["Inka", "Maya", "Azteken", "Chavín"], answer: "Inka", difficulty: "schwer" },
+  { q: "Welcher englische Naturforscher segelte auf der HMS Beagle?", options: ["Charles Darwin", "Isaac Newton", "Alfred Wallace", "Joseph Banks"], answer: "Charles Darwin", difficulty: "schwer" },
+  { q: "Welche Hauptstadt hatte das Aztekenreich?", options: ["Tenochtitlan", "Cusco", "Tikal", "Palenque"], answer: "Tenochtitlan", difficulty: "schwer", funFact: "Auf ihren Ruinen steht heute Mexiko-Stadt." },
+  { q: "Welcher Pakt verband 1939 Hitler und Stalin kurzzeitig?", options: ["Hitler-Stalin-Pakt", "Münchner Abkommen", "Warschauer Pakt", "Atlantik-Charta"], answer: "Hitler-Stalin-Pakt", difficulty: "schwer" },
+  { q: "Welcher Herrscher gab dem Byzantinischen Reich seinen umfassenden Gesetzeskodex?", options: ["Justinian I.", "Konstantin", "Theodosius", "Diokletian"], answer: "Justinian I.", difficulty: "schwer" },
+  { q: "Welche Schlacht stoppte 732 die arabische Expansion in Westeuropa?", options: ["Schlacht von Tours", "Schlacht bei Hastings", "Schlacht von Lepanto", "Schlacht im Teutoburger Wald"], answer: "Schlacht von Tours", difficulty: "schwer" },
+],
   sport: [
-    { q: "Wie viele Ringe hat das olympische Symbol?", display: "🔵", options: ["5", "4", "6", "7"], answer: "5", difficulty: "einfach", funFact: "Die fünf Ringe stehen für die fünf bewohnten Kontinente." },
-    { q: "Wie lang ist ein Marathon (gerundet)?", display: "🏃", options: ["42 km", "38 km", "45 km", "50 km"], answer: "42 km", difficulty: "einfach", funFact: "Die genaue Distanz beträgt 42,195 km – festgelegt bei den Spielen 1908 in London." },
-    { q: "In welchem Land wurde Judo erfunden?", display: "🥋", options: ["Japan", "China", "Korea", "Mongolei"], answer: "Japan", difficulty: "einfach", funFact: "Judo bedeutet wörtlich 'der sanfte Weg'." },
-    { q: "Wie viele Punkte zählt ein Touchdown im American Football?", display: "🏈", options: ["6", "7", "3", "5"], answer: "6", difficulty: "mittel", funFact: "Nach dem Touchdown kann man durch einen Extrakick noch 1 Punkt holen." },
-    { q: "Welches Land gewann die erste Fußball-WM 1930?", display: "🏆", options: ["Uruguay", "Brasilien", "Argentinien", "Italien"], answer: "Uruguay", difficulty: "mittel", funFact: "Uruguay war auch Gastgeber der allerersten Weltmeisterschaft." },
-    { q: "Wie viele Felder hat ein Schachbrett?", display: "♟️", options: ["64", "100", "81", "72"], answer: "64", difficulty: "mittel", funFact: "Es gibt mehr mögliche Schachpartien als Atome im beobachtbaren Universum." },
-    { q: "In welcher Sportart gibt es den Begriff 'Hattrick' ursprünglich?", display: "🏏", options: ["Cricket", "Fußball", "Eishockey", "Tennis"], answer: "Cricket", difficulty: "schwer", funFact: "Im Cricket bekam ein Spieler für drei Treffer in Folge früher einen Hut geschenkt." },
-    { q: "Wie viele Spieler hat eine Volleyball-Mannschaft auf dem Feld?", display: "🏐", options: ["6", "5", "7", "8"], answer: "6", difficulty: "mittel", funFact: "Beim Beachvolleyball sind es dagegen nur zwei pro Team." },
-    { q: "Welcher Boxer nannte sich selbst 'The Greatest'?", display: "🥊", options: ["Muhammad Ali", "Mike Tyson", "Joe Frazier", "George Foreman"], answer: "Muhammad Ali", difficulty: "schwer", funFact: "Ali weigerte sich aus Gewissensgründen, in den Vietnamkrieg zu ziehen." },
-    { q: "Über welche Distanz läuft ein 'Steeplechase'-Hindernislauf?", display: "🚧", options: ["3000 m", "1500 m", "5000 m", "800 m"], answer: "3000 m", difficulty: "schwer", funFact: "Beim Steeplechase müssen die Läufer auch durch einen Wassergraben." },
-    { q: "Welches Land hat die meisten Tour-de-France-Siege?", display: "🚴", options: ["Frankreich", "Belgien", "Spanien", "Italien"], answer: "Frankreich", difficulty: "schwer", funFact: "Trotz vieler Siege wartet Frankreich seit 1985 auf einen eigenen Gesamtsieger." },
-    { q: "Wie heißt der höchste Wurf beim Bowling (alle Strikes)?", display: "🎳", options: ["Perfektes Spiel", "Royal Strike", "Grand Slam", "Triple Crown"], answer: "Perfektes Spiel", difficulty: "schwer", funFact: "Ein perfektes Bowling-Spiel ergibt genau 300 Punkte." },
-    { q: "Wie viele Spieler hat eine Fußballmannschaft auf dem Feld?", display: "⚽", options: ["11", "9", "10", "12"], answer: "11", difficulty: "einfach", funFact: "Inklusive Torwart sind es elf Spieler pro Team." },
-    { q: "In welchem Sport gibt es einen 'Slam Dunk'?", display: "🏀", options: ["Basketball", "Volleyball", "Handball", "Tennis"], answer: "Basketball", difficulty: "einfach", funFact: "Der erste Basketballkorb war ein echter Pfirsichkorb." },
-    { q: "Welcher Sport wird in Wimbledon gespielt?", display: "🎾", options: ["Tennis", "Cricket", "Golf", "Rugby"], answer: "Tennis", difficulty: "einfach", funFact: "Wimbledon ist das älteste Tennisturnier der Welt." },
-    { q: "Wie viele Löcher hat ein klassischer Golfplatz?", display: "⛳", options: ["18", "9", "24", "12"], answer: "18", difficulty: "mittel", funFact: "Eine Runde über 18 Löcher dauert oft über vier Stunden." },
-    { q: "In welchem Land wurden die antiken Olympischen Spiele erfunden?", display: "🏛️", options: ["Griechenland", "Italien", "Ägypten", "Türkei"], answer: "Griechenland", difficulty: "mittel", funFact: "Die antiken Spiele fanden in Olympia statt – daher der Name." },
-    { q: "Wie heißt der wichtigste Radsport-Wettbewerb Frankreichs?", display: "🚴", options: ["Tour de France", "Giro d'Italia", "Vuelta", "Paris-Roubaix"], answer: "Tour de France", difficulty: "einfach", funFact: "Der Führende trägt das berühmte gelbe Trikot." },
-    { q: "Welcher Schlag ist im Tennis ein direkter Punkt beim Aufschlag?", display: "🎾", options: ["Ass", "Volley", "Lob", "Slice"], answer: "Ass", difficulty: "mittel", funFact: "Die schnellsten Aufschläge erreichen über 250 km/h." },
-    { q: "Wie viele Runden hat ein Boxkampf um den WM-Titel maximal?", display: "🥊", options: ["12", "10", "15", "8"], answer: "12", difficulty: "schwer", funFact: "Früher wurde über 15 Runden geboxt, heute sind es zwölf." },
-    { q: "In welcher Sportart gibt es 'Birdie' und 'Bogey'?", display: "⛳", options: ["Golf", "Tennis", "Badminton", "Cricket"], answer: "Golf", difficulty: "mittel", funFact: "Ein 'Birdie' bedeutet ein Schlag unter Par." },
-    { q: "Welches Land hat die meisten Fußball-Weltmeistertitel?", display: "🏆", options: ["Brasilien", "Deutschland", "Italien", "Argentinien"], answer: "Brasilien", difficulty: "mittel", funFact: "Brasilien gewann den Titel fünfmal." },
-    { q: "Wie heißt der Sprung über eine Stange in der Leichtathletik?", display: "🤸", options: ["Stabhochsprung", "Weitsprung", "Hochsprung", "Dreisprung"], answer: "Stabhochsprung", difficulty: "schwer", funFact: "Spitzenathleten überqueren dabei über 6 Meter Höhe." },
-    { q: "Welche Sportart kombiniert Langlauf und Schießen?", display: "🎯", options: ["Biathlon", "Triathlon", "Pentathlon", "Skispringen"], answer: "Biathlon", difficulty: "schwer", funFact: "Beim Schießen muss der Puls schnell beruhigt werden." },
-    { q: "Wie viele Punkte ist ein 'Touchdown' im American Football wert?", display: "🏈", options: ["6", "7", "3", "5"], answer: "6", difficulty: "mittel", funFact: "Danach folgt oft ein Extrapunkt durch einen Kick." },
-    { q: "Auf welchem Untergrund werden die French Open gespielt?", display: "🎾", options: ["Sand", "Rasen", "Hartplatz", "Teppich"], answer: "Sand", difficulty: "schwer", funFact: "Der rote Sand macht das Spiel langsamer und kräftezehrender." },
-    { q: "Welcher Sport nutzt einen 'Puck'?", display: "🏒", options: ["Eishockey", "Basketball", "Baseball", "Rugby"], answer: "Eishockey", difficulty: "einfach", funFact: "Ein Puck kann beim Schuss über 160 km/h schnell werden." },
-  ],
+  // ── EINFACH ──
+  { q: "Wie viele Ringe hat das olympische Symbol?", options: ["5", "4", "6", "7"], answer: "5", difficulty: "einfach", funFact: "Sie stehen für die fünf bewohnten Kontinente." },
+  { q: "Wie lang ist ein Marathon (gerundet)?", options: ["42 km", "38 km", "45 km", "50 km"], answer: "42 km", difficulty: "einfach", funFact: "Die genaue Distanz beträgt 42,195 km." },
+  { q: "In welchem Land wurde Judo erfunden?", options: ["Japan", "China", "Korea", "Mongolei"], answer: "Japan", difficulty: "einfach" },
+  { q: "Welcher Sport wird in Wimbledon gespielt?", options: ["Tennis", "Cricket", "Golf", "Rugby"], answer: "Tennis", difficulty: "einfach", funFact: "Wimbledon ist das älteste Tennisturnier der Welt." },
+  { q: "Wie viele Löcher hat ein klassischer Golfplatz?", options: ["18", "9", "24", "12"], answer: "18", difficulty: "einfach" },
+  { q: "Welches Land hat die meisten Fußball-Weltmeistertitel?", options: ["Brasilien", "Deutschland", "Italien", "Argentinien"], answer: "Brasilien", difficulty: "einfach", funFact: "Brasilien gewann den Titel fünfmal." },
+  { q: "Wie viele Spieler einer Fußballmannschaft stehen auf dem Feld?", options: ["11", "9", "10", "12"], answer: "11", difficulty: "einfach" },
+  { q: "Welcher Sport nutzt einen 'Puck'?", options: ["Eishockey", "Basketball", "Baseball", "Rugby"], answer: "Eishockey", difficulty: "einfach", funFact: "Ein Puck kann über 160 km/h schnell werden." },
+  { q: "In welcher Sportart gibt es einen 'Slam Dunk'?", options: ["Basketball", "Volleyball", "Handball", "Tennis"], answer: "Basketball", difficulty: "einfach" },
+  { q: "Wie heißt der wichtigste Radsport-Wettbewerb Frankreichs?", options: ["Tour de France", "Giro d'Italia", "Vuelta", "Paris-Roubaix"], answer: "Tour de France", difficulty: "einfach", funFact: "Der Führende trägt das gelbe Trikot." },
+  { q: "Welche Sportart kombiniert Langlauf und Schießen?", options: ["Biathlon", "Triathlon", "Pentathlon", "Skispringen"], answer: "Biathlon", difficulty: "einfach" },
+  { q: "Wie viele Punkte zählt ein Touchdown im American Football?", options: ["6", "7", "3", "5"], answer: "6", difficulty: "einfach" },
+  { q: "In welchem Land wurden die antiken Olympischen Spiele erfunden?", options: ["Griechenland", "Italien", "Ägypten", "Türkei"], answer: "Griechenland", difficulty: "einfach" },
+  { q: "Welcher Sport wird mit Schläger und Federball gespielt?", options: ["Badminton", "Squash", "Tischtennis", "Tennis"], answer: "Badminton", difficulty: "einfach" },
+  { q: "Wie viele Spieler hat eine Volleyball-Mannschaft auf dem Feld?", options: ["6", "5", "7", "8"], answer: "6", difficulty: "einfach", funFact: "Beim Beachvolleyball sind es nur zwei pro Team." },
+
+  // ── MITTEL ──
+  { q: "Welches Land gewann die erste Fußball-WM 1930?", options: ["Uruguay", "Brasilien", "Argentinien", "Italien"], answer: "Uruguay", difficulty: "mittel", funFact: "Uruguay war auch Gastgeber." },
+  { q: "Wie viele Felder hat ein Schachbrett?", options: ["64", "100", "81", "72"], answer: "64", difficulty: "mittel" },
+  { q: "In welcher Sportart wird der Begriff 'Hattrick' ursprünglich verwendet?", options: ["Cricket", "Fußball", "Eishockey", "Tennis"], answer: "Cricket", difficulty: "mittel", funFact: "Für drei Treffer in Folge gab es früher einen Hut." },
+  { q: "Welcher Boxer nannte sich selbst 'The Greatest'?", options: ["Muhammad Ali", "Mike Tyson", "Joe Frazier", "George Foreman"], answer: "Muhammad Ali", difficulty: "mittel" },
+  { q: "Über welche Distanz läuft ein 'Steeplechase'-Hindernislauf?", options: ["3000 m", "1500 m", "5000 m", "800 m"], answer: "3000 m", difficulty: "mittel", funFact: "Dabei gibt es auch einen Wassergraben." },
+  { q: "Welcher Schlag ist im Tennis ein direkter Punkt beim Aufschlag?", options: ["Ass", "Volley", "Lob", "Slice"], answer: "Ass", difficulty: "mittel" },
+  { q: "Wie viele Runden hat ein WM-Boxkampf maximal?", options: ["12", "10", "15", "8"], answer: "12", difficulty: "mittel" },
+  { q: "In welcher Sportart gibt es 'Birdie' und 'Bogey'?", options: ["Golf", "Tennis", "Badminton", "Cricket"], answer: "Golf", difficulty: "mittel" },
+  { q: "Auf welchem Untergrund werden die French Open gespielt?", options: ["Sand", "Rasen", "Hartplatz", "Teppich"], answer: "Sand", difficulty: "mittel" },
+  { q: "Welcher Sportler hält viele Rekorde im Schwimmen und gewann 23 olympische Goldmedaillen?", options: ["Michael Phelps", "Ian Thorpe", "Mark Spitz", "Caeleb Dressel"], answer: "Michael Phelps", difficulty: "mittel" },
+  { q: "Wie nennt man im Basketball einen Wurf, der drei Punkte zählt?", options: ["Dreier", "Dunk", "Free Throw", "Layup"], answer: "Dreier", difficulty: "mittel" },
+  { q: "Welcher Verein gewann die erste Fußball-Champions-League 1993?", options: ["Olympique Marseille", "AC Mailand", "FC Barcelona", "Real Madrid"], answer: "Olympique Marseille", difficulty: "mittel" },
+  { q: "In welcher Stadt fanden 1936 die Olympischen Sommerspiele statt?", options: ["Berlin", "London", "Paris", "Amsterdam"], answer: "Berlin", difficulty: "mittel" },
+  { q: "Welcher Sport gehört zum 'Triathlon' nicht?", options: ["Rudern", "Schwimmen", "Radfahren", "Laufen"], answer: "Rudern", difficulty: "mittel" },
+  { q: "Wie heißt der wichtigste US-Football-Endspieltag?", options: ["Super Bowl", "World Series", "Stanley Cup", "Final Four"], answer: "Super Bowl", difficulty: "mittel" },
+  { q: "Welcher Tennisspieler gewann die meisten Grand-Slam-Titel der Herren?", options: ["Novak Djokovic", "Roger Federer", "Rafael Nadal", "Pete Sampras"], answer: "Novak Djokovic", difficulty: "mittel" },
+  { q: "Welches Team trägt im Radsport das gepunktete Trikot?", options: ["Bester Bergfahrer", "Sprintkönig", "Gesamtführender", "Bester Jungprofi"], answer: "Bester Bergfahrer", difficulty: "mittel" },
+  { q: "Welche Sportart wird auf einem Oval mit Pferden ausgetragen?", options: ["Pferderennen", "Polo", "Dressur", "Springreiten"], answer: "Pferderennen", difficulty: "mittel" },
+  { q: "Welcher deutsche Rennfahrer gewann sieben Formel-1-Titel?", options: ["Michael Schumacher", "Sebastian Vettel", "Nico Rosberg", "Ralf Schumacher"], answer: "Michael Schumacher", difficulty: "mittel" },
+  { q: "Wie viele Spieler stehen bei einer Basketball-Mannschaft auf dem Feld?", options: ["5", "6", "7", "4"], answer: "5", difficulty: "mittel" },
+  { q: "Welche Nation dominiert traditionell das Cricket?", options: ["Indien", "Brasilien", "Deutschland", "Russland"], answer: "Indien", difficulty: "mittel" },
+  { q: "Welcher Lauf ist die kürzeste Sprintdistanz bei Olympia?", options: ["100 m", "200 m", "400 m", "60 m"], answer: "100 m", difficulty: "mittel" },
+  { q: "In welcher Sportart ist Tony Hawk eine Legende?", options: ["Skateboarding", "Surfen", "BMX", "Snowboard"], answer: "Skateboarding", difficulty: "mittel" },
+  { q: "Welcher Fußballspieler wird 'der Floh' genannt?", options: ["Lionel Messi", "Diego Maradona", "Andrés Iniesta", "Sergio Agüero"], answer: "Lionel Messi", difficulty: "mittel" },
+  { q: "Wie heißt der Wettkampf aus zehn leichtathletischen Disziplinen?", options: ["Zehnkampf", "Fünfkampf", "Siebenkampf", "Triathlon"], answer: "Zehnkampf", difficulty: "mittel" },
+  { q: "Welche Stadt richtete 2016 die Sommerspiele aus?", options: ["Rio de Janeiro", "London", "Tokio", "Peking"], answer: "Rio de Janeiro", difficulty: "mittel" },
+  { q: "Welcher Schwimmstil ist der schnellste?", options: ["Kraul", "Brust", "Rücken", "Schmetterling"], answer: "Kraul", difficulty: "mittel" },
+  { q: "Welcher Verein wird in Spanien 'die Königlichen' genannt?", options: ["Real Madrid", "FC Barcelona", "Atlético Madrid", "FC Sevilla"], answer: "Real Madrid", difficulty: "mittel" },
+  { q: "Welche Sportart wird mit einem ovalen Ball und 'Tries' gespielt?", options: ["Rugby", "American Football", "Hurling", "Lacrosse"], answer: "Rugby", difficulty: "mittel" },
+  { q: "Wie viele Sätze muss ein Tennisspieler bei Grand Slams (Herren) gewinnen?", options: ["3", "2", "4", "5"], answer: "3", difficulty: "mittel", funFact: "Es wird im Best-of-Five gespielt." },
+  { q: "Welcher Marathonläufer durchbrach inoffiziell die Zwei-Stunden-Marke?", options: ["Eliud Kipchoge", "Haile Gebrselassie", "Kenenisa Bekele", "Mo Farah"], answer: "Eliud Kipchoge", difficulty: "mittel" },
+  { q: "In welchem Sport gibt es einen 'Hole in One'?", options: ["Golf", "Tennis", "Billard", "Bowling"], answer: "Golf", difficulty: "mittel" },
+  { q: "Welcher Verein gewann die meisten Champions-League-Titel?", options: ["Real Madrid", "AC Mailand", "FC Bayern", "FC Liverpool"], answer: "Real Madrid", difficulty: "mittel" },
+  { q: "Welche Sportart wird im Wasser mit einem Ball und Toren gespielt?", options: ["Wasserball", "Rudern", "Synchronschwimmen", "Tauchen"], answer: "Wasserball", difficulty: "mittel" },
+
+  // ── SCHWER ──
+  { q: "Welcher Boxer gewann den legendären 'Rumble in the Jungle' 1974?", options: ["Muhammad Ali", "George Foreman", "Joe Frazier", "Ken Norton"], answer: "Muhammad Ali", difficulty: "schwer", funFact: "Der Kampf fand in Kinshasa, Zaire, statt." },
+  { q: "Wie heißt der höchste Wurf beim Bowling (alle Strikes)?", options: ["Perfektes Spiel", "Royal Strike", "Grand Slam", "Triple Crown"], answer: "Perfektes Spiel", difficulty: "schwer", funFact: "Es ergibt genau 300 Punkte." },
+  { q: "Welcher Leichtathlet hält den Weltrekord über 100 Meter?", options: ["Usain Bolt", "Tyson Gay", "Yohan Blake", "Asafa Powell"], answer: "Usain Bolt", difficulty: "schwer", funFact: "Sein Rekord liegt bei 9,58 Sekunden." },
+  { q: "In welchem Jahr fand die erste moderne Olympiade statt?", options: ["1896", "1900", "1888", "1912"], answer: "1896", difficulty: "schwer", funFact: "Sie fanden in Athen statt." },
+  { q: "Welcher Rennstall gewann die meisten Formel-1-Konstrukteurstitel?", options: ["Ferrari", "Mercedes", "McLaren", "Williams"], answer: "Ferrari", difficulty: "schwer" },
+  { q: "Welche Nation gewann die erste Rugby-Weltmeisterschaft 1987?", options: ["Neuseeland", "Australien", "Südafrika", "England"], answer: "Neuseeland", difficulty: "schwer" },
+  { q: "Wie viele Grand-Slam-Turniere gibt es im Tennis pro Jahr?", options: ["4", "3", "5", "6"], answer: "4", difficulty: "schwer", funFact: "Australian Open, French Open, Wimbledon und US Open." },
+  { q: "Welcher Schachweltmeister verlor 1997 gegen den Computer Deep Blue?", options: ["Garri Kasparow", "Anatoli Karpow", "Magnus Carlsen", "Bobby Fischer"], answer: "Garri Kasparow", difficulty: "schwer" },
+  { q: "Welcher Fußballer erzielte das 'Hand-Gottes'-Tor 1986?", options: ["Diego Maradona", "Pelé", "Lionel Messi", "Zinédine Zidane"], answer: "Diego Maradona", difficulty: "schwer" },
+  { q: "In welcher Disziplin wurde Carl Lewis mehrfach Olympiasieger?", options: ["Weitsprung", "Hochsprung", "Speerwurf", "Hürdenlauf"], answer: "Weitsprung", difficulty: "schwer" },
+  { q: "Welches Land gewann die Fußball-WM 2010 in Südafrika?", options: ["Spanien", "Niederlande", "Deutschland", "Brasilien"], answer: "Spanien", difficulty: "schwer" },
+  { q: "Welcher Radprofi gewann die Tour de France fünfmal in Folge (1991–1995)?", options: ["Miguel Indurain", "Eddy Merckx", "Bernard Hinault", "Lance Armstrong"], answer: "Miguel Indurain", difficulty: "schwer" },
+  { q: "Welche Sportlerin gewann 22 Grand-Slam-Einzeltitel im Tennis?", options: ["Steffi Graf", "Serena Williams", "Martina Navratilova", "Chris Evert"], answer: "Steffi Graf", difficulty: "schwer", funFact: "1988 gelang ihr der 'Golden Slam'." },
+  { q: "Welcher Verein gewann das erste Triple aus Liga, Pokal und Landesmeisterpokal 1967?", options: ["Celtic Glasgow", "Manchester United", "Ajax Amsterdam", "Inter Mailand"], answer: "Celtic Glasgow", difficulty: "schwer" },
+  { q: "Welches Land gewann die meisten Eishockey-Weltmeisterschaften?", options: ["Russland/UdSSR", "Kanada", "Schweden", "Tschechien"], answer: "Russland/UdSSR", difficulty: "schwer" },
+  { q: "Wie heißt das berühmte Radrennen durch Nordfrankreich mit Kopfsteinpflaster?", options: ["Paris–Roubaix", "Mailand–Sanremo", "Lüttich–Bastogne", "Flandern-Rundfahrt"], answer: "Paris–Roubaix", difficulty: "schwer", funFact: "Es wird auch 'Hölle des Nordens' genannt." },
+  { q: "Welche Turnerin erhielt 1976 als Erste die perfekte Wertung 10,0?", options: ["Nadia Comăneci", "Olga Korbut", "Simone Biles", "Vera Čáslavská"], answer: "Nadia Comăneci", difficulty: "schwer" },
+  { q: "Welcher Basketballer wird 'His Airness' genannt?", options: ["Michael Jordan", "LeBron James", "Kobe Bryant", "Magic Johnson"], answer: "Michael Jordan", difficulty: "schwer" },
+  { q: "Welche Nation gewann die Fußball-WM 1954 überraschend?", options: ["Deutschland", "Ungarn", "Brasilien", "Uruguay"], answer: "Deutschland", difficulty: "schwer", funFact: "Es ist als 'Wunder von Bern' bekannt." },
+  { q: "Wie viele Spieler hat eine Cricket-Mannschaft?", options: ["11", "9", "13", "15"], answer: "11", difficulty: "schwer" },
+  { q: "Welcher Skirennläufer gewann in einer Saison 13 Weltcuprennen (Rekord lange Zeit)?", options: ["Ingemar Stenmark", "Marcel Hirscher", "Hermann Maier", "Alberto Tomba"], answer: "Ingemar Stenmark", difficulty: "schwer" },
+  { q: "Welche Mannschaft gewann das erste Super-Bowl-Spiel 1967?", options: ["Green Bay Packers", "Kansas City Chiefs", "New York Jets", "Miami Dolphins"], answer: "Green Bay Packers", difficulty: "schwer" },
+  { q: "Welcher Sport hat Disziplinen wie 'Florett', 'Degen' und 'Säbel'?", options: ["Fechten", "Bogenschießen", "Reiten", "Schießen"], answer: "Fechten", difficulty: "schwer" },
+  { q: "Welcher Tennisspieler gewann als Erster den 'Golden Slam' (1969 noch ohne Olympia)?", options: ["Rod Laver", "Björn Borg", "John McEnroe", "Jimmy Connors"], answer: "Rod Laver", difficulty: "schwer", funFact: "Laver gewann 1969 alle vier Grand Slams in einem Jahr." },
+  { q: "Welche Stadt war 1972 Schauplatz tragischer Olympischer Spiele?", options: ["München", "Montreal", "Moskau", "Mexiko-Stadt"], answer: "München", difficulty: "schwer" },
+  { q: "Welcher Boxer blieb in seiner Profikarriere ungeschlagen (49 Siege)?", options: ["Rocky Marciano", "Muhammad Ali", "Joe Louis", "Sugar Ray Robinson"], answer: "Rocky Marciano", difficulty: "schwer" },
+  { q: "Welcher Fußballverein wird 'die Alte Dame' genannt?", options: ["Juventus Turin", "AC Mailand", "Inter Mailand", "AS Rom"], answer: "Juventus Turin", difficulty: "schwer" },
+  { q: "Welche Distanz hat ein olympischer Schwimm-Pool?", options: ["50 m", "25 m", "100 m", "33 m"], answer: "50 m", difficulty: "schwer" },
+  { q: "Welcher Formel-1-Pilot gewann den ersten Weltmeistertitel 1950?", options: ["Giuseppe Farina", "Juan Manuel Fangio", "Alberto Ascari", "Stirling Moss"], answer: "Giuseppe Farina", difficulty: "schwer" },
+  { q: "Welcher US-Sport vergibt die 'World Series'?", options: ["Baseball", "Basketball", "American Football", "Eishockey"], answer: "Baseball", difficulty: "schwer" },
+  { q: "Welche Nation erfand den modernen Sport Curling?", options: ["Schottland", "Kanada", "Schweden", "Norwegen"], answer: "Schottland", difficulty: "schwer" },
+  { q: "Welcher Leichtathlet gewann 1936 in Berlin vier Goldmedaillen?", options: ["Jesse Owens", "Carl Lewis", "Usain Bolt", "Paavo Nurmi"], answer: "Jesse Owens", difficulty: "schwer" },
+  { q: "Welcher Verein gewann 2012 erstmals und dramatisch die englische Meisterschaft in der Nachspielzeit?", options: ["Manchester City", "Manchester United", "FC Chelsea", "FC Arsenal"], answer: "Manchester City", difficulty: "schwer" },
+  { q: "Welche Sportart wird bei den 'Six Nations' gespielt?", options: ["Rugby", "Fußball", "Cricket", "Hockey"], answer: "Rugby", difficulty: "schwer" },
+  { q: "Welcher Schwimmer gewann 1972 sieben Goldmedaillen bei einem Spiel?", options: ["Mark Spitz", "Michael Phelps", "Matt Biondi", "Ian Thorpe"], answer: "Mark Spitz", difficulty: "schwer" },
+  { q: "Welcher Fußballtrainer gewann die Champions League mit Porto und Inter?", options: ["José Mourinho", "Pep Guardiola", "Carlo Ancelotti", "Jürgen Klopp"], answer: "José Mourinho", difficulty: "schwer" },
+  { q: "Welche Nation gewann das olympische Eishockey-'Miracle on Ice' 1980?", options: ["USA", "Sowjetunion", "Kanada", "Tschechoslowakei"], answer: "USA", difficulty: "schwer" },
+  { q: "Welcher Tennisplatz ist der einzige Grand Slam auf Rasen?", options: ["Wimbledon", "US Open", "French Open", "Australian Open"], answer: "Wimbledon", difficulty: "schwer" },
+  { q: "Welcher Boxer wurde dreimal Weltmeister im Schwergewicht?", options: ["Muhammad Ali", "Mike Tyson", "Lennox Lewis", "Evander Holyfield"], answer: "Muhammad Ali", difficulty: "schwer" },
+  { q: "Wie heißt der wichtigste Marathonlauf der USA?", options: ["Boston-Marathon", "Chicago-Marathon", "New-York-Marathon", "LA-Marathon"], answer: "Boston-Marathon", difficulty: "schwer", funFact: "Er ist der älteste jährliche Marathon der Welt." },
+  { q: "Welcher Springreiter-Wettbewerb ist Teil der Vielseitigkeit?", options: ["Dressur", "Galopprennen", "Polo", "Voltigieren"], answer: "Dressur", difficulty: "schwer" },
+  { q: "Welche Nation gewann die meisten olympischen Goldmedaillen insgesamt?", options: ["USA", "Sowjetunion", "China", "Deutschland"], answer: "USA", difficulty: "schwer" },
+  { q: "Welcher Spieler hält den NBA-Rekord für die meisten Punkte in einem Spiel (100)?", options: ["Wilt Chamberlain", "Kobe Bryant", "Michael Jordan", "LeBron James"], answer: "Wilt Chamberlain", difficulty: "schwer" },
+  { q: "Welcher Verein gewann das deutsche 'Finale dahoam' 2012 nicht?", options: ["FC Bayern", "FC Chelsea", "Borussia Dortmund", "Real Madrid"], answer: "FC Bayern", difficulty: "schwer", funFact: "Bayern verlor das Heimfinale im Elfmeterschießen." },
+],
   film_musik: [
-    { q: "Wer komponierte die 9. Sinfonie mit der 'Ode an die Freude'?", display: "🎼", options: ["Beethoven", "Mozart", "Bach", "Brahms"], answer: "Beethoven", difficulty: "einfach", funFact: "Beethoven war fast taub, als er seine 9. Sinfonie komponierte." },
-    { q: "Welche Band sang 'Bohemian Rhapsody'?", display: "🎤", options: ["Queen", "The Beatles", "Rolling Stones", "Led Zeppelin"], answer: "Queen", difficulty: "einfach", funFact: "'Bohemian Rhapsody' hat keinen klassischen Refrain und dauert fast 6 Minuten." },
-    { q: "Welches Musikgenre stammt ursprünglich aus Jamaika?", display: "🎶", options: ["Reggae", "Calypso", "Blues", "Ska"], answer: "Reggae", difficulty: "mittel", funFact: "Bob Marleys Album 'Exodus' wurde vom Time Magazine zum Album des Jahrhunderts gekürt." },
-    { q: "Wie viele Tasten hat ein Standard-Klavier?", display: "🎹", options: ["88", "76", "92", "84"], answer: "88", difficulty: "mittel", funFact: "Davon sind 52 weiß und 36 schwarz." },
-    { q: "Wer führte Regie bei 'Inception' und 'Interstellar'?", display: "🎬", options: ["Christopher Nolan", "Steven Spielberg", "Denis Villeneuve", "Ridley Scott"], answer: "Christopher Nolan", difficulty: "mittel", funFact: "Nolan dreht bewusst ohne Handy und E-Mail, um sich besser zu konzentrieren." },
-    { q: "Welche Oper komponierte Mozart?", display: "🎭", options: ["Die Zauberflöte", "Carmen", "Aida", "Rigoletto"], answer: "Die Zauberflöte", difficulty: "mittel", funFact: "Mozart komponierte bereits mit 5 Jahren seine ersten Stücke." },
-    { q: "Welcher Film war der erste abendfüllende Zeichentrickfilm von Disney?", display: "🎞️", options: ["Schneewittchen", "Bambi", "Pinocchio", "Fantasia"], answer: "Schneewittchen", difficulty: "schwer", funFact: "1937 hielten viele 'Schneewittchen' für eine Schnapsidee – es wurde ein Riesenerfolg." },
-    { q: "Welches Tempo bezeichnet 'Allegro' in der Musik?", display: "🎵", options: ["Schnell", "Langsam", "Mäßig", "Sehr langsam"], answer: "Schnell", difficulty: "schwer", funFact: "'Allegro' heißt auf Italienisch eigentlich 'fröhlich'." },
-    { q: "Wer komponierte die Filmmusik zu 'Star Wars' und 'Jurassic Park'?", display: "🎻", options: ["John Williams", "Hans Zimmer", "Ennio Morricone", "Danny Elfman"], answer: "John Williams", difficulty: "schwer", funFact: "John Williams wurde über 50-mal für einen Oscar nominiert." },
-    { q: "Welcher Regisseur drehte 'Pulp Fiction'?", display: "🎥", options: ["Quentin Tarantino", "Martin Scorsese", "Coen-Brüder", "David Lynch"], answer: "Quentin Tarantino", difficulty: "schwer", funFact: "Tarantino nummeriert seine Filme – er will mit dem zehnten aufhören." },
-    { q: "Aus welchem Land stammt die Musikrichtung Fado?", display: "🪗", options: ["Portugal", "Spanien", "Italien", "Griechenland"], answer: "Portugal", difficulty: "schwer", funFact: "Fado bedeutet 'Schicksal' und gehört zum UNESCO-Weltkulturerbe." },
-    { q: "Wie viele Saiten hat eine Standard-Geige?", display: "🎻", options: ["4", "5", "6", "7"], answer: "4", difficulty: "mittel", funFact: "Eine echte Stradivari kann mehrere Millionen Euro wert sein." },
-    { q: "Welcher Film handelt von einem Zauberlehrling namens Harry?", display: "🧙", options: ["Harry Potter", "Der Herr der Ringe", "Narnia", "Percy Jackson"], answer: "Harry Potter", difficulty: "einfach", funFact: "Die Bücher wurden in über 80 Sprachen übersetzt." },
-    { q: "In welchem Film sagt man 'Möge die Macht mit dir sein'?", display: "🚀", options: ["Star Wars", "Star Trek", "Avatar", "Dune"], answer: "Star Wars", difficulty: "einfach", funFact: "Der Lichtschwert-Sound stammt vom Brummen alter Projektoren." },
-    { q: "Wie heißt der Löwe in 'Der König der Löwen'?", display: "🦁", options: ["Simba", "Mufasa", "Scar", "Nala"], answer: "Simba", difficulty: "einfach", funFact: "'Simba' heißt auf Suaheli schlicht 'Löwe'." },
-    { q: "Welches Instrument hat schwarze und weiße Tasten?", display: "🎹", options: ["Klavier", "Gitarre", "Trompete", "Geige"], answer: "Klavier", difficulty: "einfach", funFact: "Ein Konzertflügel steht unter mehreren Tonnen Saitenspannung." },
-    { q: "Welche vier Musiker bildeten 'The Beatles'?", display: "🎸", options: ["Lennon, McCartney, Harrison, Starr", "Jagger, Richards, Watts, Wood", "Mercury, May, Taylor, Deacon", "Plant, Page, Jones, Bonham"], answer: "Lennon, McCartney, Harrison, Starr", difficulty: "schwer", funFact: "Die Beatles stammen aus Liverpool." },
-    { q: "Welcher Komponist schrieb 'Die kleine Nachtmusik'?", display: "🎼", options: ["Mozart", "Beethoven", "Bach", "Haydn"], answer: "Mozart", difficulty: "mittel", funFact: "Mozart komponierte über 600 Werke in nur 35 Lebensjahren." },
-    { q: "In welchem Animationsfilm gibt es ein Mädchen namens Elsa?", display: "❄️", options: ["Die Eiskönigin", "Vaiana", "Rapunzel", "Encanto"], answer: "Die Eiskönigin", difficulty: "einfach", funFact: "Der Originaltitel 'Frozen' wurde weltweit ein Riesenerfolg." },
-    { q: "Welcher Sänger wurde 'King of Pop' genannt?", display: "🕺", options: ["Michael Jackson", "Elvis Presley", "Prince", "Freddie Mercury"], answer: "Michael Jackson", difficulty: "einfach", funFact: "Sein Album 'Thriller' ist eines der meistverkauften aller Zeiten." },
-    { q: "Welcher Regisseur schuf 'Jurassic Park' und 'E.T.'?", display: "🎬", options: ["Steven Spielberg", "George Lucas", "James Cameron", "Ridley Scott"], answer: "Steven Spielberg", difficulty: "mittel", funFact: "Spielberg gilt als einer der erfolgreichsten Regisseure der Geschichte." },
-    { q: "Wie heißt die Filmreihe mit dem Ring, der vernichtet werden muss?", display: "💍", options: ["Der Herr der Ringe", "Harry Potter", "Die Tribute von Panem", "Narnia"], answer: "Der Herr der Ringe", difficulty: "einfach", funFact: "Die Trilogie wurde komplett in Neuseeland gedreht." },
-    { q: "Welche Tonart hat keine Vorzeichen?", display: "🎵", options: ["C-Dur", "G-Dur", "F-Dur", "D-Dur"], answer: "C-Dur", difficulty: "schwer", funFact: "C-Dur nutzt nur die weißen Tasten des Klaviers." },
-    { q: "Wer komponierte die Oper 'Carmen'?", display: "🎭", options: ["Georges Bizet", "Giuseppe Verdi", "Richard Wagner", "Puccini"], answer: "Georges Bizet", difficulty: "schwer", funFact: "Carmen war bei der Uraufführung 1875 zunächst ein Misserfolg." },
-    { q: "Welcher Film spielt auf dem Planeten Pandora?", display: "🌌", options: ["Avatar", "Star Wars", "Interstellar", "Guardians of the Galaxy"], answer: "Avatar", difficulty: "mittel", funFact: "'Avatar' war jahrelang der umsatzstärkste Film der Welt." },
-    { q: "Welches Blasinstrument ist typisch für Jazz?", display: "🎷", options: ["Saxophon", "Querflöte", "Oboe", "Fagott"], answer: "Saxophon", difficulty: "mittel", funFact: "Das Saxophon wurde erst um 1840 erfunden." },
-    { q: "Wer spielte die Hauptrolle in vielen 'Rocky'-Filmen?", display: "🥊", options: ["Sylvester Stallone", "Arnold Schwarzenegger", "Bruce Willis", "Jean-Claude Van Damme"], answer: "Sylvester Stallone", difficulty: "schwer", funFact: "Stallone schrieb das Drehbuch zum ersten 'Rocky' selbst." },
-  ],
+  // ── EINFACH ──
+  { q: "Welche Band sang 'Bohemian Rhapsody'?", options: ["Queen", "The Beatles", "Rolling Stones", "Led Zeppelin"], answer: "Queen", difficulty: "einfach", funFact: "Das Lied hat keinen klassischen Refrain." },
+  { q: "Wer komponierte die 9. Sinfonie mit der 'Ode an die Freude'?", options: ["Beethoven", "Mozart", "Bach", "Brahms"], answer: "Beethoven", difficulty: "einfach", funFact: "Er war fast taub, als er sie schrieb." },
+  { q: "In welchem Film sagt man 'Möge die Macht mit dir sein'?", options: ["Star Wars", "Star Trek", "Avatar", "Dune"], answer: "Star Wars", difficulty: "einfach" },
+  { q: "Wie heißt der Löwe in 'Der König der Löwen'?", options: ["Simba", "Mufasa", "Scar", "Nala"], answer: "Simba", difficulty: "einfach", funFact: "'Simba' heißt auf Suaheli 'Löwe'." },
+  { q: "Welcher Sänger wurde 'King of Pop' genannt?", options: ["Michael Jackson", "Elvis Presley", "Prince", "Freddie Mercury"], answer: "Michael Jackson", difficulty: "einfach" },
+  { q: "Welche Filmreihe handelt von einem Ring, der vernichtet werden muss?", options: ["Der Herr der Ringe", "Harry Potter", "Die Tribute von Panem", "Narnia"], answer: "Der Herr der Ringe", difficulty: "einfach", funFact: "Die Trilogie wurde in Neuseeland gedreht." },
+  { q: "Welcher Regisseur schuf 'Jurassic Park' und 'E.T.'?", options: ["Steven Spielberg", "George Lucas", "James Cameron", "Ridley Scott"], answer: "Steven Spielberg", difficulty: "einfach" },
+  { q: "Welches Instrument hat schwarze und weiße Tasten?", options: ["Klavier", "Gitarre", "Trompete", "Geige"], answer: "Klavier", difficulty: "einfach" },
+  { q: "Welcher Film spielt auf dem Planeten Pandora?", options: ["Avatar", "Star Wars", "Interstellar", "Guardians of the Galaxy"], answer: "Avatar", difficulty: "einfach" },
+  { q: "Welcher Animationsfilm hat eine Eiskönigin namens Elsa?", options: ["Die Eiskönigin", "Vaiana", "Rapunzel", "Encanto"], answer: "Die Eiskönigin", difficulty: "einfach" },
+  { q: "Welches Blasinstrument ist typisch für Jazz?", options: ["Saxophon", "Querflöte", "Oboe", "Fagott"], answer: "Saxophon", difficulty: "einfach" },
+  { q: "Wie viele Saiten hat eine Standard-Gitarre?", options: ["6", "4", "8", "5"], answer: "6", difficulty: "einfach" },
+  { q: "Welcher Schauspieler spielt in vielen 'Rocky'-Filmen die Hauptrolle?", options: ["Sylvester Stallone", "Arnold Schwarzenegger", "Bruce Willis", "Jean-Claude Van Damme"], answer: "Sylvester Stallone", difficulty: "einfach" },
+  { q: "Welches Musikgenre stammt ursprünglich aus Jamaika?", options: ["Reggae", "Calypso", "Blues", "Ska"], answer: "Reggae", difficulty: "einfach", funFact: "Bob Marley machte es weltberühmt." },
+  { q: "Welcher Film handelt von einem Zauberlehrling namens Harry?", options: ["Harry Potter", "Narnia", "Percy Jackson", "Eragon"], answer: "Harry Potter", difficulty: "einfach" },
+
+  // ── MITTEL ──
+  { q: "Wer führte Regie bei 'Inception' und 'Interstellar'?", options: ["Christopher Nolan", "Steven Spielberg", "Denis Villeneuve", "Ridley Scott"], answer: "Christopher Nolan", difficulty: "mittel", funFact: "Nolan dreht bewusst ohne Handy." },
+  { q: "Welche Oper komponierte Mozart?", options: ["Die Zauberflöte", "Carmen", "Aida", "Rigoletto"], answer: "Die Zauberflöte", difficulty: "mittel" },
+  { q: "Welcher Film war der erste abendfüllende Zeichentrickfilm von Disney?", options: ["Schneewittchen", "Bambi", "Pinocchio", "Fantasia"], answer: "Schneewittchen", difficulty: "mittel", funFact: "Er erschien 1937." },
+  { q: "Welches Tempo bezeichnet 'Allegro' in der Musik?", options: ["Schnell", "Langsam", "Mäßig", "Sehr langsam"], answer: "Schnell", difficulty: "mittel", funFact: "'Allegro' heißt auf Italienisch 'fröhlich'." },
+  { q: "Wer komponierte die Filmmusik zu 'Star Wars'?", options: ["John Williams", "Hans Zimmer", "Ennio Morricone", "Danny Elfman"], answer: "John Williams", difficulty: "mittel" },
+  { q: "Welcher Regisseur drehte 'Pulp Fiction'?", options: ["Quentin Tarantino", "Martin Scorsese", "Coen-Brüder", "David Lynch"], answer: "Quentin Tarantino", difficulty: "mittel" },
+  { q: "Aus welchem Land stammt die Musikrichtung Fado?", options: ["Portugal", "Spanien", "Italien", "Griechenland"], answer: "Portugal", difficulty: "mittel", funFact: "Fado gehört zum UNESCO-Weltkulturerbe." },
+  { q: "Welche vier Musiker bildeten 'The Beatles'?", options: ["Lennon, McCartney, Harrison, Starr", "Jagger, Richards, Watts, Wood", "Mercury, May, Taylor, Deacon", "Plant, Page, Jones, Bonham"], answer: "Lennon, McCartney, Harrison, Starr", difficulty: "mittel", funFact: "Sie stammen aus Liverpool." },
+  { q: "Welcher Komponist schrieb 'Die kleine Nachtmusik'?", options: ["Mozart", "Beethoven", "Bach", "Haydn"], answer: "Mozart", difficulty: "mittel" },
+  { q: "Welche Tonart hat keine Vorzeichen?", options: ["C-Dur", "G-Dur", "F-Dur", "D-Dur"], answer: "C-Dur", difficulty: "mittel", funFact: "C-Dur nutzt nur die weißen Tasten." },
+  { q: "Wer komponierte die Oper 'Carmen'?", options: ["Georges Bizet", "Giuseppe Verdi", "Richard Wagner", "Puccini"], answer: "Georges Bizet", difficulty: "mittel" },
+  { q: "Welcher Film gewann 1998 den Oscar als bester Film mit Schiffsuntergang?", options: ["Titanic", "Gladiator", "Braveheart", "Forrest Gump"], answer: "Titanic", difficulty: "mittel" },
+  { q: "Welche Sängerin wird 'Queen of Pop' genannt?", options: ["Madonna", "Whitney Houston", "Beyoncé", "Cher"], answer: "Madonna", difficulty: "mittel" },
+  { q: "Welcher Komponist wurde trotz Taubheit weltberühmt?", options: ["Beethoven", "Mozart", "Schubert", "Chopin"], answer: "Beethoven", difficulty: "mittel" },
+  { q: "Wer führte Regie bei 'Titanic' und 'Avatar'?", options: ["James Cameron", "Steven Spielberg", "Peter Jackson", "Ridley Scott"], answer: "James Cameron", difficulty: "mittel" },
+  { q: "Welche Band veröffentlichte das Album 'The Dark Side of the Moon'?", options: ["Pink Floyd", "Led Zeppelin", "The Who", "Deep Purple"], answer: "Pink Floyd", difficulty: "mittel", funFact: "Es zählt zu den meistverkauften Alben aller Zeiten." },
+  { q: "Welches Instrument spielt typischerweise die Melodie in einem Streichquartett?", options: ["Erste Violine", "Cello", "Bratsche", "Kontrabass"], answer: "Erste Violine", difficulty: "mittel" },
+  { q: "Welcher Schauspieler verkörperte James Bond am längsten?", options: ["Roger Moore", "Sean Connery", "Daniel Craig", "Pierce Brosnan"], answer: "Roger Moore", difficulty: "mittel" },
+  { q: "Welches Genre spielt John Coltrane?", options: ["Jazz", "Klassik", "Rock", "Pop"], answer: "Jazz", difficulty: "mittel" },
+  { q: "Welcher Film beginnt mit den Worten 'Es war einmal in einer weit, weit entfernten Galaxis'?", options: ["Star Wars", "Star Trek", "Guardians of the Galaxy", "Dune"], answer: "Star Wars", difficulty: "mittel" },
+  { q: "Welcher Sänger sang 'Imagine'?", options: ["John Lennon", "Paul McCartney", "Bob Dylan", "Elton John"], answer: "John Lennon", difficulty: "mittel" },
+  { q: "Welcher Regisseur ist für 'Vertigo' und 'Psycho' bekannt?", options: ["Alfred Hitchcock", "Stanley Kubrick", "Orson Welles", "Billy Wilder"], answer: "Alfred Hitchcock", difficulty: "mittel", funFact: "Er gilt als 'Master of Suspense'." },
+  { q: "Welche Note dauert halb so lang wie eine Viertelnote?", options: ["Achtelnote", "Halbe Note", "Ganze Note", "Sechzehntelnote"], answer: "Achtelnote", difficulty: "mittel" },
+  { q: "Welcher Animationsfilm spielt in einer Spielzeugwelt?", options: ["Toy Story", "Findet Nemo", "Cars", "Ratatouille"], answer: "Toy Story", difficulty: "mittel", funFact: "Es war 1995 der erste vollständig computeranimierte Kinofilm." },
+  { q: "Welche Sängerin sang 'I Will Always Love You' im Film 'Bodyguard'?", options: ["Whitney Houston", "Mariah Carey", "Celine Dion", "Tina Turner"], answer: "Whitney Houston", difficulty: "mittel" },
+  { q: "Welcher Komponist schrieb die 'Vier Jahreszeiten'?", options: ["Vivaldi", "Bach", "Händel", "Telemann"], answer: "Vivaldi", difficulty: "mittel" },
+  { q: "Welcher Film gewann 2020 als erster nicht-englischsprachiger den Oscar als bester Film?", options: ["Parasite", "Roma", "Amour", "Das Leben der Anderen"], answer: "Parasite", difficulty: "mittel" },
+  { q: "Welche Rockband wird von Mick Jagger angeführt?", options: ["The Rolling Stones", "The Who", "Led Zeppelin", "AC/DC"], answer: "The Rolling Stones", difficulty: "mittel" },
+  { q: "Welches Musical handelt von einem Phantom in einer Oper?", options: ["Das Phantom der Oper", "Cats", "Les Misérables", "Evita"], answer: "Das Phantom der Oper", difficulty: "mittel" },
+  { q: "Welcher Schauspieler spielte den Joker in 'The Dark Knight'?", options: ["Heath Ledger", "Joaquin Phoenix", "Jack Nicholson", "Jared Leto"], answer: "Heath Ledger", difficulty: "mittel", funFact: "Er erhielt posthum einen Oscar." },
+  { q: "Welches Instrument hat 88 Tasten?", options: ["Klavier", "Cembalo", "Akkordeon", "Orgel"], answer: "Klavier", difficulty: "mittel" },
+  { q: "Welcher Regisseur drehte 'Schindlers Liste'?", options: ["Steven Spielberg", "Roman Polanski", "Martin Scorsese", "Francis Ford Coppola"], answer: "Steven Spielberg", difficulty: "mittel" },
+  { q: "Welche Sängerin ist für den Hit 'Rolling in the Deep' bekannt?", options: ["Adele", "Amy Winehouse", "Sia", "Lady Gaga"], answer: "Adele", difficulty: "mittel" },
+  { q: "Welche Filmmusik komponierte Ennio Morricone berühmt?", options: ["Spiel mir das Lied vom Tod", "Der Pate", "Rocky", "Psycho"], answer: "Spiel mir das Lied vom Tod", difficulty: "mittel" },
+
+  // ── SCHWER ──
+  { q: "Welcher Regisseur drehte '2001: Odyssee im Weltraum'?", options: ["Stanley Kubrick", "Steven Spielberg", "Ridley Scott", "George Lucas"], answer: "Stanley Kubrick", difficulty: "schwer" },
+  { q: "Welcher Komponist schrieb die Oper 'Der Ring des Nibelungen'?", options: ["Richard Wagner", "Giuseppe Verdi", "Richard Strauss", "Gustav Mahler"], answer: "Richard Wagner", difficulty: "schwer", funFact: "Der Zyklus dauert insgesamt rund 15 Stunden." },
+  { q: "Welcher Film gewann die meisten Oscars (11, geteilter Rekord)?", options: ["Ben Hur", "Forrest Gump", "Gladiator", "Avatar"], answer: "Ben Hur", difficulty: "schwer", funFact: "Auch 'Titanic' und 'Herr der Ringe 3' gewannen elf." },
+  { q: "Welcher Jazzmusiker prägte mit 'Kind of Blue' den Modal Jazz?", options: ["Miles Davis", "Louis Armstrong", "Duke Ellington", "Charlie Parker"], answer: "Miles Davis", difficulty: "schwer" },
+  { q: "Welcher italienische Regisseur drehte 'La Dolce Vita'?", options: ["Federico Fellini", "Sergio Leone", "Vittorio De Sica", "Michelangelo Antonioni"], answer: "Federico Fellini", difficulty: "schwer" },
+  { q: "Welche Sopranistin gilt als eine der größten Operndiven des 20. Jahrhunderts?", options: ["Maria Callas", "Renée Fleming", "Joan Sutherland", "Montserrat Caballé"], answer: "Maria Callas", difficulty: "schwer" },
+  { q: "Welcher Komponist schrieb die unvollendete 8. Sinfonie?", options: ["Schubert", "Beethoven", "Bruckner", "Mahler"], answer: "Schubert", difficulty: "schwer" },
+  { q: "Welcher Regisseur schuf die 'Der Pate'-Trilogie?", options: ["Francis Ford Coppola", "Martin Scorsese", "Brian De Palma", "Sergio Leone"], answer: "Francis Ford Coppola", difficulty: "schwer" },
+  { q: "Welches Instrument spielte Jimi Hendrix meisterhaft?", options: ["E-Gitarre", "Schlagzeug", "Bass", "Keyboard"], answer: "E-Gitarre", difficulty: "schwer" },
+  { q: "Welcher Komponist gilt als Begründer der Zwölftonmusik?", options: ["Arnold Schönberg", "Igor Strawinsky", "Claude Debussy", "Béla Bartók"], answer: "Arnold Schönberg", difficulty: "schwer" },
+  { q: "Welcher Stummfilmstar war für 'Der Tramp' bekannt?", options: ["Charlie Chaplin", "Buster Keaton", "Harold Lloyd", "Stan Laurel"], answer: "Charlie Chaplin", difficulty: "schwer" },
+  { q: "Welche Band veröffentlichte das Konzeptalbum 'Sgt. Pepper's Lonely Hearts Club Band'?", options: ["The Beatles", "The Beach Boys", "Pink Floyd", "The Kinks"], answer: "The Beatles", difficulty: "schwer" },
+  { q: "Welcher Komponist schrieb 'Boléro'?", options: ["Maurice Ravel", "Claude Debussy", "Erik Satie", "Camille Saint-Saëns"], answer: "Maurice Ravel", difficulty: "schwer" },
+  { q: "Welcher Regisseur drehte 'Citizen Kane'?", options: ["Orson Welles", "Alfred Hitchcock", "John Ford", "Howard Hawks"], answer: "Orson Welles", difficulty: "schwer", funFact: "Der Film gilt vielen als bester aller Zeiten." },
+  { q: "Welcher Sänger gründete die Band 'The Velvet Underground' mit?", options: ["Lou Reed", "Iggy Pop", "David Bowie", "Brian Eno"], answer: "Lou Reed", difficulty: "schwer" },
+  { q: "Welcher Komponist schrieb die 'Mondscheinsonate'?", options: ["Beethoven", "Chopin", "Liszt", "Schumann"], answer: "Beethoven", difficulty: "schwer" },
+  { q: "Welcher Film von Akira Kurosawa inspirierte 'Die glorreichen Sieben'?", options: ["Die sieben Samurai", "Rashomon", "Yojimbo", "Ran"], answer: "Die sieben Samurai", difficulty: "schwer" },
+  { q: "Welche Sängerin war Frontfrau von Fleetwood Mac?", options: ["Stevie Nicks", "Janis Joplin", "Grace Slick", "Debbie Harry"], answer: "Stevie Nicks", difficulty: "schwer" },
+  { q: "Welcher Komponist schrieb über 600 Werke und starb mit 35 Jahren?", options: ["Mozart", "Schubert", "Mendelssohn", "Chopin"], answer: "Mozart", difficulty: "schwer" },
+  { q: "Welcher Regisseur ist für seine 'Dollar-Trilogie' mit Clint Eastwood bekannt?", options: ["Sergio Leone", "Sam Peckinpah", "John Sturges", "Don Siegel"], answer: "Sergio Leone", difficulty: "schwer" },
+  { q: "Welches Album von Michael Jackson ist das meistverkaufte aller Zeiten?", options: ["Thriller", "Bad", "Dangerous", "Off the Wall"], answer: "Thriller", difficulty: "schwer" },
+  { q: "Welcher Komponist schrieb den 'Karneval der Tiere'?", options: ["Camille Saint-Saëns", "Maurice Ravel", "Claude Debussy", "Gabriel Fauré"], answer: "Camille Saint-Saëns", difficulty: "schwer" },
+  { q: "Welcher Schauspieler gewann dreimal den Oscar als bester Hauptdarsteller (Rekord-nah)?", options: ["Daniel Day-Lewis", "Tom Hanks", "Jack Nicholson", "Marlon Brando"], answer: "Daniel Day-Lewis", difficulty: "schwer", funFact: "Er ist der einzige mit drei Hauptdarsteller-Oscars." },
+  { q: "Welcher Dirigent leitete jahrzehntelang die Berliner Philharmoniker?", options: ["Herbert von Karajan", "Leonard Bernstein", "Claudio Abbado", "Simon Rattle"], answer: "Herbert von Karajan", difficulty: "schwer" },
+  { q: "Welcher Film war der erste Teil der 'Matrix'-Reihe (Jahr)?", options: ["1999", "2001", "1997", "2003"], answer: "1999", difficulty: "schwer" },
+  { q: "Welcher Sänger wird 'The Voice' genannt und sang 'My Way'?", options: ["Frank Sinatra", "Dean Martin", "Tony Bennett", "Nat King Cole"], answer: "Frank Sinatra", difficulty: "schwer" },
+  { q: "Welcher Komponist schrieb die Opern 'La Bohème' und 'Tosca'?", options: ["Giacomo Puccini", "Giuseppe Verdi", "Gioachino Rossini", "Gaetano Donizetti"], answer: "Giacomo Puccini", difficulty: "schwer" },
+  { q: "Welcher Regisseur drehte 'Apocalypse Now'?", options: ["Francis Ford Coppola", "Oliver Stone", "Stanley Kubrick", "Michael Cimino"], answer: "Francis Ford Coppola", difficulty: "schwer" },
+  { q: "Welche Band veröffentlichte 'Stairway to Heaven'?", options: ["Led Zeppelin", "Deep Purple", "Black Sabbath", "The Doors"], answer: "Led Zeppelin", difficulty: "schwer" },
+  { q: "Welcher Komponist schrieb die Filmmusik zu 'Der gute, der Böse und der Hässliche'?", options: ["Ennio Morricone", "John Williams", "Jerry Goldsmith", "Elmer Bernstein"], answer: "Ennio Morricone", difficulty: "schwer" },
+  { q: "Welcher französische Regisseur war Wegbereiter der Nouvelle Vague?", options: ["Jean-Luc Godard", "François Truffaut", "Claude Chabrol", "Éric Rohmer"], answer: "Jean-Luc Godard", difficulty: "schwer" },
+  { q: "Welcher Pianist und Komponist war für seine Nocturnes bekannt?", options: ["Frédéric Chopin", "Franz Liszt", "Robert Schumann", "Johannes Brahms"], answer: "Frédéric Chopin", difficulty: "schwer" },
+  { q: "Welcher Film basiert auf einem Roman von Stephen King und spielt in einem Hotel?", options: ["Shining", "Es", "Misery", "Carrie"], answer: "Shining", difficulty: "schwer" },
+  { q: "Welcher Musiker wird 'The Boss' genannt?", options: ["Bruce Springsteen", "Bob Dylan", "Tom Petty", "Neil Young"], answer: "Bruce Springsteen", difficulty: "schwer" },
+  { q: "Welcher Komponist vollendete Mozarts Requiem nach dessen Tod?", options: ["Süßmayr", "Salieri", "Haydn", "Beethoven"], answer: "Süßmayr", difficulty: "schwer" },
+  { q: "Welcher Regisseur schuf 'Blade Runner' und 'Alien'?", options: ["Ridley Scott", "James Cameron", "John Carpenter", "Paul Verhoeven"], answer: "Ridley Scott", difficulty: "schwer" },
+  { q: "Welche Jazzsängerin wird 'Lady Day' genannt?", options: ["Billie Holiday", "Ella Fitzgerald", "Nina Simone", "Sarah Vaughan"], answer: "Billie Holiday", difficulty: "schwer" },
+  { q: "Welcher Komponist schrieb 'Eine kleine Nachtmusik' sowie 'Don Giovanni'?", options: ["Mozart", "Haydn", "Gluck", "Salieri"], answer: "Mozart", difficulty: "schwer" },
+  { q: "Welcher Film gewann 1976 den Oscar und handelt von einem Boxer aus Philadelphia?", options: ["Rocky", "Raging Bull", "The Fighter", "Cinderella Man"], answer: "Rocky", difficulty: "schwer" },
+  { q: "Welche Band wurde von Freddie Mercury angeführt?", options: ["Queen", "The Who", "Genesis", "Yes"], answer: "Queen", difficulty: "schwer" },
+  { q: "Welcher US-Komponist schrieb 'Rhapsody in Blue'?", options: ["George Gershwin", "Aaron Copland", "Leonard Bernstein", "Cole Porter"], answer: "George Gershwin", difficulty: "schwer" },
+  { q: "Welcher Regisseur drehte 'Fargo' und 'No Country for Old Men'?", options: ["Coen-Brüder", "Paul Thomas Anderson", "David Fincher", "Quentin Tarantino"], answer: "Coen-Brüder", difficulty: "schwer" },
+  { q: "Welcher Komponist gilt als Meister des Barock und schrieb 'Wassermusik'?", options: ["Georg Friedrich Händel", "Johann Sebastian Bach", "Antonio Vivaldi", "Henry Purcell"], answer: "Georg Friedrich Händel", difficulty: "schwer" },
+  { q: "Welcher Film mit Marlon Brando spielt im Mafia-Milieu (1972)?", options: ["Der Pate", "Good Fellas", "Scarface", "Casino"], answer: "Der Pate", difficulty: "schwer" },
+],
   tiere: [
-    { q: "Welches Tier hat drei Herzen?", display: "🐙", options: ["Oktopus", "Tintenfisch", "Krake", "Qualle"], answer: "Oktopus", difficulty: "einfach", funFact: "Ein Oktopus hat blaues Blut und kann seine Farbe in Sekunden ändern." },
-    { q: "Wie nennt man eine Gruppe von Löwen?", display: "🦁", options: ["Rudel", "Schwarm", "Herde", "Meute"], answer: "Rudel", difficulty: "einfach", funFact: "In einem Löwenrudel gehen fast immer die Löwinnen gemeinsam auf die Jagd." },
-    { q: "Welches Säugetier kann aktiv fliegen?", display: "🦇", options: ["Fledermaus", "Flughörnchen", "Gleithörnchen", "Flugbeutler"], answer: "Fledermaus", difficulty: "einfach", funFact: "Die anderen 'gleiten' nur – die Fledermaus ist das einzige echt fliegende Säugetier." },
-    { q: "Welches Tier hat den stärksten Biss der Welt?", display: "🐊", options: ["Salzwasserkrokodil", "Weißer Hai", "Nilpferd", "Tiger"], answer: "Salzwasserkrokodil", difficulty: "mittel", funFact: "Das Salzwasserkrokodil beißt mit über 3.000 PSI." },
-    { q: "Wie viele Mägen hat eine Kuh?", display: "🐄", options: ["4", "2", "1", "3"], answer: "4", difficulty: "mittel", funFact: "Genau genommen ist es ein Magen mit vier Kammern." },
-    { q: "Welches ist das schnellste Landtier der Welt?", display: "🐆", options: ["Gepard", "Gabelbock", "Löwe", "Springbock"], answer: "Gepard", difficulty: "mittel", funFact: "Ein Gepard beschleunigt schneller als die meisten Sportwagen." },
-    { q: "Welches Tier kann seinen Kopf fast 270 Grad drehen?", display: "🦉", options: ["Eule", "Chamäleon", "Erdmännchen", "Gottesanbeterin"], answer: "Eule", difficulty: "schwer", funFact: "Eulen können ihre Augen nicht bewegen – darum drehen sie den ganzen Kopf." },
-    { q: "Welches Tier hat keinen Magen?", display: "🐠", options: ["Seepferdchen", "Aal", "Hai", "Rochen"], answer: "Seepferdchen", difficulty: "schwer", funFact: "Beim Seepferdchen trägt das Männchen die Jungen aus." },
-    { q: "Wie heißt das einzige Säugetier, das Eier legt und Gift hat?", display: "🦫", options: ["Schnabeltier", "Ameisenigel", "Biber", "Otter"], answer: "Schnabeltier", difficulty: "schwer", funFact: "Männliche Schnabeltiere haben einen Giftsporn an den Hinterbeinen." },
-    { q: "Welche Tiergruppe umfasst Spinnen, Skorpione und Milben?", display: "🕷️", options: ["Spinnentiere", "Insekten", "Krebstiere", "Tausendfüßer"], answer: "Spinnentiere", difficulty: "schwer", funFact: "Spinnentiere haben acht Beine – Insekten dagegen nur sechs." },
-    { q: "Welches Tier schläft täglich am längsten?", display: "🐨", options: ["Koala", "Faultier", "Katze", "Igel"], answer: "Koala", difficulty: "schwer", funFact: "Koalas schlafen bis zu 22 Stunden am Tag, weil ihre Nahrung kaum Energie liefert." },
-    { q: "Welcher Vogel kann rückwärts fliegen?", display: "🐦", options: ["Kolibri", "Specht", "Schwalbe", "Falke"], answer: "Kolibri", difficulty: "mittel", funFact: "Ein Kolibri schlägt bis zu 80-mal pro Sekunde mit den Flügeln." },
-    { q: "Welches ist das größte Tier der Welt?", display: "🐋", options: ["Blauwal", "Elefant", "Giraffe", "Pottwal"], answer: "Blauwal", difficulty: "einfach", funFact: "Das Herz eines Blauwals ist so groß wie ein Kleinwagen." },
-    { q: "Welches Tier ist für seinen langen Hals bekannt?", display: "🦒", options: ["Giraffe", "Strauß", "Lama", "Kamel"], answer: "Giraffe", difficulty: "einfach", funFact: "Eine Giraffe hat genauso viele Halswirbel wie ein Mensch: sieben." },
-    { q: "Welches Insekt produziert Honig?", display: "🐝", options: ["Biene", "Wespe", "Hummel", "Ameise"], answer: "Biene", difficulty: "einfach", funFact: "Für ein Glas Honig fliegen Bienen zusammen mehrmals um die Erde." },
-    { q: "Welcher Vogel kann nicht fliegen?", display: "🐧", options: ["Pinguin", "Adler", "Möwe", "Reiher"], answer: "Pinguin", difficulty: "einfach", funFact: "Pinguine schwimmen mit über 30 km/h durchs Wasser." },
-    { q: "Welches Tier wechselt zur Tarnung die Farbe?", display: "🦎", options: ["Chamäleon", "Gecko", "Leguan", "Salamander"], answer: "Chamäleon", difficulty: "mittel", funFact: "Chamäleons bewegen ihre Augen unabhängig voneinander." },
-    { q: "Wie nennt man ein Tier, das nur Pflanzen frisst?", display: "🌿", options: ["Pflanzenfresser", "Fleischfresser", "Allesfresser", "Aasfresser"], answer: "Pflanzenfresser", difficulty: "einfach", funFact: "Elefanten fressen täglich bis zu 150 kg Pflanzen." },
-    { q: "Welches Tier hat einen Beutel für seine Jungen?", display: "🦘", options: ["Känguru", "Koala", "Wombat", "Alle genannten"], answer: "Alle genannten", difficulty: "schwer", funFact: "Beuteltiere kommen vor allem in Australien vor." },
-    { q: "Welcher Fisch ist als Raubtier mit vielen Zähnen bekannt?", display: "🦈", options: ["Hai", "Lachs", "Hering", "Karpfen"], answer: "Hai", difficulty: "einfach", funFact: "Haie gibt es seit über 400 Millionen Jahren." },
-    { q: "Welches Tier baut Dämme aus Holz?", display: "🦫", options: ["Biber", "Otter", "Ratte", "Maulwurf"], answer: "Biber", difficulty: "mittel", funFact: "Biberdämme können mehrere hundert Meter lang werden." },
-    { q: "Welche Tiergruppe legt Eier und säugt nicht?", display: "🐢", options: ["Reptilien", "Säugetiere", "Amphibien", "Beuteltiere"], answer: "Reptilien", difficulty: "mittel", funFact: "Schildkröten können über 100 Jahre alt werden." },
-    { q: "Welches Insekt durchläuft eine Verwandlung zum Schmetterling?", display: "🦋", options: ["Raupe", "Grille", "Käfer", "Libelle"], answer: "Raupe", difficulty: "einfach", funFact: "Die Verwandlung heißt Metamorphose." },
-    { q: "Welches Tier gilt als bester Läufer über kurze Distanz?", display: "🐆", options: ["Gepard", "Pferd", "Windhund", "Strauß"], answer: "Gepard", difficulty: "mittel", funFact: "Ein Gepard erreicht kurzzeitig über 100 km/h." },
-    { q: "Welches Meerestier hat acht Arme?", display: "🐙", options: ["Oktopus", "Seestern", "Qualle", "Hummer"], answer: "Oktopus", difficulty: "einfach", funFact: "Ein Oktopus hat drei Herzen und blaues Blut." },
-    { q: "Welches Tier ist das kleinste Säugetier der Welt?", display: "🦇", options: ["Hummelfledermaus", "Spitzmaus", "Maus", "Maulwurf"], answer: "Hummelfledermaus", difficulty: "schwer", funFact: "Sie wiegt weniger als zwei Gramm." },
-    { q: "Welches Tier kann seine abgetrennten Gliedmaßen nachwachsen lassen?", display: "🦎", options: ["Axolotl", "Frosch", "Schlange", "Kröte"], answer: "Axolotl", difficulty: "schwer", funFact: "Der Axolotl kann sogar Teile seines Herzens regenerieren." },
-  ],
+  // ── EINFACH ──
+  { q: "Welches Tier hat drei Herzen?", options: ["Oktopus", "Tintenfisch-Verwandte", "Krake", "Qualle"], answer: "Oktopus", difficulty: "einfach", funFact: "Es hat blaues Blut." },
+  { q: "Welches Säugetier kann aktiv fliegen?", options: ["Fledermaus", "Flughörnchen", "Gleithörnchen", "Flugbeutler"], answer: "Fledermaus", difficulty: "einfach", funFact: "Die anderen gleiten nur." },
+  { q: "Welches ist das größte Tier der Welt?", options: ["Blauwal", "Elefant", "Giraffe", "Pottwal"], answer: "Blauwal", difficulty: "einfach", funFact: "Sein Herz ist so groß wie ein Kleinwagen." },
+  { q: "Welcher Vogel kann nicht fliegen?", options: ["Pinguin", "Adler", "Möwe", "Reiher"], answer: "Pinguin", difficulty: "einfach" },
+  { q: "Welches Insekt produziert Honig?", options: ["Biene", "Wespe", "Hummel", "Ameise"], answer: "Biene", difficulty: "einfach" },
+  { q: "Welches Tier wechselt zur Tarnung die Farbe?", options: ["Chamäleon", "Gecko", "Leguan", "Salamander"], answer: "Chamäleon", difficulty: "einfach" },
+  { q: "Welches Tier ist das schnellste an Land?", options: ["Gepard", "Löwe", "Gazelle", "Windhund"], answer: "Gepard", difficulty: "einfach", funFact: "Er erreicht kurzzeitig über 100 km/h." },
+  { q: "Welcher Fisch ist als Raubtier mit vielen Zähnen bekannt?", options: ["Hai", "Lachs", "Hering", "Karpfen"], answer: "Hai", difficulty: "einfach" },
+  { q: "Welches Tier baut Dämme aus Holz?", options: ["Biber", "Otter", "Ratte", "Maulwurf"], answer: "Biber", difficulty: "einfach" },
+  { q: "Welches Meerestier hat acht Arme?", options: ["Oktopus", "Seestern", "Qualle", "Hummer"], answer: "Oktopus", difficulty: "einfach" },
+  { q: "Welcher Vogel kann rückwärts fliegen?", options: ["Kolibri", "Specht", "Schwalbe", "Falke"], answer: "Kolibri", difficulty: "einfach", funFact: "Er schlägt bis zu 80-mal pro Sekunde mit den Flügeln." },
+  { q: "Welches Tier ist für seinen langen Hals bekannt?", options: ["Giraffe", "Strauß", "Lama", "Kamel"], answer: "Giraffe", difficulty: "einfach" },
+  { q: "Welche Tiergruppe legt Eier und hat Federn?", options: ["Vögel", "Säugetiere", "Reptilien", "Amphibien"], answer: "Vögel", difficulty: "einfach" },
+  { q: "Welches Tier wird oft als 'König der Tiere' bezeichnet?", options: ["Löwe", "Tiger", "Bär", "Adler"], answer: "Löwe", difficulty: "einfach" },
+  { q: "Welches Tier hält einen Winterschlaf?", options: ["Igel", "Adler", "Hai", "Pferd"], answer: "Igel", difficulty: "einfach" },
+
+  // ── MITTEL ──
+  { q: "Wie nennt man eine Gruppe von Löwen?", options: ["Rudel", "Schwarm", "Herde", "Meute"], answer: "Rudel", difficulty: "mittel" },
+  { q: "Welches Tier hat den stärksten Biss der Welt?", options: ["Salzwasserkrokodil", "Weißer Hai", "Nilpferd", "Tiger"], answer: "Salzwasserkrokodil", difficulty: "mittel", funFact: "Es beißt mit über 3.000 PSI." },
+  { q: "Wie viele Mägen hat eine Kuh?", options: ["4", "2", "1", "3"], answer: "4", difficulty: "mittel", funFact: "Genau genommen ein Magen mit vier Kammern." },
+  { q: "Welches Tier kann seinen Kopf fast 270 Grad drehen?", options: ["Eule", "Chamäleon", "Erdmännchen", "Gottesanbeterin"], answer: "Eule", difficulty: "mittel" },
+  { q: "Welches Tier hat keinen Magen?", options: ["Seepferdchen", "Aal", "Hai", "Rochen"], answer: "Seepferdchen", difficulty: "mittel", funFact: "Beim Seepferdchen trägt das Männchen die Jungen aus." },
+  { q: "Welche Tiergruppe umfasst Spinnen und Skorpione?", options: ["Spinnentiere", "Insekten", "Krebstiere", "Tausendfüßer"], answer: "Spinnentiere", difficulty: "mittel", funFact: "Sie haben acht Beine, Insekten nur sechs." },
+  { q: "Welches Tier schläft täglich am längsten?", options: ["Koala", "Faultier", "Katze", "Igel"], answer: "Koala", difficulty: "mittel", funFact: "Koalas schlafen bis zu 22 Stunden täglich." },
+  { q: "Wie heißt das einzige Säugetier, das Eier legt und Gift hat?", options: ["Schnabeltier", "Ameisenigel", "Biber", "Otter"], answer: "Schnabeltier", difficulty: "mittel" },
+  { q: "Welches Tier kann abgetrennte Gliedmaßen nachwachsen lassen?", options: ["Axolotl", "Frosch", "Schlange", "Kröte"], answer: "Axolotl", difficulty: "mittel", funFact: "Er kann sogar Teile seines Herzens regenerieren." },
+  { q: "Welches ist das kleinste Säugetier der Welt?", options: ["Hummelfledermaus", "Spitzmaus", "Zwergmaus", "Maulwurf"], answer: "Hummelfledermaus", difficulty: "mittel", funFact: "Sie wiegt weniger als zwei Gramm." },
+  { q: "Wie nennt man Tiere, die nur nachts aktiv sind?", options: ["Nachtaktiv", "Tagaktiv", "Dämmerungsaktiv", "Winterstarr"], answer: "Nachtaktiv", difficulty: "mittel" },
+  { q: "Welches Tier kann am längsten ohne Wasser auskommen?", options: ["Kamel", "Elefant", "Esel", "Pferd"], answer: "Kamel", difficulty: "mittel" },
+  { q: "Welche Klasse bilden Schlangen und Echsen?", options: ["Reptilien", "Amphibien", "Säugetiere", "Fische"], answer: "Reptilien", difficulty: "mittel" },
+  { q: "Welches Tier ist für seinen Gesang unter Wasser bekannt?", options: ["Buckelwal", "Delfin", "Robbe", "Hai"], answer: "Buckelwal", difficulty: "mittel" },
+  { q: "Wie nennt man ein männliches Schaf?", options: ["Widder", "Bock", "Hengst", "Eber"], answer: "Widder", difficulty: "mittel" },
+  { q: "Welches Tier ist der nächste lebende Verwandte des Menschen?", options: ["Schimpanse", "Gorilla", "Orang-Utan", "Gibbon"], answer: "Schimpanse", difficulty: "mittel", funFact: "Wir teilen rund 98 % der Gene." },
+  { q: "Welche Tierart bildet die größten bekannten Kolonien?", options: ["Ameisen", "Bienen", "Termiten", "Wespen"], answer: "Ameisen", difficulty: "mittel" },
+  { q: "Wie viele Beine hat ein Tausendfüßer typischerweise wirklich?", options: ["Bis zu mehreren Hundert", "Genau 1000", "Genau 100", "Genau 50"], answer: "Bis zu mehreren Hundert", difficulty: "mittel", funFact: "Trotz des Namens hat keiner genau 1000 Beine." },
+  { q: "Welches Tier produziert Seide?", options: ["Seidenraupe", "Spinne", "Biene", "Ameise"], answer: "Seidenraupe", difficulty: "mittel" },
+  { q: "Welcher Vogel ist der größte der Welt?", options: ["Strauß", "Albatros", "Kondor", "Emu"], answer: "Strauß", difficulty: "mittel" },
+  { q: "Welche Tierart wechselt das Geschlecht im Lauf des Lebens?", options: ["Clownfisch", "Hai", "Delfin", "Seelöwe"], answer: "Clownfisch", difficulty: "mittel" },
+  { q: "Wie nennt man ein junges Pferd?", options: ["Fohlen", "Kalb", "Lamm", "Welpe"], answer: "Fohlen", difficulty: "mittel" },
+  { q: "Welches Tier hat die größten Augen im Tierreich?", options: ["Riesenkalmar", "Blauwal", "Eule", "Adler"], answer: "Riesenkalmar", difficulty: "mittel", funFact: "Seine Augen sind so groß wie Teller." },
+  { q: "Welches Insekt durchläuft eine vollständige Verwandlung?", options: ["Schmetterling", "Heuschrecke", "Libelle", "Wanze"], answer: "Schmetterling", difficulty: "mittel" },
+  { q: "Welches Tier kann seine Hautfarbe und Muster blitzschnell ändern?", options: ["Tintenfisch", "Frosch", "Eidechse", "Krabbe"], answer: "Tintenfisch", difficulty: "mittel" },
+  { q: "Welche Tiere bestäuben am meisten Pflanzen?", options: ["Bienen", "Vögel", "Fledermäuse", "Käfer"], answer: "Bienen", difficulty: "mittel" },
+  { q: "Welches Tier ist als 'Wüstenschiff' bekannt?", options: ["Kamel", "Esel", "Pferd", "Lama"], answer: "Kamel", difficulty: "mittel" },
+  { q: "Welche Tierklasse atmet sowohl über Kiemen als auch über Lungen im Lebenszyklus?", options: ["Amphibien", "Reptilien", "Fische", "Vögel"], answer: "Amphibien", difficulty: "mittel" },
+  { q: "Welcher Greifvogel hat das schärfste Sehvermögen?", options: ["Adler", "Eule", "Falke", "Geier"], answer: "Adler", difficulty: "mittel" },
+  { q: "Welches Tier kann bis zu 70 km/h schnell schwimmen und ist der schnellste Fisch?", options: ["Schwarzer Marlin", "Thunfisch", "Hai", "Schwertfisch"], answer: "Schwarzer Marlin", difficulty: "mittel" },
+  { q: "Wie nennt man die Wissenschaft von den Vögeln?", options: ["Ornithologie", "Entomologie", "Herpetologie", "Ichthyologie"], answer: "Ornithologie", difficulty: "mittel" },
+  { q: "Welche Tierart lebt in einem 'Bau' und ist für ihre Sozialstruktur bekannt?", options: ["Erdmännchen", "Igel", "Fuchs", "Wildschwein"], answer: "Erdmännchen", difficulty: "mittel" },
+  { q: "Welches Tier kann seinen Stoffwechsel im Winter fast völlig herunterfahren?", options: ["Murmeltier", "Reh", "Eichhörnchen", "Hase"], answer: "Murmeltier", difficulty: "mittel" },
+  { q: "Wie nennt man die Wissenschaft von den Insekten?", options: ["Entomologie", "Ornithologie", "Botanik", "Zoologie"], answer: "Entomologie", difficulty: "mittel" },
+
+  // ── SCHWER ──
+  { q: "Welches Tier hat das größte Gehirn im Verhältnis zur Körpergröße?", options: ["Spitzmaus", "Mensch", "Delfin", "Elefant"], answer: "Spitzmaus", difficulty: "schwer" },
+  { q: "Welche Tierart kann am längsten ohne Sauerstoff überleben?", options: ["Schmuckschildkröte", "Wal", "Robbe", "Krokodil"], answer: "Schmuckschildkröte", difficulty: "schwer", funFact: "Sie übersteht Monate unter Eis fast ohne Sauerstoff." },
+  { q: "Welches Insekt kann das Vielfache seines Körpergewichts heben?", options: ["Ameise", "Biene", "Käfer", "Heuschrecke"], answer: "Ameise", difficulty: "schwer" },
+  { q: "Welches Tier besitzt die meisten Zähne unter den Landtieren?", options: ["Riesengürteltier", "Hai", "Krokodil", "Wolf"], answer: "Riesengürteltier", difficulty: "schwer" },
+  { q: "Welche Quallenart gilt als biologisch 'unsterblich'?", options: ["Turritopsis dohrnii", "Ohrenqualle", "Würfelqualle", "Feuerqualle"], answer: "Turritopsis dohrnii", difficulty: "schwer", funFact: "Sie kann ihren Lebenszyklus zurücksetzen." },
+  { q: "Welches Tier produziert das stärkste bekannte Gift?", options: ["Seewespe", "Kobra", "Skorpion", "Pfeilgiftfrosch"], answer: "Seewespe", difficulty: "schwer", funFact: "Die Seewespe ist eine Würfelqualle." },
+  { q: "Welche Vogelart legt die längste Zugstrecke zurück?", options: ["Küstenseeschwalbe", "Storch", "Kranich", "Wanderfalke"], answer: "Küstenseeschwalbe", difficulty: "schwer", funFact: "Sie fliegt jährlich von Pol zu Pol." },
+  { q: "Welches Säugetier legt als einziges neben dem Schnabeltier Eier?", options: ["Ameisenigel", "Koala", "Wombat", "Opossum"], answer: "Ameisenigel", difficulty: "schwer" },
+  { q: "Welche Tierart kann ihre Körpertemperatur nicht selbst regulieren?", options: ["Reptilien", "Säugetiere", "Vögel", "Wale"], answer: "Reptilien", difficulty: "schwer", funFact: "Sie sind wechselwarm." },
+  { q: "Welcher Fisch erzeugt elektrische Stromstöße zur Jagd?", options: ["Zitteraal", "Rochen", "Hai", "Wels"], answer: "Zitteraal", difficulty: "schwer", funFact: "Seine Stöße erreichen über 600 Volt." },
+  { q: "Welches Tier hat das längste bekannte Leben unter den Wirbeltieren?", options: ["Grönlandhai", "Riesenschildkröte", "Karpfen", "Wal"], answer: "Grönlandhai", difficulty: "schwer", funFact: "Er kann über 400 Jahre alt werden." },
+  { q: "Welche Tierart 'tanzt', um Artgenossen Futterquellen zu zeigen?", options: ["Honigbiene", "Ameise", "Termite", "Wespe"], answer: "Honigbiene", difficulty: "schwer", funFact: "Man nennt es den Schwänzeltanz." },
+  { q: "Welches Tier hat blaues Blut auf Basis von Kupfer?", options: ["Pfeilschwanzkrebs", "Tintenfisch", "Krabbe", "Hummer"], answer: "Pfeilschwanzkrebs", difficulty: "schwer" },
+  { q: "Welche Affenart ist die größte der Welt?", options: ["Gorilla", "Orang-Utan", "Schimpanse", "Mandrill"], answer: "Gorilla", difficulty: "schwer" },
+  { q: "Welche Schlange ist die längste der Welt?", options: ["Netzpython", "Anakonda", "Königskobra", "Boa"], answer: "Netzpython", difficulty: "schwer" },
+  { q: "Welches Tier kann seinen Stoffwechsel so weit senken, dass es jahrelang ohne Nahrung überlebt?", options: ["Lungenfisch", "Bär", "Frosch", "Schnecke"], answer: "Lungenfisch", difficulty: "schwer" },
+  { q: "Welche Tierart bildet im Schwarm leuchtende Lichtsignale?", options: ["Glühwürmchen", "Motten", "Bienen", "Libellen"], answer: "Glühwürmchen", difficulty: "schwer" },
+  { q: "Welcher Vogel baut die kunstvollsten 'Lauben' zur Balz?", options: ["Laubenvogel", "Paradiesvogel", "Webervogel", "Pfau"], answer: "Laubenvogel", difficulty: "schwer" },
+  { q: "Welches Tier hat das größte Auge im gesamten Tierreich?", options: ["Riesenkalmar", "Blauwal", "Strauß", "Pferd"], answer: "Riesenkalmar", difficulty: "schwer" },
+  { q: "Welche Tierart kann Werkzeuge nutzen, etwa Steine zum Knacken von Nüssen?", options: ["Schimpanse", "Wolf", "Pferd", "Reh"], answer: "Schimpanse", difficulty: "schwer" },
+  { q: "Welcher Meeressäuger taucht am tiefsten?", options: ["Cuvier-Schnabelwal", "Blauwal", "Orca", "Delfin"], answer: "Cuvier-Schnabelwal", difficulty: "schwer", funFact: "Er taucht fast 3.000 Meter tief." },
+  { q: "Welches Insekt überträgt die Malaria?", options: ["Anopheles-Mücke", "Tsetsefliege", "Zecke", "Floh"], answer: "Anopheles-Mücke", difficulty: "schwer" },
+  { q: "Welche Tierart wandert in riesigen Schwärmen durch die Serengeti?", options: ["Gnu", "Zebra", "Antilope", "Büffel"], answer: "Gnu", difficulty: "schwer" },
+  { q: "Welche Spinne gilt als giftigste der Welt?", options: ["Brasilianische Wanderspinne", "Schwarze Witwe", "Vogelspinne", "Trichternetzspinne"], answer: "Brasilianische Wanderspinne", difficulty: "schwer" },
+  { q: "Welches Tier kann seine Beute mit einer 'Schleimkanone' fangen?", options: ["Schleimaal", "Tintenfisch", "Frosch", "Chamäleon"], answer: "Schleimaal", difficulty: "schwer" },
+  { q: "Welcher Vogel kann am schnellsten fliegen (im Sturzflug)?", options: ["Wanderfalke", "Mauersegler", "Adler", "Albatros"], answer: "Wanderfalke", difficulty: "schwer", funFact: "Im Sturzflug erreicht er über 300 km/h." },
+  { q: "Welche Tierart navigiert mithilfe des Erdmagnetfelds?", options: ["Zugvögel", "Frösche", "Eichhörnchen", "Rehe"], answer: "Zugvögel", difficulty: "schwer" },
+  { q: "Welches Tier ist der größte lebende Landraubsäuger?", options: ["Eisbär", "Löwe", "Tiger", "Braunbär"], answer: "Eisbär", difficulty: "schwer" },
+  { q: "Welche Tierart kann ihre Augen unabhängig voneinander bewegen?", options: ["Chamäleon", "Frosch", "Schlange", "Echse"], answer: "Chamäleon", difficulty: "schwer" },
+  { q: "Welches Insekt lebt in einem strengen Kastensystem mit einer Königin?", options: ["Termite", "Heuschrecke", "Käfer", "Libelle"], answer: "Termite", difficulty: "schwer" },
+  { q: "Welcher Fisch kann an Land kriechen und kurze Strecken überleben?", options: ["Schlammspringer", "Aal", "Wels", "Karpfen"], answer: "Schlammspringer", difficulty: "schwer" },
+  { q: "Welche Tierart kann Ultraschall zur Jagd erzeugen?", options: ["Fledermaus", "Eule", "Falke", "Katze"], answer: "Fledermaus", difficulty: "schwer" },
+  { q: "Welches Reptil ist die größte lebende Echse?", options: ["Komodowaran", "Leguan", "Krokodil", "Gecko"], answer: "Komodowaran", difficulty: "schwer", funFact: "Er kann über drei Meter lang werden." },
+  { q: "Welche Tierart trägt ihre Jungen im Beutel und ist in Australien heimisch?", options: ["Känguru", "Koala", "Wombat", "Alle genannten"], answer: "Alle genannten", difficulty: "schwer" },
+  { q: "Welcher Vogel ahmt menschliche Sprache am besten nach?", options: ["Graupapagei", "Star", "Rabe", "Beo"], answer: "Graupapagei", difficulty: "schwer" },
+  { q: "Welche Tierart bildet Symbiosen mit Seeanemonen?", options: ["Clownfisch", "Seestern", "Krabbe", "Garnele"], answer: "Clownfisch", difficulty: "schwer" },
+  { q: "Welches Säugetier hat den längsten Schlaf-Wach-Rhythmus und ist fast blind?", options: ["Maulwurf", "Igel", "Fledermaus", "Spitzmaus"], answer: "Maulwurf", difficulty: "schwer" },
+  { q: "Welche Tierart legt die meisten Eier auf einmal (Millionen)?", options: ["Mondfisch", "Frosch", "Schildkröte", "Krokodil"], answer: "Mondfisch", difficulty: "schwer", funFact: "Ein Weibchen kann bis zu 300 Millionen Eier tragen." },
+  { q: "Welches Tier nutzt Echoortung im Wasser?", options: ["Delfin", "Hai", "Robbe", "Pinguin"], answer: "Delfin", difficulty: "schwer" },
+  { q: "Welche Tierart kann ihren Panzer nicht abwerfen und wächst mit ihm?", options: ["Schildkröte", "Krabbe", "Hummer", "Garnele"], answer: "Schildkröte", difficulty: "schwer" },
+  { q: "Welches Tier gilt als giftigster Frosch?", options: ["Goldener Pfeilgiftfrosch", "Laubfrosch", "Ochsenfrosch", "Kröte"], answer: "Goldener Pfeilgiftfrosch", difficulty: "schwer" },
+  { q: "Welche Tierart hat ein Skelett aus Knorpel statt Knochen?", options: ["Hai", "Thunfisch", "Lachs", "Karpfen"], answer: "Hai", difficulty: "schwer" },
+  { q: "Welches Tier kann seine Beute durch Aufpumpen abschrecken und ist giftig?", options: ["Kugelfisch", "Seeigel", "Krabbe", "Tintenfisch"], answer: "Kugelfisch", difficulty: "schwer", funFact: "In Japan ist er als 'Fugu' eine riskante Delikatesse." },
+  { q: "Welcher Wal hat einen langen, spiralförmigen Stoßzahn?", options: ["Narwal", "Belugawal", "Pottwal", "Buckelwal"], answer: "Narwal", difficulty: "schwer", funFact: "Der Stoßzahn ist eigentlich ein verlängerter Zahn." },
+],
   essen: [
-    { q: "Welches Gewürz ist das teuerste der Welt?", display: "🌸", options: ["Safran", "Vanille", "Kardamom", "Zimt"], answer: "Safran", difficulty: "einfach", funFact: "Für ein Kilo Safran braucht man die Blütenfäden von etwa 150.000 Krokussen." },
-    { q: "Welches scharfe Element steckt in Chili?", display: "🌶️", options: ["Capsaicin", "Piperin", "Allicin", "Menthol"], answer: "Capsaicin", difficulty: "mittel", funFact: "Capsaicin täuscht den Hitzesensor im Mund nur – es brennt nicht wirklich." },
-    { q: "Welches Tier liefert traditionell die Milch für echten Mozzarella?", display: "🧀", options: ["Wasserbüffel", "Kuh", "Ziege", "Schaf"], answer: "Wasserbüffel", difficulty: "mittel", funFact: "Echter 'Mozzarella di Bufala' wird aus Büffelmilch hergestellt." },
-    { q: "Aus welchem Land stammt der Croissant-Vorläufer?", display: "🥐", options: ["Österreich", "Frankreich", "Belgien", "Schweiz"], answer: "Österreich", difficulty: "mittel", funFact: "Das 'Kipferl' aus Wien gilt als Vorläufer des französischen Croissants." },
-    { q: "Welches Land trinkt pro Kopf am meisten Kaffee?", display: "☕", options: ["Finnland", "Italien", "Schweden", "Österreich"], answer: "Finnland", difficulty: "schwer", funFact: "Finnen trinken im Schnitt über 4 Tassen Kaffee pro Tag." },
-    { q: "Welche Grundzutat macht Sojasauce salzig-würzig?", display: "🍶", options: ["Fermentierte Sojabohnen", "Meersalz", "Misopaste", "Reisessig"], answer: "Fermentierte Sojabohnen", difficulty: "schwer", funFact: "Klassische Sojasauce reift oft mehrere Monate bis Jahre." },
-    { q: "Aus welcher Pflanze wird Vanille gewonnen?", display: "🌿", options: ["Orchidee", "Bohnenranke", "Palme", "Farn"], answer: "Orchidee", difficulty: "schwer", funFact: "Vanille ist nach Safran das zweitteuerste Gewürz der Welt." },
-    { q: "Welches Land erfand die Tempura-Frittiertechnik nicht, brachte sie aber nach Japan?", display: "🍤", options: ["Portugal", "China", "Korea", "Niederlande"], answer: "Portugal", difficulty: "schwer", funFact: "Portugiesische Missionare brachten die Frittiertechnik im 16. Jahrhundert nach Japan." },
-    { q: "Welche Käsesorte hat traditionell Löcher?", display: "🧀", options: ["Emmentaler", "Gouda", "Cheddar", "Brie"], answer: "Emmentaler", difficulty: "mittel", funFact: "Die Löcher entstehen durch Bakterien, die beim Reifen Gas bilden." },
-    { q: "Was ist die Hauptzutat von Hummus?", display: "🫘", options: ["Kichererbsen", "Linsen", "Bohnen", "Erbsen"], answer: "Kichererbsen", difficulty: "mittel", funFact: "Hummus heißt auf Arabisch schlicht 'Kichererbse'." },
-    { q: "Welches Süßungsmittel stammt von einer südamerikanischen Pflanze?", display: "🍃", options: ["Stevia", "Aspartam", "Xylit", "Sorbit"], answer: "Stevia", difficulty: "schwer", funFact: "Stevia süßt bis zu 300-mal stärker als Zucker – ganz ohne Kalorien." },
-    { q: "Welche Nuss steckt in echtem Marzipan?", display: "🥜", options: ["Mandel", "Walnuss", "Haselnuss", "Cashew"], answer: "Mandel", difficulty: "mittel", funFact: "Lübecker Marzipan ist EU-weit geschützt." },
-    { q: "Aus welchem Land kommt die Pizza ursprünglich?", display: "🍕", options: ["Italien", "Griechenland", "Spanien", "USA"], answer: "Italien", difficulty: "einfach", funFact: "Die Pizza Margherita ist nach einer Königin benannt." },
-    { q: "Welche Bohne ist die Basis für Schokolade?", display: "🍫", options: ["Kakaobohne", "Kaffeebohne", "Sojabohne", "Vanillebohne"], answer: "Kakaobohne", difficulty: "einfach", funFact: "Azteken nutzten Kakaobohnen einst als Zahlungsmittel." },
-    { q: "Was ist Guacamole hauptsächlich?", display: "🥑", options: ["Avocado", "Erbsen", "Spinat", "Brokkoli"], answer: "Avocado", difficulty: "einfach", funFact: "Avocados sind botanisch gesehen Beeren." },
-    { q: "Welche Frucht steckt im Ketchup?", display: "🍅", options: ["Tomate", "Apfel", "Paprika", "Pflaume"], answer: "Tomate", difficulty: "einfach", funFact: "Tomaten galten in Europa lange als giftig." },
-    { q: "Aus welchem Getreide wird Brot meist gebacken?", display: "🍞", options: ["Weizen", "Reis", "Mais", "Hafer"], answer: "Weizen", difficulty: "einfach", funFact: "Weizen wird seit über 10.000 Jahren angebaut." },
-    { q: "Welches Land ist berühmt für Sushi?", display: "🍣", options: ["Japan", "China", "Thailand", "Korea"], answer: "Japan", difficulty: "einfach", funFact: "Sushi bezeichnet eigentlich den gesäuerten Reis." },
-    { q: "Welches Getränk wird aus Trauben vergoren?", display: "🍷", options: ["Wein", "Bier", "Cidre", "Sake"], answer: "Wein", difficulty: "einfach", funFact: "Die Lehre vom Weinbau heißt Önologie." },
-    { q: "Welches Gewürz gibt Curry seine gelbe Farbe?", display: "🍛", options: ["Kurkuma", "Safran", "Paprika", "Ingwer"], answer: "Kurkuma", difficulty: "mittel", funFact: "Kurkuma gilt auch als entzündungshemmend." },
-    { q: "Welche italienische Spezialität ist ein dünner roher Schinken?", display: "🍖", options: ["Prosciutto", "Salami", "Mortadella", "Bresaola"], answer: "Prosciutto", difficulty: "mittel", funFact: "Prosciutto di Parma reift bis zu zwei Jahre." },
-    { q: "Welche Frucht ist als 'Stinkfrucht' Asiens bekannt?", display: "🌰", options: ["Durian", "Litschi", "Mango", "Papaya"], answer: "Durian", difficulty: "schwer", funFact: "In vielen Hotels Asiens ist die Durian wegen ihres Geruchs verboten." },
-    { q: "Aus welchem Tier wird Roquefort-Käse gemacht?", display: "🧀", options: ["Schaf", "Kuh", "Ziege", "Büffel"], answer: "Schaf", difficulty: "schwer", funFact: "Roquefort reift in Kalksteinhöhlen Südfrankreichs." },
-    { q: "Welche Pflanze liefert die Schärfe von Wasabi?", display: "🌿", options: ["Wasabi-Wurzel", "Chili", "Pfeffer", "Senfkorn"], answer: "Wasabi-Wurzel", difficulty: "schwer", funFact: "Echter Wasabi ist selten – oft ist es gefärbter Meerrettich." },
-    { q: "Welches Land ist der größte Produzent von Olivenöl?", display: "🫒", options: ["Spanien", "Italien", "Griechenland", "Türkei"], answer: "Spanien", difficulty: "schwer", funFact: "Spanien produziert fast die Hälfte des weltweiten Olivenöls." },
-    { q: "Welches Getränk enthält von Natur aus Koffein?", display: "☕", options: ["Kaffee", "Kamillentee", "Limonade", "Milch"], answer: "Kaffee", difficulty: "einfach", funFact: "Kaffee ist nach Erdöl eines der meistgehandelten Güter der Welt." },
-    { q: "Welche Teigart wird für Croissants verwendet?", display: "🥐", options: ["Blätterteig", "Mürbeteig", "Hefeteig", "Rührteig"], answer: "Blätterteig", difficulty: "mittel", funFact: "Ein gutes Croissant hat Dutzende hauchdünne Teigschichten." },
-  ],
+  // ── EINFACH ──
+  { q: "Aus welchem Land kommt die Pizza ursprünglich?", options: ["Italien", "Griechenland", "Spanien", "USA"], answer: "Italien", difficulty: "einfach" },
+  { q: "Welche Bohne ist die Basis für Schokolade?", options: ["Kakaobohne", "Kaffeebohne", "Sojabohne", "Vanillebohne"], answer: "Kakaobohne", difficulty: "einfach", funFact: "Azteken nutzten Kakaobohnen als Zahlungsmittel." },
+  { q: "Was ist Guacamole hauptsächlich?", options: ["Avocado", "Erbsen", "Spinat", "Brokkoli"], answer: "Avocado", difficulty: "einfach", funFact: "Avocados sind botanisch gesehen Beeren." },
+  { q: "Welche Frucht steckt im Ketchup?", options: ["Tomate", "Apfel", "Paprika", "Pflaume"], answer: "Tomate", difficulty: "einfach" },
+  { q: "Welches Getränk wird aus Trauben vergoren?", options: ["Wein", "Bier", "Cidre", "Sake"], answer: "Wein", difficulty: "einfach" },
+  { q: "Welches Land ist berühmt für Sushi?", options: ["Japan", "China", "Thailand", "Korea"], answer: "Japan", difficulty: "einfach", funFact: "Sushi bezeichnet eigentlich den gesäuerten Reis." },
+  { q: "Welche Nuss steckt in echtem Marzipan?", options: ["Mandel", "Walnuss", "Haselnuss", "Cashew"], answer: "Mandel", difficulty: "einfach" },
+  { q: "Welches Gewürz ist das teuerste der Welt?", options: ["Safran", "Vanille", "Kardamom", "Zimt"], answer: "Safran", difficulty: "einfach", funFact: "Für ein Kilo braucht man rund 150.000 Blüten." },
+  { q: "Was ist die Hauptzutat von Hummus?", options: ["Kichererbsen", "Linsen", "Bohnen", "Erbsen"], answer: "Kichererbsen", difficulty: "einfach" },
+  { q: "Welches Getränk enthält von Natur aus Koffein?", options: ["Kaffee", "Kamillentee", "Limonade", "Milch"], answer: "Kaffee", difficulty: "einfach" },
+  { q: "Aus welchem Getreide wird Brot meist gebacken?", options: ["Weizen", "Reis", "Mais", "Hafer"], answer: "Weizen", difficulty: "einfach" },
+  { q: "Welche Teigart wird für Croissants verwendet?", options: ["Blätterteig", "Mürbeteig", "Hefeteig", "Rührteig"], answer: "Blätterteig", difficulty: "einfach" },
+  { q: "Welches scharfe Element steckt in Chili?", options: ["Capsaicin", "Piperin", "Allicin", "Menthol"], answer: "Capsaicin", difficulty: "einfach" },
+  { q: "Welche Käsesorte hat traditionell Löcher?", options: ["Emmentaler", "Gouda", "Cheddar", "Brie"], answer: "Emmentaler", difficulty: "einfach", funFact: "Die Löcher entstehen durch Bakterien beim Reifen." },
+  { q: "Welches Land ist für Pasta besonders bekannt?", options: ["Italien", "Frankreich", "Griechenland", "Spanien"], answer: "Italien", difficulty: "einfach" },
+
+  // ── MITTEL ──
+  { q: "Welches Tier liefert traditionell die Milch für echten Mozzarella?", options: ["Wasserbüffel", "Kuh", "Ziege", "Schaf"], answer: "Wasserbüffel", difficulty: "mittel" },
+  { q: "Aus welchem Land stammt der Croissant-Vorläufer?", options: ["Österreich", "Frankreich", "Belgien", "Schweiz"], answer: "Österreich", difficulty: "mittel", funFact: "Das Wiener 'Kipferl' gilt als Vorläufer." },
+  { q: "Welches Land trinkt pro Kopf am meisten Kaffee?", options: ["Finnland", "Italien", "Schweden", "Österreich"], answer: "Finnland", difficulty: "mittel" },
+  { q: "Welches Gewürz gibt Curry seine gelbe Farbe?", options: ["Kurkuma", "Safran", "Paprika", "Ingwer"], answer: "Kurkuma", difficulty: "mittel" },
+  { q: "Aus welcher Pflanze wird Vanille gewonnen?", options: ["Orchidee", "Bohnenranke", "Palme", "Farn"], answer: "Orchidee", difficulty: "mittel", funFact: "Vanille ist nach Safran das zweitteuerste Gewürz." },
+  { q: "Welche italienische Spezialität ist ein dünner roher Schinken?", options: ["Prosciutto", "Salami", "Mortadella", "Bresaola"], answer: "Prosciutto", difficulty: "mittel" },
+  { q: "Welches Land ist der größte Produzent von Olivenöl?", options: ["Spanien", "Italien", "Griechenland", "Türkei"], answer: "Spanien", difficulty: "mittel" },
+  { q: "Welche Grundzutat macht Sojasauce salzig-würzig?", options: ["Fermentierte Sojabohnen", "Meersalz", "Misopaste", "Reisessig"], answer: "Fermentierte Sojabohnen", difficulty: "mittel" },
+  { q: "Welches Süßungsmittel stammt von einer südamerikanischen Pflanze?", options: ["Stevia", "Aspartam", "Xylit", "Sorbit"], answer: "Stevia", difficulty: "mittel", funFact: "Stevia süßt bis zu 300-mal stärker als Zucker." },
+  { q: "Welche Frucht ist als 'Stinkfrucht' Asiens bekannt?", options: ["Durian", "Litschi", "Mango", "Papaya"], answer: "Durian", difficulty: "mittel", funFact: "In vielen Hotels Asiens ist sie wegen des Geruchs verboten." },
+  { q: "Aus welchem Tier wird Roquefort-Käse gemacht?", options: ["Schaf", "Kuh", "Ziege", "Büffel"], answer: "Schaf", difficulty: "mittel", funFact: "Er reift in Kalksteinhöhlen Südfrankreichs." },
+  { q: "Welches Getränk entsteht durch Destillation von vergorenem Agavensaft?", options: ["Tequila", "Rum", "Whisky", "Wodka"], answer: "Tequila", difficulty: "mittel" },
+  { q: "Welche Reissorte wird für Risotto verwendet?", options: ["Arborio", "Basmati", "Jasmin", "Wildreis"], answer: "Arborio", difficulty: "mittel" },
+  { q: "Aus welchem Land stammt das Gericht Paella?", options: ["Spanien", "Italien", "Portugal", "Mexiko"], answer: "Spanien", difficulty: "mittel", funFact: "Es stammt ursprünglich aus Valencia." },
+  { q: "Welche Zutat macht Sauerteigbrot 'sauer'?", options: ["Milchsäurebakterien", "Essig", "Zitrone", "Joghurt"], answer: "Milchsäurebakterien", difficulty: "mittel" },
+  { q: "Welches Land hat die Croissant-Kultur perfektioniert?", options: ["Frankreich", "Österreich", "Belgien", "Italien"], answer: "Frankreich", difficulty: "mittel" },
+  { q: "Welcher Alkohol ist die Basis eines Mojito?", options: ["Rum", "Wodka", "Gin", "Tequila"], answer: "Rum", difficulty: "mittel" },
+  { q: "Welches Gemüse ist die Basis von Sauerkraut?", options: ["Weißkohl", "Rotkohl", "Wirsing", "Spitzkohl"], answer: "Weißkohl", difficulty: "mittel" },
+  { q: "Welche japanische Paste wird aus fermentierten Sojabohnen gemacht?", options: ["Miso", "Wasabi", "Tofu", "Dashi"], answer: "Miso", difficulty: "mittel" },
+  { q: "Aus welchem Land stammt der Käse Feta?", options: ["Griechenland", "Italien", "Frankreich", "Türkei"], answer: "Griechenland", difficulty: "mittel" },
+  { q: "Welche Frucht wird zu Wein vergoren und dann zu Balsamico?", options: ["Traube", "Apfel", "Birne", "Pflaume"], answer: "Traube", difficulty: "mittel" },
+  { q: "Welche Nuss wird für Pesto alla Genovese klassisch verwendet?", options: ["Pinienkerne", "Walnuss", "Mandel", "Cashew"], answer: "Pinienkerne", difficulty: "mittel" },
+  { q: "Welches Gewürz stammt von der Rinde eines Baumes?", options: ["Zimt", "Pfeffer", "Muskat", "Nelke"], answer: "Zimt", difficulty: "mittel" },
+  { q: "Welche Teesorte ist nicht fermentiert?", options: ["Grüner Tee", "Schwarzer Tee", "Oolong", "Pu-Erh"], answer: "Grüner Tee", difficulty: "mittel" },
+  { q: "Welches Land erfand den Hamburger in seiner heutigen Form?", options: ["USA", "Deutschland", "England", "Frankreich"], answer: "USA", difficulty: "mittel" },
+  { q: "Welche Frucht ist die Hauptzutat von Marmelade aus Zitrusfrüchten (Orangenkonfitüre)?", options: ["Orange", "Zitrone", "Mandarine", "Grapefruit"], answer: "Orange", difficulty: "mittel" },
+  { q: "Welcher Fisch wird typischerweise zu Räucherlachs verarbeitet?", options: ["Lachs", "Hering", "Makrele", "Forelle"], answer: "Lachs", difficulty: "mittel" },
+  { q: "Welches Gericht besteht aus rohem, mariniertem Fisch und stammt aus Peru?", options: ["Ceviche", "Sushi", "Tartar", "Sashimi"], answer: "Ceviche", difficulty: "mittel" },
+  { q: "Welche Knolle ist die Basis für Pommes frites?", options: ["Kartoffel", "Süßkartoffel", "Maniok", "Yamswurzel"], answer: "Kartoffel", difficulty: "mittel" },
+  { q: "Welche Pflanze liefert die Schärfe von Wasabi?", options: ["Wasabi-Wurzel", "Chili", "Pfeffer", "Senfkorn"], answer: "Wasabi-Wurzel", difficulty: "mittel", funFact: "Oft ist es nur gefärbter Meerrettich." },
+  { q: "Aus welchem Getreide wird Whisky vorrangig hergestellt?", options: ["Gerste", "Weizen", "Reis", "Mais"], answer: "Gerste", difficulty: "mittel" },
+  { q: "Welche Zutat sorgt für die rote Farbe von Paella?", options: ["Safran", "Tomate", "Paprika", "Rote Bete"], answer: "Safran", difficulty: "mittel" },
+  { q: "Welches Brot ist typisch indisch und wird im Tandoor gebacken?", options: ["Naan", "Baguette", "Ciabatta", "Pita"], answer: "Naan", difficulty: "mittel" },
+  { q: "Welcher Käse wird traditionell über Nudeln gerieben?", options: ["Parmesan", "Mozzarella", "Ricotta", "Pecorino"], answer: "Parmesan", difficulty: "mittel" },
+
+  // ── SCHWER ──
+  { q: "Welches Land erfand die Tempura-Frittiertechnik nicht, brachte sie aber nach Japan?", options: ["Portugal", "China", "Korea", "Niederlande"], answer: "Portugal", difficulty: "schwer", funFact: "Portugiesische Missionare brachten sie im 16. Jh." },
+  { q: "Welche Edelschimmel-Art veredelt Camembert?", options: ["Penicillium camemberti", "Aspergillus", "Botrytis", "Rhizopus"], answer: "Penicillium camemberti", difficulty: "schwer" },
+  { q: "Welches Gewürz wird aus dem Samenmantel der Muskatnuss gewonnen?", options: ["Macis", "Kardamom", "Piment", "Sternanis"], answer: "Macis", difficulty: "schwer", funFact: "Macis wird auch 'Muskatblüte' genannt." },
+  { q: "Welcher Wein wird aus edelfaulen Trauben gewonnen?", options: ["Sauternes", "Chianti", "Rioja", "Bordeaux"], answer: "Sauternes", difficulty: "schwer", funFact: "Die Edelfäule heißt Botrytis cinerea." },
+  { q: "Welche japanische Technik bezeichnet das Reifen von Fisch zur Geschmacksverstärkung?", options: ["Umami-Reifung", "Nigiri", "Teriyaki", "Tempura"], answer: "Umami-Reifung", difficulty: "schwer" },
+  { q: "Welche Hülsenfrucht ist die Basis für traditionellen Tofu?", options: ["Sojabohne", "Kichererbse", "Linse", "Erbse"], answer: "Sojabohne", difficulty: "schwer" },
+  { q: "Welcher französische Käse gilt als 'König der Käse'?", options: ["Brie de Meaux", "Camembert", "Roquefort", "Comté"], answer: "Brie de Meaux", difficulty: "schwer" },
+  { q: "Welches Fermentationsprodukt ist die Grundlage von Kimchi?", options: ["Milchsäuregärung", "Alkoholische Gärung", "Essigsäuregärung", "Schimmelreifung"], answer: "Milchsäuregärung", difficulty: "schwer" },
+  { q: "Welche Rebsorte ist die Basis von echtem Champagner zumeist?", options: ["Chardonnay", "Riesling", "Merlot", "Sauvignon Blanc"], answer: "Chardonnay", difficulty: "schwer", funFact: "Auch Pinot Noir und Pinot Meunier werden verwendet." },
+  { q: "Welche Geschmacksrichtung wurde als fünfter Grundgeschmack 'entdeckt'?", options: ["Umami", "Süß", "Salzig", "Bitter"], answer: "Umami", difficulty: "schwer", funFact: "Sie wurde 1908 in Japan beschrieben." },
+  { q: "Welcher Pilz ist die teuerste Trüffelart?", options: ["Weiße Albatrüffel", "Schwarze Périgordtrüffel", "Sommertrüffel", "Burgundertrüffel"], answer: "Weiße Albatrüffel", difficulty: "schwer" },
+  { q: "Welcher Reis wird für japanisches Sake verwendet?", options: ["Spezieller Sakereis", "Basmati", "Jasminreis", "Arborio"], answer: "Spezieller Sakereis", difficulty: "schwer" },
+  { q: "Welche Zutat macht echtes Wiener Schnitzel aus?", options: ["Kalbfleisch", "Schweinefleisch", "Hähnchen", "Pute"], answer: "Kalbfleisch", difficulty: "schwer", funFact: "Aus Schwein heißt es 'Schnitzel Wiener Art'." },
+  { q: "Welcher Likör ist Bestandteil eines klassischen Negroni?", options: ["Campari", "Aperol", "Limoncello", "Cointreau"], answer: "Campari", difficulty: "schwer" },
+  { q: "Welches Gewürz wird aus den getrockneten Blütennarben einer Krokusart gewonnen?", options: ["Safran", "Kurkuma", "Paprika", "Sumach"], answer: "Safran", difficulty: "schwer" },
+  { q: "Welche Käseart wird durch Streckung des Bruchs in heißem Wasser hergestellt?", options: ["Pasta filata", "Hartkäse", "Schimmelkäse", "Frischkäse"], answer: "Pasta filata", difficulty: "schwer", funFact: "Mozzarella gehört dazu." },
+  { q: "Welches Land ist Ursprung des Gerichts Goulasch?", options: ["Ungarn", "Österreich", "Tschechien", "Polen"], answer: "Ungarn", difficulty: "schwer" },
+  { q: "Welche Säure macht Joghurt sauer?", options: ["Milchsäure", "Zitronensäure", "Essigsäure", "Apfelsäure"], answer: "Milchsäure", difficulty: "schwer" },
+  { q: "Welcher Teil des Kaffeestrauchs wird geröstet?", options: ["Die Bohne (Samen)", "Das Blatt", "Die Blüte", "Die Wurzel"], answer: "Die Bohne (Samen)", difficulty: "schwer" },
+  { q: "Welches Verfahren entzieht Kaffee das Koffein?", options: ["Entkoffeinierung", "Pasteurisierung", "Fermentierung", "Sublimierung"], answer: "Entkoffeinierung", difficulty: "schwer" },
+  { q: "Welche Spezialität besteht aus rohem Rindfleisch, fein gehackt?", options: ["Tatar", "Carpaccio", "Bresaola", "Pastrami"], answer: "Tatar", difficulty: "schwer" },
+  { q: "Welcher Schinken aus Spanien stammt von Schweinen, die Eicheln fressen?", options: ["Jamón Ibérico", "Serrano", "Prosciutto", "Speck"], answer: "Jamón Ibérico", difficulty: "schwer" },
+  { q: "Welches Gewürz wird auch 'Königin der Gewürze' genannt?", options: ["Kardamom", "Zimt", "Vanille", "Nelke"], answer: "Kardamom", difficulty: "schwer" },
+  { q: "Welche Methode reift Steaks bei kontrollierter Luft über Wochen?", options: ["Dry Aging", "Wet Aging", "Sous-vide", "Konfieren"], answer: "Dry Aging", difficulty: "schwer" },
+  { q: "Welche Frucht ist botanisch verwandt mit der Tomate und in Currys beliebt?", options: ["Aubergine", "Gurke", "Zucchini", "Kürbis"], answer: "Aubergine", difficulty: "schwer" },
+  { q: "Welche Algen werden für Sushi-Rollen verwendet?", options: ["Nori", "Wakame", "Kombu", "Hijiki"], answer: "Nori", difficulty: "schwer" },
+  { q: "Welche Garmethode gart Speisen vakuumiert im Wasserbad bei niedriger Temperatur?", options: ["Sous-vide", "Pochieren", "Blanchieren", "Schmoren"], answer: "Sous-vide", difficulty: "schwer" },
+  { q: "Welches indische Milchprodukt entsteht durch Gerinnen mit Säure?", options: ["Paneer", "Ghee", "Lassi", "Raita"], answer: "Paneer", difficulty: "schwer" },
+  { q: "Welcher Cocktail besteht klassisch aus Gin und Wermut?", options: ["Martini", "Mojito", "Negroni", "Margarita"], answer: "Martini", difficulty: "schwer" },
+  { q: "Welcher Käse ist mit blauem Edelschimmel durchzogen und stammt aus Italien?", options: ["Gorgonzola", "Pecorino", "Taleggio", "Asiago"], answer: "Gorgonzola", difficulty: "schwer" },
+  { q: "Welche Geschmacksverstärker-Substanz steckt natürlicherweise in Parmesan und Tomaten?", options: ["Glutamat", "Fruktose", "Laktose", "Saccharose"], answer: "Glutamat", difficulty: "schwer" },
+  { q: "Welcher Wein stammt aus der italienischen Region Piemont und gilt als sehr edel?", options: ["Barolo", "Chianti", "Prosecco", "Soave"], answer: "Barolo", difficulty: "schwer" },
+  { q: "Welches Brot ist ein traditionelles jüdisches Flechtbrot?", options: ["Challah", "Bagel", "Matze", "Pita"], answer: "Challah", difficulty: "schwer" },
+  { q: "Welche Frucht ist die Basis für authentischen Grenadine-Sirup?", options: ["Granatapfel", "Kirsche", "Himbeere", "Johannisbeere"], answer: "Granatapfel", difficulty: "schwer" },
+  { q: "Welcher Reis ist klebrig und Basis für Mochi?", options: ["Klebreis", "Basmati", "Arborio", "Wildreis"], answer: "Klebreis", difficulty: "schwer" },
+  { q: "Welche Frucht ist die Basis von Marmelade laut EU streng genommen?", options: ["Zitrusfrüchte", "Erdbeeren", "Aprikosen", "Kirschen"], answer: "Zitrusfrüchte", difficulty: "schwer", funFact: "Anderes Fruchtaufstrich heißt offiziell 'Konfitüre'." },
+  { q: "Welche Pflanze liefert die Kapern, die man isst?", options: ["Kapernstrauch (Knospen)", "Olivenbaum", "Weinrebe", "Lorbeer"], answer: "Kapernstrauch (Knospen)", difficulty: "schwer", funFact: "Kapern sind die eingelegten Blütenknospen." },
+  { q: "Welche Käseart muss in einer bestimmten Region Italiens gereift werden, um den Namen zu tragen?", options: ["Parmigiano Reggiano", "Mozzarella", "Ricotta", "Burrata"], answer: "Parmigiano Reggiano", difficulty: "schwer" },
+  { q: "Welche Frucht enthält ein Enzym, das Gelatine am Festwerden hindert?", options: ["Ananas", "Apfel", "Banane", "Birne"], answer: "Ananas", difficulty: "schwer", funFact: "Das Enzym Bromelain zersetzt Eiweiß." },
+  { q: "Welcher französische Begriff bezeichnet die Vorbereitung aller Zutaten vor dem Kochen?", options: ["Mise en place", "Sauté", "Flambé", "Julienne"], answer: "Mise en place", difficulty: "schwer" },
+  { q: "Welches Öl gilt als besonders hitzestabil zum Braten?", options: ["Raffiniertes Rapsöl", "Natives Olivenöl", "Leinöl", "Walnussöl"], answer: "Raffiniertes Rapsöl", difficulty: "schwer" },
+  { q: "Welche Pilzsorte ist in der asiatischen Küche besonders verbreitet?", options: ["Shiitake", "Champignon", "Pfifferling", "Steinpilz"], answer: "Shiitake", difficulty: "schwer" },
+  { q: "Welche Gärung verwandelt Most in Wein?", options: ["Alkoholische Gärung", "Milchsäuregärung", "Essigsäuregärung", "Buttersäuregärung"], answer: "Alkoholische Gärung", difficulty: "schwer" },
+  { q: "Welches Getränk entsteht durch zweifache Destillation von Wein?", options: ["Cognac", "Whisky", "Rum", "Gin"], answer: "Cognac", difficulty: "schwer" },
+  { q: "Welcher Teil der Vanille wird als Gewürz verwendet?", options: ["Die Schote", "Die Wurzel", "Das Blatt", "Die Blüte"], answer: "Die Schote", difficulty: "schwer" },
+],
 };
 
 const TOPICS = [
@@ -326,22 +767,44 @@ function generateQuestion(correct, pool, allowedTypes) {
 }
 
 // Pick n items, weighted toward harder questions (≈20% easy, 40% medium, 40% hard)
-function balancedPick(items, total) {
-  const byDiff = {
-    einfach: shuffle(items.filter(c => c.difficulty === "einfach")),
-    mittel: shuffle(items.filter(c => c.difficulty === "mittel")),
-    schwer: shuffle(items.filter(c => c.difficulty === "schwer")),
+function balancedPick(items, total, avoidKeys, keyFn) {
+  const keyOf = keyFn || (it => it.name || (it.item && it.item.q) || it.q || JSON.stringify(it));
+  const avoid = avoidKeys instanceof Set ? avoidKeys : new Set();
+
+  // Prefer items not recently used; if a difficulty runs dry, allow recents back
+  const split = diff => {
+    const all = items.filter(c => c.difficulty === diff);
+    const fresh = shuffle(all.filter(c => !avoid.has(keyOf(c))));
+    const used = shuffle(all.filter(c => avoid.has(keyOf(c))));
+    return fresh.concat(used); // fresh first, recents as fallback
   };
+  const byDiff = { einfach: split("einfach"), mittel: split("mittel"), schwer: split("schwer") };
+
   const easy = Math.round(total * 0.2);
   const medium = Math.round(total * 0.4);
   const hard = total - easy - medium;
   const counts = { einfach: easy, mittel: medium, schwer: hard };
+
   const order = [];
+  const usedKeys = new Set();
+  // First pass: take unique items per difficulty
   Object.entries(counts).forEach(([diff, n]) => {
     const list = byDiff[diff];
-    if (list.length === 0) return;
-    for (let i = 0; i < n; i++) order.push(list[i % list.length]);
+    let taken = 0;
+    for (let i = 0; i < list.length && taken < n; i++) {
+      const k = keyOf(list[i]);
+      if (!usedKeys.has(k)) { order.push(list[i]); usedKeys.add(k); taken++; }
+    }
   });
+  // Second pass: if we still need more (a difficulty was too small),
+  // fill from ALL items, still avoiding duplicates within this round
+  if (order.length < total) {
+    const everything = shuffle(items);
+    for (let i = 0; i < everything.length && order.length < total; i++) {
+      const k = keyOf(everything[i]);
+      if (!usedKeys.has(k)) { order.push(everything[i]); usedKeys.add(k); }
+    }
+  }
   return shuffle(order);
 }
 
@@ -395,17 +858,78 @@ function makeTopicQuestion(item, topicId) {
   };
 }
 
+// Remember recently-used questions per topic so rounds don't repeat them.
+// Keeps a rolling window so the pool stays varied across many games.
+const recentByTopic = {};
+function keyForQuestion(q) {
+  // q is a runtime question; use the question text (or country) as identity
+  return q.question || q.country || "";
+}
+function rememberQuestions(topicKey, questions, poolSize) {
+  const prev = recentByTopic[topicKey] || [];
+  const newKeys = questions.map(keyForQuestion);
+  const combined = newKeys.concat(prev);
+  // Keep at most ~60% of the pool in memory → always leaves fresh questions
+  const cap = Math.max(0, Math.floor(poolSize * 0.6));
+  recentByTopic[topicKey] = combined.slice(0, cap);
+}
+function recentSet(topicKey) {
+  return new Set(recentByTopic[topicKey] || []);
+}
+
 function buildRound(total, topic, allowedTypes) {
   if (topic === "laender") {
-    const picked = balancedPick(COUNTRIES, total);
-    return picked.map(c => generateQuestion(c, COUNTRIES, allowedTypes));
+    const avoid = recentSet("laender");
+    const picked = balancedPick(COUNTRIES, total, avoid);
+    const qs = picked.map(c => generateQuestion(c, COUNTRIES, allowedTypes));
+    rememberQuestions("laender", qs, COUNTRIES.length);
+    return qs;
   }
   if (topic === "mix") {
     return buildMixRound(total);
   }
-  // Generic topic: questions already have q/options/answer
-  const picked = balancedPick(TOPIC_QUESTIONS[topic] || [], total);
-  return picked.map(item => makeTopicQuestion(item, topic));
+  // Generic topic
+  const pool = TOPIC_QUESTIONS[topic] || [];
+  const avoid = recentSet(topic);
+  // For topic questions, avoid by question text
+  const avoidByText = new Set();
+  pool.forEach(it => { if (avoid.has(it.q)) avoidByText.add(it.q); });
+  const picked = balancedPickTopic(pool, total, avoid);
+  const qs = picked.map(item => makeTopicQuestion(item, topic));
+  rememberQuestions(topic, qs, pool.length);
+  return qs;
+}
+
+// balancedPick variant for raw topic items (identity = .q)
+function balancedPickTopic(items, total, avoidKeys) {
+  const avoid = avoidKeys instanceof Set ? avoidKeys : new Set();
+  const split = diff => {
+    const all = items.filter(c => c.difficulty === diff);
+    const fresh = shuffle(all.filter(c => !avoid.has(c.q)));
+    const used = shuffle(all.filter(c => avoid.has(c.q)));
+    return fresh.concat(used);
+  };
+  const byDiff = { einfach: split("einfach"), mittel: split("mittel"), schwer: split("schwer") };
+  const easy = Math.round(total * 0.2);
+  const medium = Math.round(total * 0.4);
+  const hard = total - easy - medium;
+  const counts = { einfach: easy, mittel: medium, schwer: hard };
+  const order = [];
+  const usedKeys = new Set();
+  Object.entries(counts).forEach(([diff, n]) => {
+    const list = byDiff[diff];
+    let taken = 0;
+    for (let i = 0; i < list.length && taken < n; i++) {
+      if (!usedKeys.has(list[i].q)) { order.push(list[i]); usedKeys.add(list[i].q); taken++; }
+    }
+  });
+  if (order.length < total) {
+    const everything = shuffle(items);
+    for (let i = 0; i < everything.length && order.length < total; i++) {
+      if (!usedKeys.has(everything[i].q)) { order.push(everything[i]); usedKeys.add(everything[i].q); }
+    }
+  }
+  return shuffle(order);
 }
 
 // Mix: questions drawn from all topics (incl. Länder), balanced by difficulty
@@ -415,12 +939,16 @@ function buildMixRound(total) {
     TOPIC_QUESTIONS[tid].forEach(item => pool.push({ kind: "topic", tid, item, difficulty: item.difficulty }));
   });
   COUNTRIES.forEach(c => pool.push({ kind: "land", c, difficulty: c.difficulty }));
-  const picked = balancedPick(pool, total);
-  return picked.map(entry =>
+  const keyFn = e => e.kind === "land" ? "L:" + e.c.name : "Q:" + e.item.q;
+  const avoid = recentSet("mix");
+  const picked = balancedPick(pool, total, avoid, keyFn);
+  const qs = picked.map(entry =>
     entry.kind === "land"
       ? generateQuestion(entry.c, COUNTRIES, ["flag", "capital", "continent"])
       : makeTopicQuestion(entry.item, entry.tid)
   );
+  rememberQuestions("mix", qs, pool.length);
+  return qs;
 }
 
 // Daily challenge: deterministic 10 questions from the mix pool, same for everyone today
@@ -483,7 +1011,7 @@ async function submitScore(name, score, topic) {
 }
 
 // ── App-Version & lokaler Speicher ────────────────────────────
-const APP_VERSION = "2.0"; // bei neuen Updates hochzählen, dann erscheint "Was ist neu?"
+const APP_VERSION = "2.1"; // bei neuen Updates hochzählen, dann erscheint "Was ist neu?"
 
 const store = {
   get(key, fallback) {
@@ -807,6 +1335,7 @@ function LaenderDuell() {
               { icon: "📅", title: "Tägliche Challenge", text: "Jeden Tag 10 Fragen – für alle gleich. Vergleicht euch!" },
               { icon: "⚔️", title: "Duell zu zweit", text: "Tretet am selben Gerät gegeneinander an." },
               { icon: "🃏", title: "Joker", text: "50:50 und Überspringen helfen bei kniffligen Fragen." },
+              { icon: "📚", title: "Über 570 neue Fragen", text: "Jedes Thema hat jetzt rund 100 Fragen – kaum noch Wiederholungen." },
             ].map((f, i) => (
               <div key={i} style={{ display: "flex", gap: 12, alignItems: "flex-start", marginBottom: 14 }}>
                 <span style={{ fontSize: 24, lineHeight: 1.2 }}>{f.icon}</span>
