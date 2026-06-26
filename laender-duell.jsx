@@ -862,23 +862,23 @@ function recentSet(topicKey) {
   return new Set(recentByTopic[topicKey] || []);
 }
 
-function buildRound(total, topic, allowedTypes) {
+function buildRound(total, topic, allowedTypes, diff) {
+  const onlyDiff = diff && diff !== "gemischt" ? diff : null;
   if (topic === "laender") {
     const avoid = recentSet("laender");
-    const picked = balancedPick(COUNTRIES, total, avoid);
+    const src = onlyDiff ? COUNTRIES.filter(c => c.difficulty === onlyDiff) : COUNTRIES;
+    const picked = balancedPick(src, total, avoid);
     const qs = picked.map(c => generateQuestion(c, COUNTRIES, allowedTypes));
-    rememberQuestions("laender", qs, COUNTRIES.length);
+    rememberQuestions("laender", qs, src.length);
     return qs;
   }
   if (topic === "mix") {
-    return buildMixRound(total);
+    return buildMixRound(total, onlyDiff);
   }
   // Generic topic
-  const pool = TOPIC_QUESTIONS[topic] || [];
+  let pool = TOPIC_QUESTIONS[topic] || [];
+  if (onlyDiff) pool = pool.filter(it => it.difficulty === onlyDiff);
   const avoid = recentSet(topic);
-  // For topic questions, avoid by question text
-  const avoidByText = new Set();
-  pool.forEach(it => { if (avoid.has(it.q)) avoidByText.add(it.q); });
   const picked = balancedPickTopic(pool, total, avoid);
   const qs = picked.map(item => makeTopicQuestion(item, topic));
   rememberQuestions(topic, qs, pool.length);
@@ -918,12 +918,16 @@ function balancedPickTopic(items, total, avoidKeys) {
 }
 
 // Mix: questions drawn from all topics (incl. Länder), balanced by difficulty
-function buildMixRound(total) {
+function buildMixRound(total, onlyDiff) {
   const pool = [];
   Object.keys(TOPIC_QUESTIONS).forEach(tid => {
-    TOPIC_QUESTIONS[tid].forEach(item => pool.push({ kind: "topic", tid, item, difficulty: item.difficulty }));
+    TOPIC_QUESTIONS[tid].forEach(item => {
+      if (!onlyDiff || item.difficulty === onlyDiff) pool.push({ kind: "topic", tid, item, difficulty: item.difficulty });
+    });
   });
-  COUNTRIES.forEach(c => pool.push({ kind: "land", c, difficulty: c.difficulty }));
+  COUNTRIES.forEach(c => {
+    if (!onlyDiff || c.difficulty === onlyDiff) pool.push({ kind: "land", c, difficulty: c.difficulty });
+  });
   const keyFn = e => e.kind === "land" ? "L:" + e.c.name : "Q:" + e.item.q;
   const avoid = recentSet("mix");
   const picked = balancedPick(pool, total, avoid, keyFn);
@@ -972,6 +976,14 @@ const TIME_MODES = [
   { id: "schnell", label: "Schnell", desc: "10 Sekunden", icon: "⚡", seconds: 10 },
 ];
 
+// Schwierigkeitsstufen zur Auswahl. "gemischt" = alle (wie bisher).
+const DIFFICULTY_LEVELS = [
+  { id: "gemischt", label: "Gemischt", icon: "🎲" },
+  { id: "einfach", label: "Einfach", icon: "🟢" },
+  { id: "mittel", label: "Mittel", icon: "🟡" },
+  { id: "schwer", label: "Schwer", icon: "🔴" },
+];
+
 // ── Online-Rangliste (Supabase) ───────────────────────────────
 // Trage hier deine zwei Supabase-Werte ein, dann ist die Rangliste live.
 // Anleitung bekommst du von Claude. Solange leer, zeigt die App einen Hinweis.
@@ -1003,7 +1015,7 @@ async function submitScore(name, score, topic) {
 }
 
 // ── App-Version & lokaler Speicher ────────────────────────────
-const APP_VERSION = "2.2"; // bei neuen Updates hochzählen, dann erscheint "Was ist neu?"
+const APP_VERSION = "2.3"; // bei neuen Updates hochzählen, dann erscheint "Was ist neu?"
 
 const store = {
   get(key, fallback) {
@@ -1027,6 +1039,7 @@ export default function LaenderDuell() {
   const [screen, setScreen] = useState("home"); // home | topics | game | result
   const [selectedTopic, setSelectedTopic] = useState("laender");
   const [timeMode, setTimeMode] = useState("normal");
+  const [difficulty, setDifficulty] = useState("gemischt");
   const [questions, setQuestions] = useState([]);
   const [current, setCurrent] = useState(0);
   const [selected, setSelected] = useState(null);
@@ -1051,6 +1064,10 @@ export default function LaenderDuell() {
   const [duelPlayer, setDuelPlayer] = useState(1);        // 1 or 2
   const [duelScores, setDuelScores] = useState({ 1: 0, 2: 0 });
   const [duelPoints, setDuelPoints] = useState({ 1: 0, 2: 0 });
+  // Theme-force joker: each player may force a topic on the opponent once
+  const [forceUsed, setForceUsed] = useState({ 1: false, 2: false });
+  const [forcedTopic, setForcedTopic] = useState(null);   // topic forced onto NEXT player's question
+  const [showForcePicker, setShowForcePicker] = useState(false);
 
   // Leaderboard
   const [lbEntries, setLbEntries] = useState([]);
@@ -1121,6 +1138,9 @@ export default function LaenderDuell() {
     setDuelPlayer(1);
     setDuelScores({ 1: 0, 2: 0 });
     setDuelPoints({ 1: 0, 2: 0 });
+    setForceUsed({ 1: false, 2: false });
+    setForcedTopic(null);
+    setShowForcePicker(false);
     setSubmitted(false);
   };
 
@@ -1128,7 +1148,7 @@ export default function LaenderDuell() {
   const chooseTopic = (topicId) => {
     setSelectedTopic(topicId);
     setGameMode("solo");
-    const qs = buildRound(TOTAL_QUESTIONS, topicId, ["flag", "capital", "continent"]);
+    const qs = buildRound(TOTAL_QUESTIONS, topicId, ["flag", "capital", "continent"], difficulty);
     setQuestions(qs);
     resetRoundState();
     setScreen("game");
@@ -1148,7 +1168,7 @@ export default function LaenderDuell() {
   const startDuel = () => {
     setSelectedTopic("mix");
     setGameMode("duel");
-    setQuestions(buildMixRound(TOTAL_QUESTIONS));
+    setQuestions(buildMixRound(TOTAL_QUESTIONS, difficulty !== "gemischt" ? difficulty : null));
     resetRoundState();
     setScreen("game");
   };
@@ -1252,7 +1272,17 @@ export default function LaenderDuell() {
       setSubmitted(false);
       setScreen("result");
     } else {
-      setCurrent(c => c + 1);
+      const nextIdx = current + 1;
+      // In a duel, if the current player forced a topic, swap the opponent's next question
+      if (gameMode === "duel" && forcedTopic) {
+        const forced = buildRound(1, forcedTopic, ["flag", "capital", "continent"], "schwer")[0];
+        if (forced) {
+          forced.forced = forcedTopic; // mark so the victim sees the badge
+          setQuestions(qs => qs.map((q, i) => (i === nextIdx ? forced : q)));
+        }
+        setForcedTopic(null);
+      }
+      setCurrent(nextIdx);
       setSelected(null);
       setAnswered(false);
       setTimeLeft(roundSeconds);
@@ -1265,6 +1295,13 @@ export default function LaenderDuell() {
   };
 
   const next = () => goNext();
+
+  // Duel: current player forces a topic onto the opponent's next question
+  const forceTopicOnOpponent = (topicId) => {
+    setForcedTopic(topicId);
+    setForceUsed(u => ({ ...u, [duelPlayer]: true }));
+    setShowForcePicker(false);
+  };
 
   const openLeaderboard = async () => {
     setScreen("leaderboard");
@@ -1348,6 +1385,7 @@ export default function LaenderDuell() {
               { icon: "🃏", title: "Joker", text: "50:50 und Überspringen helfen bei kniffligen Fragen." },
               { icon: "📚", title: "Über 570 neue Fragen", text: "Jedes Thema hat jetzt rund 100 Fragen – kaum noch Wiederholungen." },
               { icon: "🔥", title: "Tägliche Challenge neu", text: "15 knifflige Fragen, doppelte Punkte und eine Tagesstreak." },
+              { icon: "🎯", title: "Schwierigkeit & Duell-Joker", text: "Wähle die Schwierigkeit – und zwinge dem Gegner im Duell ein schweres Thema auf." },
             ].map((f, i) => (
               <div key={i} style={{ display: "flex", gap: 12, alignItems: "flex-start", marginBottom: 14 }}>
                 <span style={{ fontSize: 24, lineHeight: 1.2 }}>{f.icon}</span>
@@ -1451,6 +1489,30 @@ export default function LaenderDuell() {
                     <div style={{ fontSize: 18, lineHeight: 1, marginBottom: 3 }}>{m.icon}</div>
                     <div style={{ fontSize: 13, fontWeight: 700, color: active ? "#e8f4f8" : "#94c8d8" }}>{m.label}</div>
                     <div style={{ fontSize: 10, color: "#6a9aaa", marginTop: 1 }}>{m.desc}</div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Difficulty selector */}
+          <div style={{ marginBottom: 16 }}>
+            <div style={{ fontSize: 12, color: "#7aa8b8", marginBottom: 8, textAlign: "left", fontWeight: 600 }}>🎯 Schwierigkeit</div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 8 }}>
+              {DIFFICULTY_LEVELS.map(lvl => {
+                const active = difficulty === lvl.id;
+                return (
+                  <button key={lvl.id} onClick={() => setDifficulty(lvl.id)} style={{
+                    padding: "10px 4px",
+                    background: active ? "rgba(59,130,246,0.18)" : "rgba(255,255,255,0.04)",
+                    border: active ? "2px solid #3b82f6" : "2px solid rgba(255,255,255,0.08)",
+                    borderRadius: 12,
+                    cursor: "pointer",
+                    textAlign: "center",
+                    transition: "all 0.15s",
+                  }}>
+                    <div style={{ fontSize: 16, lineHeight: 1, marginBottom: 3 }}>{lvl.icon}</div>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: active ? "#e8f4f8" : "#94c8d8" }}>{lvl.label}</div>
                   </button>
                 );
               })}
@@ -1675,6 +1737,19 @@ export default function LaenderDuell() {
             marginBottom: 16,
             textAlign: "center",
           }}>
+            {q.forced && (
+              <div style={{
+                display: "inline-block",
+                background: "rgba(244,63,94,0.15)",
+                border: "1px solid rgba(244,63,94,0.45)",
+                color: "#fda4af",
+                fontSize: 12,
+                fontWeight: 700,
+                padding: "4px 14px",
+                borderRadius: 12,
+                marginBottom: 12,
+              }}>🎯 {TOPICS.find(t => t.id === q.forced)?.label} erzwungen!</div>
+            )}
             <div style={{
               display: "inline-block",
               background: `${DIFFICULTY_META[q.difficulty].color}22`,
@@ -1827,6 +1902,24 @@ export default function LaenderDuell() {
                   lineHeight: 1.5,
                 }}>🤓 <strong>Unnützes Wissen:</strong> {q.funFact}</div>
               )}
+              {gameMode === "duel" && current + 1 < roundTotal && !forceUsed[duelPlayer] && (
+                <button onClick={() => setShowForcePicker(true)} style={{
+                  width: "100%",
+                  padding: "13px",
+                  marginBottom: 10,
+                  fontSize: 15,
+                  fontWeight: 700,
+                  background: forcedTopic ? "rgba(244,63,94,0.15)" : "rgba(244,63,94,0.12)",
+                  color: "#fda4af",
+                  border: "1px solid rgba(244,63,94,0.4)",
+                  borderRadius: 14,
+                  cursor: "pointer",
+                }}>
+                  {forcedTopic
+                    ? `🎯 ${TOPICS.find(t => t.id === forcedTopic)?.label} für Gegner gewählt!`
+                    : "🎯 Thema für Gegner wählen"}
+                </button>
+              )}
               <button onClick={next} style={{
                 width: "100%",
                 padding: "14px",
@@ -1844,6 +1937,54 @@ export default function LaenderDuell() {
                     ? `Weiter zu Spieler ${duelPlayer === 1 ? 2 : 1} →`
                     : "Weiter →"}
               </button>
+            </div>
+          )}
+
+          {/* Theme-force picker (duel joker) */}
+          {showForcePicker && (
+            <div style={{
+              position: "fixed", inset: 0, zIndex: 60,
+              background: "rgba(8,18,24,0.85)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              padding: 20,
+            }}>
+              <div style={{
+                background: "#13252e",
+                border: "1px solid rgba(244,63,94,0.3)",
+                borderRadius: 20,
+                padding: "24px 20px",
+                maxWidth: 380, width: "100%",
+                maxHeight: "85vh", overflowY: "auto",
+                boxShadow: "0 20px 60px rgba(0,0,0,0.6)",
+              }}>
+                <div style={{ textAlign: "center", marginBottom: 16 }}>
+                  <div style={{ fontSize: 36, marginBottom: 4 }}>🎯</div>
+                  <h2 style={{ margin: 0, fontSize: 20, fontWeight: 800, color: "#fda4af" }}>Thema für den Gegner</h2>
+                  <p style={{ margin: "4px 0 0", fontSize: 13, color: "#94c8d8" }}>
+                    Spieler {duelPlayer === 1 ? 2 : 1} bekommt eine <strong>schwere</strong> Frage daraus!
+                  </p>
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+                  {TOPICS.filter(t => t.id !== "mix").map(t => (
+                    <button key={t.id} onClick={() => forceTopicOnOpponent(t.id)} style={{
+                      padding: "12px 8px",
+                      background: "rgba(255,255,255,0.04)",
+                      border: "1px solid rgba(255,255,255,0.1)",
+                      borderRadius: 12,
+                      cursor: "pointer",
+                      textAlign: "center",
+                    }}>
+                      <div style={{ fontSize: 22, marginBottom: 3 }}>{t.icon}</div>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: "#e8f4f8" }}>{t.label}</div>
+                    </button>
+                  ))}
+                </div>
+                <button onClick={() => setShowForcePicker(false)} style={{
+                  width: "100%", marginTop: 12, padding: "12px",
+                  background: "none", border: "1px solid rgba(255,255,255,0.12)",
+                  borderRadius: 12, color: "#94c8d8", fontSize: 14, cursor: "pointer",
+                }}>Abbrechen</button>
+              </div>
             </div>
           )}
 
