@@ -843,6 +843,13 @@ function dailySeed() {
   return d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
 }
 
+// Seed of yesterday (handles month/year boundaries correctly)
+function yesterdaySeed() {
+  const d = new Date();
+  d.setDate(d.getDate() - 1);
+  return d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
+}
+
 // Convert a raw topic-question item into the runtime question shape
 function makeTopicQuestion(item, topicId) {
   return {
@@ -956,9 +963,13 @@ function buildDailyRound(total) {
   const rng = makeRng(dailySeed());
   const pool = [];
   Object.keys(TOPIC_QUESTIONS).forEach(tid => {
-    TOPIC_QUESTIONS[tid].forEach(item => pool.push({ kind: "topic", tid, item }));
+    TOPIC_QUESTIONS[tid].forEach(item => {
+      if (item.difficulty !== "einfach") pool.push({ kind: "topic", tid, item });
+    });
   });
-  COUNTRIES.forEach(c => pool.push({ kind: "land", c }));
+  COUNTRIES.forEach(c => {
+    if (c.difficulty !== "einfach") pool.push({ kind: "land", c });
+  });
   const picked = shuffleWith(pool, rng).slice(0, total);
   return picked.map(entry => {
     if (entry.kind === "land") {
@@ -969,6 +980,9 @@ function buildDailyRound(total) {
     return makeTopicQuestion(entry.item, entry.tid);
   });
 }
+
+const DAILY_QUESTIONS = 15;       // Daily ist länger als normale Runden
+const DAILY_BONUS = 2;            // Punkte werden im Daily verdoppelt
 
 const TOTAL_QUESTIONS = 10;
 const XP_PER_LEVEL = 300;
@@ -1011,7 +1025,7 @@ async function submitScore(name, score, topic) {
 }
 
 // ── App-Version & lokaler Speicher ────────────────────────────
-const APP_VERSION = "2.1"; // bei neuen Updates hochzählen, dann erscheint "Was ist neu?"
+const APP_VERSION = "2.2"; // bei neuen Updates hochzählen, dann erscheint "Was ist neu?"
 
 const store = {
   get(key, fallback) {
@@ -1076,11 +1090,21 @@ function LaenderDuell() {
   // "Was ist neu?" – show once per new version
   const [showWhatsNew, setShowWhatsNew] = useState(false);
 
+  // Daily challenge: remember the last completed day + its score
+  const [dailyDone, setDailyDone] = useState(() => store.get("qd_dailyDone", { day: 0, score: 0 }));
+  const [dailyStreak, setDailyStreak] = useState(() => store.get("qd_dailyStreak", 0));
+
   const level = Math.floor(totalXp / XP_PER_LEVEL) + 1;
   const xpInLevel = totalXp % XP_PER_LEVEL;
   const timeModeMeta = TIME_MODES.find(m => m.id === timeMode) || TIME_MODES[2];
   const roundSeconds = timeModeMeta.seconds; // 0 = no timer
   const timed = roundSeconds > 0;
+  const todaySeed = dailySeed();
+  const dailyPlayedToday = dailyDone.day === todaySeed;
+  const roundTotal = questions.length || TOTAL_QUESTIONS;
+  // Streak is only "alive" if the last played day was today or yesterday
+  const streakAlive = dailyDone.day === todaySeed || dailyDone.day === yesterdaySeed();
+  const shownStreak = streakAlive ? dailyStreak : 0;
 
   // Save progress whenever it changes
   useEffect(() => { store.set("qd_highscore", highscore); }, [highscore]);
@@ -1134,9 +1158,10 @@ function LaenderDuell() {
 
   // Start the daily challenge
   const startDaily = () => {
+    if (dailyPlayedToday) return; // schon heute gespielt
     setSelectedTopic("mix");
     setGameMode("daily");
-    setQuestions(buildDailyRound(TOTAL_QUESTIONS));
+    setQuestions(buildDailyRound(DAILY_QUESTIONS));
     resetRoundState();
     setScreen("game");
   };
@@ -1182,7 +1207,8 @@ function LaenderDuell() {
       const diffMult = DIFFICULTY_META[q.difficulty]?.mult || 1;
       const timeBonus = timed ? Math.round((timeLeft / roundSeconds) * 20) : 0;
       const streakBonus = gameMode === "duel" ? 0 : Math.min(streak, 5) * 5;
-      const gained = Math.round((20 + timeBonus + streakBonus) * diffMult);
+      const dailyMult = gameMode === "daily" ? DAILY_BONUS : 1;
+      const gained = Math.round((20 + timeBonus + streakBonus) * diffMult * dailyMult);
       setPointsGained(gained);
       if (gameMode === "duel") {
         setDuelPoints(p => ({ ...p, [duelPlayer]: p[duelPlayer] + gained }));
@@ -1228,7 +1254,7 @@ function LaenderDuell() {
 
   // Advance to next question or finish (shared by next button, skip, duel)
   const goNext = () => {
-    if (current + 1 >= TOTAL_QUESTIONS) {
+    if (current + 1 >= roundTotal) {
       if (gameMode === "solo") {
         setHighscore(h => Math.max(h, points));
         setTotalXp(xp => xp + points);
@@ -1237,6 +1263,13 @@ function LaenderDuell() {
         setHighscore(h => Math.max(h, points));
         setTotalXp(xp => xp + points);
         setGamesPlayed(g => g + 1);
+        const record = { day: todaySeed, score: points };
+        setDailyDone(record);
+        store.set("qd_dailyDone", record);
+        // Streak: +1 if yesterday was played, otherwise reset to 1
+        const newStreak = dailyDone.day === yesterdaySeed() ? dailyStreak + 1 : 1;
+        setDailyStreak(newStreak);
+        store.set("qd_dailyStreak", newStreak);
       }
       setSubmitted(false);
       setScreen("result");
@@ -1336,6 +1369,7 @@ function LaenderDuell() {
               { icon: "⚔️", title: "Duell zu zweit", text: "Tretet am selben Gerät gegeneinander an." },
               { icon: "🃏", title: "Joker", text: "50:50 und Überspringen helfen bei kniffligen Fragen." },
               { icon: "📚", title: "Über 570 neue Fragen", text: "Jedes Thema hat jetzt rund 100 Fragen – kaum noch Wiederholungen." },
+              { icon: "🔥", title: "Tägliche Challenge neu", text: "15 knifflige Fragen, doppelte Punkte und eine Tagesstreak." },
             ].map((f, i) => (
               <div key={i} style={{ display: "flex", gap: 12, alignItems: "flex-start", marginBottom: 14 }}>
                 <span style={{ fontSize: 24, lineHeight: 1.2 }}>{f.icon}</span>
@@ -1464,17 +1498,35 @@ function LaenderDuell() {
             {gamesPlayed > 0 ? "Weiterspielen" : "Spielen"} →
           </button>
 
+          {shownStreak > 0 && (
+            <div style={{
+              marginTop: 14, marginBottom: -2, textAlign: "center",
+              fontSize: 13, fontWeight: 700, color: "#fb923c",
+            }}>🔥 {shownStreak} {shownStreak === 1 ? "Tag" : "Tage"} in Folge!</div>
+          )}
+
           <div style={{ display: "flex", gap: 10, marginTop: 10 }}>
-            <button onClick={startDaily} style={{
-              flex: 1, padding: "13px 8px", fontSize: 14, fontWeight: 700,
-              background: "linear-gradient(135deg, #10b981, #059669)",
-              color: "#fff", border: "none", borderRadius: 14, cursor: "pointer",
-            }}>📅 Tägliche<br/>Challenge</button>
+            <button
+              onClick={startDaily}
+              disabled={dailyPlayedToday}
+              style={{
+                flex: 1, padding: "13px 8px", fontSize: 14, fontWeight: 700,
+                background: dailyPlayedToday ? "rgba(16,185,129,0.15)" : "linear-gradient(135deg, #10b981, #059669)",
+                color: dailyPlayedToday ? "#6ee7b7" : "#fff",
+                border: dailyPlayedToday ? "1px solid rgba(16,185,129,0.4)" : "none",
+                borderRadius: 14, cursor: dailyPlayedToday ? "default" : "pointer",
+                lineHeight: 1.3,
+              }}>
+              {dailyPlayedToday
+                ? <>✓ Heute erledigt<br/><span style={{ fontSize: 12, fontWeight: 600 }}>{dailyDone.score} 💎</span></>
+                : <>📅 Tägliche Challenge<br/><span style={{ fontSize: 11, fontWeight: 600, opacity: 0.85 }}>15 Fragen · ×2 Punkte</span></>}
+            </button>
             <button onClick={startDuel} style={{
               flex: 1, padding: "13px 8px", fontSize: 14, fontWeight: 700,
               background: "linear-gradient(135deg, #f43f5e, #e11d48)",
               color: "#fff", border: "none", borderRadius: 14, cursor: "pointer",
-            }}>⚔️ Duell<br/>2 Spieler</button>
+              lineHeight: 1.3,
+            }}>⚔️ Duell<br/><span style={{ fontSize: 11, fontWeight: 600, opacity: 0.85 }}>2 Spieler</span></button>
           </div>
 
           <button onClick={openLeaderboard} style={{
@@ -1552,7 +1604,7 @@ function LaenderDuell() {
                 }}
               >←</button>
               <div style={{ fontSize: 13, color: "#64d8ff", fontWeight: 600 }}>
-                {topicMeta.icon} {current + 1} / {TOTAL_QUESTIONS}
+                {topicMeta.icon} {current + 1} / {roundTotal}
               </div>
             </div>
             <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
@@ -1629,7 +1681,7 @@ function LaenderDuell() {
           <div style={{ height: 4, background: "rgba(255,255,255,0.08)", borderRadius: 4, marginBottom: 24, overflow: "hidden" }}>
             <div style={{
               height: "100%",
-              width: `${((current + 1) / TOTAL_QUESTIONS) * 100}%`,
+              width: `${((current + 1) / roundTotal) * 100}%`,
               background: "linear-gradient(90deg, #3b82f6, #8b5cf6)",
               borderRadius: 4,
               transition: "width 0.4s ease",
@@ -1785,16 +1837,18 @@ function LaenderDuell() {
                   marginBottom: 12,
                 }}>💡 {q.fact}</div>
               )}
-              <div style={{
-                background: "rgba(251,191,36,0.1)",
-                border: "1px solid rgba(251,191,36,0.3)",
-                borderRadius: 12,
-                padding: "12px 16px",
-                fontSize: 14,
-                color: "#fcd34d",
-                marginBottom: 12,
-                lineHeight: 1.5,
-              }}>🤓 <strong>Unnützes Wissen:</strong> {q.funFact}</div>
+              {q.funFact && (
+                <div style={{
+                  background: "rgba(251,191,36,0.1)",
+                  border: "1px solid rgba(251,191,36,0.3)",
+                  borderRadius: 12,
+                  padding: "12px 16px",
+                  fontSize: 14,
+                  color: "#fcd34d",
+                  marginBottom: 12,
+                  lineHeight: 1.5,
+                }}>🤓 <strong>Unnützes Wissen:</strong> {q.funFact}</div>
+              )}
               <button onClick={next} style={{
                 width: "100%",
                 padding: "14px",
@@ -1806,7 +1860,11 @@ function LaenderDuell() {
                 borderRadius: 14,
                 cursor: "pointer",
               }}>
-                {current + 1 >= TOTAL_QUESTIONS ? "Ergebnis anzeigen →" : "Weiter →"}
+                {current + 1 >= roundTotal
+                  ? "Ergebnis anzeigen →"
+                  : gameMode === "duel"
+                    ? `Weiter zu Spieler ${duelPlayer === 1 ? 2 : 1} →`
+                    : "Weiter →"}
               </button>
             </div>
           )}
@@ -1873,7 +1931,7 @@ function LaenderDuell() {
                       }}>
                         <div style={{ fontSize: 13, color: "#fda4af", fontWeight: 700, marginBottom: 4 }}>Spieler 1 {winner === 1 ? "👑" : ""}</div>
                         <div style={{ fontSize: 26, fontWeight: 800, color: "#fff" }}>{p1}</div>
-                        <div style={{ fontSize: 11, color: "#94c8d8", marginTop: 2 }}>{duelScores[1]}/{TOTAL_QUESTIONS} richtig</div>
+                        <div style={{ fontSize: 11, color: "#94c8d8", marginTop: 2 }}>{duelScores[1]}/{roundTotal} richtig</div>
                       </div>
                       <div style={{
                         flex: 1, padding: "16px 8px", borderRadius: 16,
@@ -1882,7 +1940,7 @@ function LaenderDuell() {
                       }}>
                         <div style={{ fontSize: 13, color: "#93c5fd", fontWeight: 700, marginBottom: 4 }}>Spieler 2 {winner === 2 ? "👑" : ""}</div>
                         <div style={{ fontSize: 26, fontWeight: 800, color: "#fff" }}>{p2}</div>
-                        <div style={{ fontSize: 11, color: "#94c8d8", marginTop: 2 }}>{duelScores[2]}/{TOTAL_QUESTIONS} richtig</div>
+                        <div style={{ fontSize: 11, color: "#94c8d8", marginTop: 2 }}>{duelScores[2]}/{roundTotal} richtig</div>
                       </div>
                     </div>
                   </>
@@ -1900,7 +1958,7 @@ function LaenderDuell() {
               border: "1px solid rgba(16,185,129,0.4)",
               color: "#6ee7b7", fontWeight: 700, fontSize: 13,
               padding: "4px 16px", borderRadius: 20, marginBottom: 12,
-            }}>📅 Tägliche Challenge</div>
+            }}>📅 Tägliche Challenge{dailyStreak > 0 ? `  ·  🔥 ${dailyStreak} ${dailyStreak === 1 ? "Tag" : "Tage"}` : ""}</div>
           )}
 
           {points >= highscore && points > 0 && (
@@ -1927,7 +1985,7 @@ function LaenderDuell() {
             WebkitTextFillColor: "transparent",
           }}>{points} 💎</div>
           <h2 style={{ fontSize: 20, fontWeight: 700, margin: "0 0 8px", color: "#c8e8f0" }}>
-            {score} / {TOTAL_QUESTIONS} richtig
+            {score} / {roundTotal} richtig
           </h2>
           <p style={{ color: "#94c8d8", fontSize: 15, margin: "0 0 28px" }}>{remark}</p>
 
@@ -2026,24 +2084,32 @@ function LaenderDuell() {
             </div>
           )}
 
-          <button onClick={() => {
-            if (gameMode === "duel") startDuel();
-            else if (gameMode === "daily") startDaily();
-            else chooseTopic(selectedTopic);
-          }} style={{
-            width: "100%",
-            padding: "16px",
-            fontSize: 17,
-            fontWeight: 700,
-            background: "linear-gradient(135deg, #3b82f6, #8b5cf6)",
-            color: "#fff",
-            border: "none",
-            borderRadius: 16,
-            cursor: "pointer",
-            boxShadow: "0 8px 32px rgba(59,130,246,0.4)",
-          }}>
-            {gameMode === "duel" ? "⚔️ Neues Duell" : gameMode === "daily" ? "📅 Nochmal spielen" : `🔄 Nochmal: ${topicMeta.label}`}
-          </button>
+          {gameMode !== "daily" && (
+            <button onClick={() => {
+              if (gameMode === "duel") startDuel();
+              else chooseTopic(selectedTopic);
+            }} style={{
+              width: "100%",
+              padding: "16px",
+              fontSize: 17,
+              fontWeight: 700,
+              background: "linear-gradient(135deg, #3b82f6, #8b5cf6)",
+              color: "#fff",
+              border: "none",
+              borderRadius: 16,
+              cursor: "pointer",
+              boxShadow: "0 8px 32px rgba(59,130,246,0.4)",
+            }}>
+              {gameMode === "duel" ? "⚔️ Neues Duell" : `🔄 Nochmal: ${topicMeta.label}`}
+            </button>
+          )}
+          {gameMode === "daily" && (
+            <div style={{
+              padding: "14px", marginBottom: 4, textAlign: "center",
+              background: "rgba(16,185,129,0.1)", border: "1px solid rgba(16,185,129,0.3)",
+              borderRadius: 14, color: "#6ee7b7", fontSize: 14, fontWeight: 600,
+            }}>✓ Heutige Challenge geschafft – morgen gibt es neue Fragen!</div>
+          )}
           <button onClick={() => setScreen("home")} style={{
             width: "100%",
             marginTop: 10,
