@@ -1469,7 +1469,7 @@ async function submitDailyScore(name, score, streak, day) {
 }
 
 // ── App-Version & lokaler Speicher ────────────────────────────
-const APP_VERSION = "2.7"; // bei neuen Updates hochzählen, dann erscheint "Was ist neu?"
+const APP_VERSION = "2.8"; // bei neuen Updates hochzählen, dann erscheint "Was ist neu?"
 
 const store = {
   get(key, fallback) {
@@ -1512,7 +1512,8 @@ function LaenderDuell() {
   const [gameMode, setGameMode] = useState("solo");
   // Jokers (per round)
   const [fiftyUsed, setFiftyUsed] = useState(false);
-  const [skipUsed, setSkipUsed] = useState(false);
+  const [secondChanceArmed, setSecondChanceArmed] = useState(false); // Joker aktiviert, noch nicht verbraucht
+  const [secondChanceUsed, setSecondChanceUsed] = useState(false);   // Joker in dieser Runde schon genutzt
   const [hiddenOptions, setHiddenOptions] = useState([]); // options removed by 50:50
   // Duel
   const [duelPlayer, setDuelPlayer] = useState(1);        // 1 or 2
@@ -1634,7 +1635,8 @@ function LaenderDuell() {
     setPointsGained(0);
     setConfirmQuit(false);
     setFiftyUsed(false);
-    setSkipUsed(false);
+    setSecondChanceArmed(false);
+    setSecondChanceUsed(false);
     setHiddenOptions([]);
     setDuelPlayer(1);
     setDuelScores({ 1: 0, 2: 0 });
@@ -1699,10 +1701,21 @@ function LaenderDuell() {
 
   const handleSelect = (option) => {
     if (answered) return;
-    setSelected(option);
-    setAnswered(true);
     const q = questions[current];
     const correct = option === q.answer;
+
+    // Zweite-Chance-Joker: erster Fehlversuch wird verziehen
+    if (!correct && secondChanceArmed) {
+      setSecondChanceArmed(false);
+      setSecondChanceUsed(true);
+      setHiddenOptions(h => [...h, option]); // falsche Wahl ausblenden
+      setShake(true);
+      setTimeout(() => setShake(false), 400);
+      return; // NICHT als beantwortet werten – nochmal wählen
+    }
+
+    setSelected(option);
+    setAnswered(true);
     if (correct) {
       const diffMult = DIFFICULTY_META[q.difficulty]?.mult || 1;
       const timeBonus = timed ? Math.round((timeLeft / roundSeconds) * 20) : 0;
@@ -1743,13 +1756,10 @@ function LaenderDuell() {
     setFiftyUsed(true);
   };
 
-  // Skip — move to next question without scoring (counts as not answered)
-  const useSkip = () => {
-    if (skipUsed || answered) return;
-    setSkipUsed(true);
-    const q = questions[current];
-    setHistory(h => [...h, { question: q.question, correct: false, answer: q.answer, selected: "Übersprungen" }]);
-    goNext();
+  // Zweite Chance — aktivieren; erster Fehlversuch dieser Frage wird verziehen
+  const armSecondChance = () => {
+    if (secondChanceUsed || secondChanceArmed || answered) return;
+    setSecondChanceArmed(true);
   };
 
   // Advance to next question or finish (shared by next button, skip, duel)
@@ -1791,6 +1801,7 @@ function LaenderDuell() {
       setTimeLeft(roundSeconds);
       setPointsGained(0);
       setHiddenOptions([]);
+      setSecondChanceArmed(false); // pro Frage zurück; "used" bleibt (1×/Runde)
       if (gameMode === "duel") {
         setDuelPlayer(p => (p === 1 ? 2 : 1));
       }
@@ -2059,7 +2070,7 @@ function LaenderDuell() {
               { icon: "🎲", title: "Bunter Mix", text: "Fragen aus allen Themen wild gemischt." },
               { icon: "📅", title: "Tägliche Challenge", text: "Jeden Tag 10 Fragen – für alle gleich. Vergleicht euch!" },
               { icon: "⚔️", title: "Duell zu zweit", text: "Tretet am selben Gerät gegeneinander an." },
-              { icon: "🃏", title: "Joker", text: "50:50 und Überspringen helfen bei kniffligen Fragen." },
+              { icon: "🃏", title: "Joker", text: "50:50 und die Zweite Chance helfen bei kniffligen Fragen." },
               { icon: "📚", title: "Über 570 neue Fragen", text: "Jedes Thema hat jetzt rund 100 Fragen – kaum noch Wiederholungen." },
               { icon: "🔥", title: "Tägliche Challenge neu", text: "15 knifflige Fragen, doppelte Punkte und eine Tagesstreak." },
               { icon: "🎯", title: "Schwierigkeit & Duell-Joker", text: "Wähle die Schwierigkeit – und zwinge dem Gegner im Duell ein schweres Thema auf." },
@@ -2555,13 +2566,18 @@ function LaenderDuell() {
                 borderRadius: 12, color: fiftyUsed ? "#5a7a8a" : "#c4b5fd",
                 cursor: fiftyUsed ? "not-allowed" : "pointer",
               }}>✂️ 50:50</button>
-              <button onClick={useSkip} disabled={skipUsed} style={{
+              <button onClick={armSecondChance} disabled={secondChanceUsed || secondChanceArmed} style={{
                 flex: 1, padding: "11px", fontSize: 14, fontWeight: 700,
-                background: skipUsed ? "rgba(255,255,255,0.04)" : "rgba(100,216,255,0.12)",
-                border: "1px solid " + (skipUsed ? "rgba(255,255,255,0.08)" : "rgba(100,216,255,0.35)"),
-                borderRadius: 12, color: skipUsed ? "#5a7a8a" : "#64d8ff",
-                cursor: skipUsed ? "not-allowed" : "pointer",
-              }}>⏭️ Überspringen</button>
+                background: secondChanceArmed ? "rgba(34,197,94,0.25)" : (secondChanceUsed ? "rgba(255,255,255,0.04)" : "rgba(34,197,94,0.12)"),
+                border: "1px solid " + (secondChanceArmed ? "#22c55e" : (secondChanceUsed ? "rgba(255,255,255,0.08)" : "rgba(34,197,94,0.35)")),
+                borderRadius: 12, color: secondChanceUsed && !secondChanceArmed ? "#5a7a8a" : (secondChanceArmed ? "#86efac" : "#4ade80"),
+                cursor: (secondChanceUsed || secondChanceArmed) ? "default" : "pointer",
+              }}>{secondChanceArmed ? "🛡️ Aktiv!" : "🛡️ Zweite Chance"}</button>
+            </div>
+          )}
+          {secondChanceArmed && !answered && (
+            <div style={{ marginTop: 8, fontSize: 12, color: "#86efac", textAlign: "center" }}>
+              🛡️ Dein erster Fehler bei dieser Frage wird verziehen!
             </div>
           )}
 
@@ -2585,29 +2601,6 @@ function LaenderDuell() {
                     boxShadow: "0 4px 16px rgba(34,197,94,0.4)",
                   }}>+{pointsGained} 💎{gameMode !== "duel" && streak >= 2 ? `  🔥 ${streak}x Serie!` : ""}</span>
                 </div>
-              )}
-              {selectedTopic === "laender" && (
-                <div style={{
-                  background: "rgba(167,139,250,0.1)",
-                  border: "1px solid rgba(167,139,250,0.25)",
-                  borderRadius: 12,
-                  padding: "12px 16px",
-                  fontSize: 14,
-                  color: "#c4b5fd",
-                  marginBottom: 12,
-                }}>💡 {q.fact}</div>
-              )}
-              {q.funFact && (
-                <div style={{
-                  background: "rgba(251,191,36,0.1)",
-                  border: "1px solid rgba(251,191,36,0.3)",
-                  borderRadius: 12,
-                  padding: "12px 16px",
-                  fontSize: 14,
-                  color: "#fcd34d",
-                  marginBottom: 12,
-                  lineHeight: 1.5,
-                }}>🤓 <strong>Unnützes Wissen:</strong> {q.funFact}</div>
               )}
               {gameMode === "duel" && current + 1 < roundTotal && !forceUsed[duelPlayer] && (
                 <button onClick={() => setShowForcePicker(true)} style={{
@@ -2644,6 +2637,29 @@ function LaenderDuell() {
                     ? `Weiter zu Spieler ${duelPlayer === 1 ? 2 : 1} →`
                     : "Weiter →"}
               </button>
+              {selectedTopic === "laender" && (
+                <div style={{
+                  background: "rgba(167,139,250,0.1)",
+                  border: "1px solid rgba(167,139,250,0.25)",
+                  borderRadius: 12,
+                  padding: "12px 16px",
+                  fontSize: 14,
+                  color: "#c4b5fd",
+                  marginTop: 12,
+                }}>💡 {q.fact}</div>
+              )}
+              {q.funFact && (
+                <div style={{
+                  background: "rgba(251,191,36,0.1)",
+                  border: "1px solid rgba(251,191,36,0.3)",
+                  borderRadius: 12,
+                  padding: "12px 16px",
+                  fontSize: 14,
+                  color: "#fcd34d",
+                  marginTop: 12,
+                  lineHeight: 1.5,
+                }}>🤓 <strong>Unnützes Wissen:</strong> {q.funFact}</div>
+              )}
             </div>
           )}
 

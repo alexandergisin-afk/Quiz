@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 const COUNTRIES = [
   // EINFACH – sehr bekannte Länder
@@ -167,6 +167,32 @@ const TOPIC_QUESTIONS = {
   { q: "Welcher Vorgang beschreibt die Aufnahme von Teilchen in eine Zelle durch Einstülpung?", options: ["Endozytose", "Exozytose", "Osmose", "Diffusion"], answer: "Endozytose", difficulty: "schwer" },
   { q: "Welche Sternenklasse beschreibt unsere Sonne?", options: ["Gelber Zwerg", "Roter Riese", "Weißer Zwerg", "Blauer Überriese"], answer: "Gelber Zwerg", difficulty: "schwer" },
   { q: "Welcher Stoffwechselweg baut Glukose ohne Sauerstoff ab?", options: ["Glykolyse", "Zitronensäurezyklus", "Atmungskette", "Photosynthese"], answer: "Glykolyse", difficulty: "schwer" },
+
+  { q: "Welches Organ produziert die Galle?", options: ["Leber", "Gallenblase", "Magen", "Milz"], answer: "Leber", difficulty: "mittel" },
+  { q: "Welcher Wissenschaftler entdeckte die Gesetze der Planetenbewegung?", options: ["Kepler", "Galilei", "Kopernikus", "Brahe"], answer: "Kepler", difficulty: "schwer" },
+  { q: "Wie nennt man den Übergang von gasförmig zu flüssig?", options: ["Kondensation", "Sublimation", "Verdampfung", "Erstarrung"], answer: "Kondensation", difficulty: "mittel" },
+  { q: "Welches Vitamin ist wasserlöslich?", options: ["Vitamin C", "Vitamin A", "Vitamin D", "Vitamin E"], answer: "Vitamin C", difficulty: "mittel" },
+  { q: "Welches Teilchen bestimmt die chemischen Eigenschaften eines Atoms?", options: ["Elektronen", "Neutronen", "Photonen", "Quarks"], answer: "Elektronen", difficulty: "schwer" },
+  { q: "Wie heißt die größte Arterie des menschlichen Körpers?", options: ["Aorta", "Hohlvene", "Halsschlagader", "Lungenarterie"], answer: "Aorta", difficulty: "mittel" },
+  { q: "Welcher Planet hat den kürzesten Tag?", options: ["Jupiter", "Erde", "Mars", "Merkur"], answer: "Jupiter", difficulty: "schwer", funFact: "Ein Jupiter-Tag dauert nur knapp 10 Stunden." },
+  { q: "Welches Gas ist für die saure Wirkung von Sprudelwasser verantwortlich?", options: ["Kohlendioxid", "Sauerstoff", "Stickstoff", "Wasserstoff"], answer: "Kohlendioxid", difficulty: "mittel" },
+  { q: "Welche Krankheit wird durch einen Mangel an Vitamin C verursacht?", options: ["Skorbut", "Rachitis", "Beriberi", "Pellagra"], answer: "Skorbut", difficulty: "schwer" },
+  { q: "Wie nennt man den niedrigsten Punkt einer Welle?", options: ["Wellental", "Wellenberg", "Amplitude", "Frequenz"], answer: "Wellental", difficulty: "mittel" },
+  { q: "Welche Einheit beschreibt die Stoffmengenkonzentration?", options: ["Mol pro Liter", "Gramm pro Liter", "Pascal", "Kelvin"], answer: "Mol pro Liter", difficulty: "schwer" },
+  { q: "Welches Element ist das leichteste Metall?", options: ["Lithium", "Aluminium", "Natrium", "Magnesium"], answer: "Lithium", difficulty: "schwer" },
+  { q: "Welcher Teil der Pflanze betreibt die meiste Fotosynthese?", options: ["Blatt", "Wurzel", "Stamm", "Blüte"], answer: "Blatt", difficulty: "mittel" },
+  { q: "Welcher Forscher gilt als Vater der Vererbungslehre?", options: ["Gregor Mendel", "Charles Darwin", "Louis Pasteur", "Robert Koch"], answer: "Gregor Mendel", difficulty: "mittel" },
+  { q: "Welches physikalische Phänomen beschreibt das Ablenken von Licht an einer Kante?", options: ["Beugung", "Brechung", "Reflexion", "Streuung"], answer: "Beugung", difficulty: "schwer" },
+  { q: "Welche Blutzellen sind für die Immunabwehr zuständig?", options: ["Leukozyten", "Erythrozyten", "Thrombozyten", "Neuronen"], answer: "Leukozyten", difficulty: "mittel" },
+  { q: "Welcher Stern ist der erdnächste außerhalb des Sonnensystems?", options: ["Proxima Centauri", "Sirius", "Beteigeuze", "Wega"], answer: "Proxima Centauri", difficulty: "schwer" },
+  { q: "Welche Zahl gibt der pH-Wert für reines Wasser an?", options: ["7", "0", "14", "1"], answer: "7", difficulty: "mittel" },
+  { q: "Welcher Effekt beschreibt das Ablösen von Elektronen durch Licht?", options: ["Fotoelektrischer Effekt", "Doppler-Effekt", "Treibhauseffekt", "Tunneleffekt"], answer: "Fotoelektrischer Effekt", difficulty: "schwer", funFact: "Einstein erhielt dafür den Nobelpreis." },
+  { q: "Welcher Körperteil enthält die meisten Knochen?", options: ["Hand", "Fuß", "Wirbelsäule", "Schädel"], answer: "Hand", difficulty: "schwer" },
+  { q: "Welches Hormon steuert den Tag-Nacht-Rhythmus?", options: ["Melatonin", "Insulin", "Adrenalin", "Cortisol"], answer: "Melatonin", difficulty: "schwer" },
+  { q: "Welche Wissenschaft untersucht das Wetter?", options: ["Meteorologie", "Geologie", "Ozeanografie", "Astronomie"], answer: "Meteorologie", difficulty: "mittel" },
+  { q: "Welches Material wird in Computerchips als Halbleiter genutzt?", options: ["Silizium", "Kupfer", "Gold", "Eisen"], answer: "Silizium", difficulty: "mittel" },
+  { q: "Welcher Planet ist der Erde am ähnlichsten in der Größe?", options: ["Venus", "Mars", "Merkur", "Neptun"], answer: "Venus", difficulty: "schwer" },
+  { q: "Welche Kraft hält Elektronen in der Atomhülle?", options: ["Elektromagnetische Kraft", "Gravitation", "Starke Kernkraft", "Schwache Kernkraft"], answer: "Elektromagnetische Kraft", difficulty: "schwer" },
 ],
   geschichte: [
   // ── EINFACH ──
@@ -271,6 +297,32 @@ const TOPIC_QUESTIONS = {
   { q: "Welcher Pakt verband 1939 Hitler und Stalin kurzzeitig?", options: ["Hitler-Stalin-Pakt", "Münchner Abkommen", "Warschauer Pakt", "Atlantik-Charta"], answer: "Hitler-Stalin-Pakt", difficulty: "schwer" },
   { q: "Welcher Herrscher gab dem Byzantinischen Reich seinen umfassenden Gesetzeskodex?", options: ["Justinian I.", "Konstantin", "Theodosius", "Diokletian"], answer: "Justinian I.", difficulty: "schwer" },
   { q: "Welche Schlacht stoppte 732 die arabische Expansion in Westeuropa?", options: ["Schlacht von Tours", "Schlacht bei Hastings", "Schlacht von Lepanto", "Schlacht im Teutoburger Wald"], answer: "Schlacht von Tours", difficulty: "schwer" },
+
+  { q: "Welcher Entdecker erreichte 1488 das Kap der Guten Hoffnung?", options: ["Bartolomeu Dias", "Vasco da Gama", "Kolumbus", "Magellan"], answer: "Bartolomeu Dias", difficulty: "schwer" },
+  { q: "In welchem Jahr wurde die deutsche Wiedervereinigung vollzogen?", options: ["1990", "1989", "1991", "1992"], answer: "1990", difficulty: "mittel" },
+  { q: "Wer war der erste Präsident der USA?", options: ["George Washington", "Thomas Jefferson", "Abraham Lincoln", "Benjamin Franklin"], answer: "George Washington", difficulty: "mittel" },
+  { q: "Welches Volk errichtete Stonehenge (begonnen)?", options: ["Jungsteinzeitliche Kulturen", "Die Römer", "Die Kelten", "Die Wikinger"], answer: "Jungsteinzeitliche Kulturen", difficulty: "schwer" },
+  { q: "Welcher Krieg wird mit dem Trojanischen Pferd verbunden?", options: ["Trojanischer Krieg", "Perserkrieg", "Punischer Krieg", "Peloponnesischer Krieg"], answer: "Trojanischer Krieg", difficulty: "mittel" },
+  { q: "Welcher Herrscher ließ die Pyramiden von Gizeh als größte errichten?", options: ["Cheops", "Ramses II.", "Tutanchamun", "Echnaton"], answer: "Cheops", difficulty: "schwer" },
+  { q: "In welchem Jahr entdeckte Kolumbus Amerika?", options: ["1492", "1498", "1488", "1500"], answer: "1492", difficulty: "mittel" },
+  { q: "Welches Land war im Kalten Krieg durch eine Mauer geteilt?", options: ["Deutschland", "Korea", "Vietnam", "Irland"], answer: "Deutschland", difficulty: "mittel" },
+  { q: "Welcher Eroberer weinte angeblich, weil es nichts mehr zu erobern gab?", options: ["Alexander der Große", "Cäsar", "Napoleon", "Dschingis Khan"], answer: "Alexander der Große", difficulty: "schwer" },
+  { q: "Welche Dynastie regierte China zuletzt bis 1912?", options: ["Qing", "Ming", "Han", "Tang"], answer: "Qing", difficulty: "schwer" },
+  { q: "Welcher US-Präsident führte das Land durch den Bürgerkrieg?", options: ["Abraham Lincoln", "George Washington", "Thomas Jefferson", "Andrew Johnson"], answer: "Abraham Lincoln", difficulty: "mittel" },
+  { q: "Welches antike Bauwerk diente als Grabmal und steht in Indien?", options: ["Taj Mahal", "Rotes Fort", "Hawa Mahal", "Qutb Minar"], answer: "Taj Mahal", difficulty: "mittel" },
+  { q: "Welcher Vertrag begründete 1957 die Europäische Wirtschaftsgemeinschaft?", options: ["Römische Verträge", "Vertrag von Maastricht", "Schengener Abkommen", "Vertrag von Lissabon"], answer: "Römische Verträge", difficulty: "schwer" },
+  { q: "Wer war die erste weibliche Premierministerin Großbritanniens?", options: ["Margaret Thatcher", "Theresa May", "Queen Victoria", "Elizabeth II."], answer: "Margaret Thatcher", difficulty: "mittel" },
+  { q: "Welche Stadt war Zentrum der Renaissance?", options: ["Florenz", "Rom", "Venedig", "Mailand"], answer: "Florenz", difficulty: "schwer" },
+  { q: "Welche Seeschlacht 1805 sicherte Großbritanniens Vorherrschaft zur See?", options: ["Trafalgar", "Lepanto", "Salamis", "Jütland"], answer: "Trafalgar", difficulty: "schwer", funFact: "Admiral Nelson fiel in dieser Schlacht." },
+  { q: "Welcher Forscher umrundete als Erster mit seiner Crew die Erde?", options: ["Magellan", "Drake", "Kolumbus", "Cook"], answer: "Magellan", difficulty: "mittel" },
+  { q: "In welchem Jahrhundert lebte Karl der Große?", options: ["8./9. Jahrhundert", "6. Jahrhundert", "11. Jahrhundert", "13. Jahrhundert"], answer: "8./9. Jahrhundert", difficulty: "schwer" },
+  { q: "Welches Reich wurde von Augustus begründet?", options: ["Römisches Kaiserreich", "Byzantinisches Reich", "Heiliges Römisches Reich", "Osmanisches Reich"], answer: "Römisches Kaiserreich", difficulty: "mittel" },
+  { q: "Welche Revolution stürzte 1789 die französische Monarchie?", options: ["Französische Revolution", "Julirevolution", "Februarrevolution", "Oktoberrevolution"], answer: "Französische Revolution", difficulty: "mittel" },
+  { q: "Welcher Pharao schloss den ersten überlieferten Friedensvertrag der Geschichte?", options: ["Ramses II.", "Cheops", "Tutanchamun", "Cleopatra"], answer: "Ramses II.", difficulty: "schwer", funFact: "Der Vertrag von Kadesch mit den Hethitern." },
+  { q: "Welcher Astronom stellte das heliozentrische Weltbild auf?", options: ["Kopernikus", "Galilei", "Kepler", "Newton"], answer: "Kopernikus", difficulty: "schwer" },
+  { q: "Welche Mauer trennte über Jahrhunderte Nordengland von Schottland?", options: ["Hadrianswall", "Limes", "Große Mauer", "Berliner Mauer"], answer: "Hadrianswall", difficulty: "mittel" },
+  { q: "Welcher französische Kaiser wurde nach Elba verbannt?", options: ["Napoleon", "Ludwig XVI.", "Karl X.", "Louis-Philippe"], answer: "Napoleon", difficulty: "mittel" },
+  { q: "Welche Schlacht 1066 veränderte England nachhaltig?", options: ["Schlacht bei Hastings", "Schlacht von Agincourt", "Schlacht bei Bosworth", "Schlacht von Towton"], answer: "Schlacht bei Hastings", difficulty: "schwer" },
 ],
   sport: [
   // ── EINFACH ──
@@ -371,6 +423,32 @@ const TOPIC_QUESTIONS = {
   { q: "Welche Nation gewann die meisten olympischen Goldmedaillen insgesamt?", options: ["USA", "Sowjetunion", "China", "Deutschland"], answer: "USA", difficulty: "schwer" },
   { q: "Welcher Spieler hält den NBA-Rekord für die meisten Punkte in einem Spiel (100)?", options: ["Wilt Chamberlain", "Kobe Bryant", "Michael Jordan", "LeBron James"], answer: "Wilt Chamberlain", difficulty: "schwer" },
   { q: "Welcher Verein gewann das deutsche 'Finale dahoam' 2012 nicht?", options: ["FC Bayern", "FC Chelsea", "Borussia Dortmund", "Real Madrid"], answer: "FC Bayern", difficulty: "schwer", funFact: "Bayern verlor das Heimfinale im Elfmeterschießen." },
+
+  { q: "Wie heißt der wichtigste Tenniswettbewerb auf Rasen?", options: ["Wimbledon", "US Open", "French Open", "Australian Open"], answer: "Wimbledon", difficulty: "mittel" },
+  { q: "Wie viele Punkte zählt ein Korberfolg aus dem Spiel im Basketball normal?", options: ["2", "1", "3", "4"], answer: "2", difficulty: "mittel" },
+  { q: "Welche Nation gewann die Fußball-WM 2014?", options: ["Deutschland", "Argentinien", "Brasilien", "Spanien"], answer: "Deutschland", difficulty: "mittel", funFact: "Im Finale gegen Argentinien durch Götzes Tor." },
+  { q: "In welcher Sportart ist Lewis Hamilton erfolgreich?", options: ["Formel 1", "MotoGP", "Rallye", "IndyCar"], answer: "Formel 1", difficulty: "mittel" },
+  { q: "Welcher Sportler gilt als bester Basketballer aller Zeiten (oft genannt)?", options: ["Michael Jordan", "Magic Johnson", "Larry Bird", "Kareem Abdul-Jabbar"], answer: "Michael Jordan", difficulty: "mittel" },
+  { q: "Wie viele Minuten dauert ein reguläres Fußballspiel?", options: ["90", "80", "100", "120"], answer: "90", difficulty: "mittel" },
+  { q: "Welcher Schwimmstil wird auf dem Rücken geschwommen?", options: ["Rückenkraul", "Brust", "Delfin", "Freistil"], answer: "Rückenkraul", difficulty: "mittel" },
+  { q: "Welche Mannschaft gewann die meisten NBA-Titel (Rekord, geteilt)?", options: ["Boston Celtics", "Chicago Bulls", "Los Angeles Lakers", "Golden State Warriors"], answer: "Boston Celtics", difficulty: "schwer" },
+  { q: "Welcher Tennisspieler gewann die meisten Wimbledon-Titel der Herren?", options: ["Roger Federer", "Pete Sampras", "Novak Djokovic", "Björn Borg"], answer: "Roger Federer", difficulty: "schwer" },
+  { q: "Welche Distanz hat ein Halbmarathon?", options: ["21,1 km", "10 km", "30 km", "15 km"], answer: "21,1 km", difficulty: "mittel" },
+  { q: "Welche Sportart wird in der NHL gespielt?", options: ["Eishockey", "Basketball", "American Football", "Baseball"], answer: "Eishockey", difficulty: "mittel" },
+  { q: "Welcher Boxer wurde als 'Iron Mike' bekannt?", options: ["Mike Tyson", "Muhammad Ali", "Floyd Mayweather", "Evander Holyfield"], answer: "Mike Tyson", difficulty: "schwer" },
+  { q: "Wie viele Ringe muss man beim olympischen Turnen nicht verwechseln – wie heißt das Gerät der Männer mit zwei hängenden Ringen?", options: ["Ringe", "Reck", "Barren", "Pauschenpferd"], answer: "Ringe", difficulty: "schwer" },
+  { q: "Welche Nation dominiert traditionell den Langlauf?", options: ["Norwegen", "Italien", "Frankreich", "Kanada"], answer: "Norwegen", difficulty: "schwer" },
+  { q: "Welcher Fußballer gewann die meisten Ballon-d'Or-Auszeichnungen?", options: ["Lionel Messi", "Cristiano Ronaldo", "Michel Platini", "Johan Cruyff"], answer: "Lionel Messi", difficulty: "schwer" },
+  { q: "Wie viele Runden umfasst ein Formel-1-typisches Rennwochenende beim Qualifying (Segmente)?", options: ["Drei (Q1, Q2, Q3)", "Zwei", "Vier", "Eins"], answer: "Drei (Q1, Q2, Q3)", difficulty: "schwer" },
+  { q: "Welcher deutsche Tennisspieler gewann 1985 als jüngster Wimbledon?", options: ["Boris Becker", "Michael Stich", "Tommy Haas", "Philipp Kohlschreiber"], answer: "Boris Becker", difficulty: "schwer", funFact: "Becker war erst 17 Jahre alt." },
+  { q: "Welche Sportart umfasst die Disziplinen Slalom und Abfahrt?", options: ["Ski alpin", "Skilanglauf", "Snowboard", "Biathlon"], answer: "Ski alpin", difficulty: "mittel" },
+  { q: "Welche Nation gewann die erste Handball-WM der Männer 1938?", options: ["Deutschland", "Schweden", "Dänemark", "Frankreich"], answer: "Deutschland", difficulty: "schwer" },
+  { q: "Wie heißt der wichtigste Pokalwettbewerb im englischen Fußball?", options: ["FA Cup", "League Cup", "Community Shield", "Charity Shield"], answer: "FA Cup", difficulty: "mittel" },
+  { q: "Welcher Marathon gehört NICHT zu den sechs World Marathon Majors?", options: ["Hamburg", "Berlin", "Boston", "Tokio"], answer: "Hamburg", difficulty: "schwer" },
+  { q: "Welche Sportlerin gilt als erfolgreichste Turnerin der jüngeren Geschichte?", options: ["Simone Biles", "Nadia Comaneci", "Vera Caslavska", "Olga Korbut"], answer: "Simone Biles", difficulty: "schwer" },
+  { q: "Welcher Verein wird in München 'der FCB' genannt?", options: ["FC Bayern", "1860 München", "FC Augsburg", "TSV München"], answer: "FC Bayern", difficulty: "mittel" },
+  { q: "In welchem Sport gibt es den 'Ironman'?", options: ["Triathlon", "Marathon", "Radsport", "Schwimmen"], answer: "Triathlon", difficulty: "mittel" },
+  { q: "Welcher Skispringer gilt als einer der erfolgreichsten der Geschichte (Österreich)?", options: ["Gregor Schlierenzauer", "Sven Hannawald", "Andreas Wellinger", "Kamil Stoch"], answer: "Gregor Schlierenzauer", difficulty: "schwer" },
 ],
   film_musik: [
   // ── EINFACH ──
@@ -471,6 +549,32 @@ const TOPIC_QUESTIONS = {
   { q: "Welcher Regisseur drehte 'Fargo' und 'No Country for Old Men'?", options: ["Coen-Brüder", "Paul Thomas Anderson", "David Fincher", "Quentin Tarantino"], answer: "Coen-Brüder", difficulty: "schwer" },
   { q: "Welcher Komponist gilt als Meister des Barock und schrieb 'Wassermusik'?", options: ["Georg Friedrich Händel", "Johann Sebastian Bach", "Antonio Vivaldi", "Henry Purcell"], answer: "Georg Friedrich Händel", difficulty: "schwer" },
   { q: "Welcher Film mit Marlon Brando spielt im Mafia-Milieu (1972)?", options: ["Der Pate", "Good Fellas", "Scarface", "Casino"], answer: "Der Pate", difficulty: "schwer" },
+
+  { q: "Welcher Film gewann 1994 mehrere Oscars und handelt von einem Mann mit niedrigem IQ und großem Herzen?", options: ["Forrest Gump", "Rain Man", "Philadelphia", "Der Pate"], answer: "Forrest Gump", difficulty: "mittel" },
+  { q: "Welche Band sang 'Hotel California'?", options: ["Eagles", "Fleetwood Mac", "The Doors", "Lynyrd Skynyrd"], answer: "Eagles", difficulty: "schwer" },
+  { q: "Welcher Schauspieler spielte Forrest Gump?", options: ["Tom Hanks", "Kevin Costner", "Tom Cruise", "Brad Pitt"], answer: "Tom Hanks", difficulty: "mittel" },
+  { q: "Welcher Sänger wird mit dem Hit 'Like a Rolling Stone' verbunden?", options: ["Bob Dylan", "Mick Jagger", "Neil Young", "Bruce Springsteen"], answer: "Bob Dylan", difficulty: "schwer" },
+  { q: "Welches Studio produzierte 'Toy Story'?", options: ["Pixar", "DreamWorks", "Warner Bros.", "Universal"], answer: "Pixar", difficulty: "mittel" },
+  { q: "Welcher Komponist schrieb die Filmmusik zu 'Der König der Löwen' (Songs)?", options: ["Elton John", "Phil Collins", "Sting", "Peter Gabriel"], answer: "Elton John", difficulty: "schwer", funFact: "Mit Texten von Tim Rice." },
+  { q: "Welche Sängerin sang 'Like a Prayer'?", options: ["Madonna", "Cyndi Lauper", "Whitney Houston", "Janet Jackson"], answer: "Madonna", difficulty: "mittel" },
+  { q: "Welcher Film spielt im Schiffsuntergang von 1912?", options: ["Titanic", "Poseidon", "Das Boot", "Master and Commander"], answer: "Titanic", difficulty: "mittel" },
+  { q: "Welche Rockband veröffentlichte 'Smells Like Teen Spirit'?", options: ["Nirvana", "Pearl Jam", "Soundgarden", "Alice in Chains"], answer: "Nirvana", difficulty: "schwer" },
+  { q: "Welcher Regisseur drehte 'Die Verurteilten' (Shawshank Redemption)?", options: ["Frank Darabont", "Steven Spielberg", "Martin Scorsese", "Clint Eastwood"], answer: "Frank Darabont", difficulty: "schwer" },
+  { q: "Welcher Musiker war Frontmann von Nirvana?", options: ["Kurt Cobain", "Eddie Vedder", "Chris Cornell", "Layne Staley"], answer: "Kurt Cobain", difficulty: "mittel" },
+  { q: "Welcher Film enthält das Zitat 'Ich bin dein Vater'?", options: ["Star Wars", "Der Herr der Ringe", "Matrix", "Indiana Jones"], answer: "Star Wars", difficulty: "mittel" },
+  { q: "Welcher klassische Komponist schrieb über 100 Sinfonien?", options: ["Joseph Haydn", "Mozart", "Beethoven", "Schubert"], answer: "Joseph Haydn", difficulty: "schwer", funFact: "Er gilt als 'Vater der Sinfonie'." },
+  { q: "Welcher Schauspieler verkörperte 'Indiana Jones'?", options: ["Harrison Ford", "Tom Selleck", "Sean Connery", "Mel Gibson"], answer: "Harrison Ford", difficulty: "mittel" },
+  { q: "Welche Band veröffentlichte 'Another Brick in the Wall'?", options: ["Pink Floyd", "Genesis", "Yes", "King Crimson"], answer: "Pink Floyd", difficulty: "schwer" },
+  { q: "Welcher Animationsfilm handelt von einem Fisch namens Nemo?", options: ["Findet Nemo", "Arielle", "Der große Hai", "Happy Feet"], answer: "Findet Nemo", difficulty: "mittel" },
+  { q: "Welcher US-Rapper veröffentlichte das Album 'The Marshall Mathers LP'?", options: ["Eminem", "Jay-Z", "Dr. Dre", "Snoop Dogg"], answer: "Eminem", difficulty: "schwer" },
+  { q: "Welcher Regisseur ist für die 'Herr der Ringe'-Trilogie verantwortlich?", options: ["Peter Jackson", "Guillermo del Toro", "James Cameron", "Ridley Scott"], answer: "Peter Jackson", difficulty: "mittel" },
+  { q: "Welcher klassische Komponist schrieb die 'Brandenburgischen Konzerte'?", options: ["Johann Sebastian Bach", "Georg Friedrich Händel", "Vivaldi", "Telemann"], answer: "Johann Sebastian Bach", difficulty: "schwer" },
+  { q: "Welche Sängerin gewann mit '21' und '25' zahlreiche Grammys?", options: ["Adele", "Beyoncé", "Taylor Swift", "Lady Gaga"], answer: "Adele", difficulty: "mittel" },
+  { q: "Welcher Schauspieler spielte den Captain Jack Sparrow?", options: ["Johnny Depp", "Orlando Bloom", "Geoffrey Rush", "Javier Bardem"], answer: "Johnny Depp", difficulty: "mittel" },
+  { q: "Welche Oper spielt in Ägypten und stammt von Verdi?", options: ["Aida", "Nabucco", "Rigoletto", "La Traviata"], answer: "Aida", difficulty: "schwer" },
+  { q: "Welcher Film handelt von Träumen in Träumen?", options: ["Inception", "Matrix", "Interstellar", "Shutter Island"], answer: "Inception", difficulty: "mittel" },
+  { q: "Welche Band wird von Bono angeführt?", options: ["U2", "Coldplay", "R.E.M.", "The Police"], answer: "U2", difficulty: "mittel" },
+  { q: "Welcher deutsche Regisseur drehte 'Das Boot'?", options: ["Wolfgang Petersen", "Werner Herzog", "Wim Wenders", "Tom Tykwer"], answer: "Wolfgang Petersen", difficulty: "schwer" },
 ],
   tiere: [
   // ── EINFACH ──
@@ -571,6 +675,32 @@ const TOPIC_QUESTIONS = {
   { q: "Welche Tierart hat ein Skelett aus Knorpel statt Knochen?", options: ["Hai", "Thunfisch", "Lachs", "Karpfen"], answer: "Hai", difficulty: "schwer" },
   { q: "Welches Tier kann seine Beute durch Aufpumpen abschrecken und ist giftig?", options: ["Kugelfisch", "Seeigel", "Krabbe", "Tintenfisch"], answer: "Kugelfisch", difficulty: "schwer", funFact: "In Japan ist er als 'Fugu' eine riskante Delikatesse." },
   { q: "Welcher Wal hat einen langen, spiralförmigen Stoßzahn?", options: ["Narwal", "Belugawal", "Pottwal", "Buckelwal"], answer: "Narwal", difficulty: "schwer", funFact: "Der Stoßzahn ist eigentlich ein verlängerter Zahn." },
+
+  { q: "Welches Tier ist das größte Landsäugetier?", options: ["Afrikanischer Elefant", "Nashorn", "Flusspferd", "Giraffe"], answer: "Afrikanischer Elefant", difficulty: "mittel" },
+  { q: "Wie nennt man ein männliches Rind?", options: ["Stier", "Hengst", "Eber", "Widder"], answer: "Stier", difficulty: "mittel" },
+  { q: "Welches Tier kann am höchsten springen (relativ zur Körpergröße)?", options: ["Floh", "Heuschrecke", "Frosch", "Känguru"], answer: "Floh", difficulty: "schwer" },
+  { q: "Welche Vögel leben in Kolonien in der Antarktis?", options: ["Pinguine", "Albatrosse", "Möwen", "Kormorane"], answer: "Pinguine", difficulty: "mittel" },
+  { q: "Welches Tier ist ein Beuteltier?", options: ["Känguru", "Faultier", "Erdmännchen", "Igel"], answer: "Känguru", difficulty: "mittel" },
+  { q: "Welches Reptil ist das größte der Welt?", options: ["Salzwasserkrokodil", "Komodowaran", "Anakonda", "Leguan"], answer: "Salzwasserkrokodil", difficulty: "schwer" },
+  { q: "Welches Tier hat die längste Tragzeit?", options: ["Elefant", "Wal", "Nashorn", "Giraffe"], answer: "Elefant", difficulty: "schwer", funFact: "Rund 22 Monate." },
+  { q: "Welche Tiergruppe sind Wale biologisch?", options: ["Säugetiere", "Fische", "Reptilien", "Amphibien"], answer: "Säugetiere", difficulty: "mittel" },
+  { q: "Welcher Vogel legt das größte Ei?", options: ["Strauß", "Albatros", "Kondor", "Pelikan"], answer: "Strauß", difficulty: "mittel" },
+  { q: "Welches Insekt lebt am längsten als ausgewachsenes Tier nur wenige Stunden?", options: ["Eintagsfliege", "Stubenfliege", "Mücke", "Wespe"], answer: "Eintagsfliege", difficulty: "schwer" },
+  { q: "Welches Tier kann Farben sehen, die für Menschen unsichtbar sind (UV)?", options: ["Biene", "Hund", "Katze", "Pferd"], answer: "Biene", difficulty: "schwer" },
+  { q: "Welche Schlange ist die giftigste der Welt (Landschlange)?", options: ["Inlandtaipan", "Kobra", "Mamba", "Klapperschlange"], answer: "Inlandtaipan", difficulty: "schwer" },
+  { q: "Welches Tier hat einen Rüssel, ist aber kein Elefant?", options: ["Tapir", "Nashorn", "Wildschwein", "Ameisenbär"], answer: "Tapir", difficulty: "schwer" },
+  { q: "Welche Tiere bauen ein Spinnennetz?", options: ["Spinnen", "Raupen", "Ameisen", "Käfer"], answer: "Spinnen", difficulty: "mittel" },
+  { q: "Welches Säugetier kann am ältesten werden?", options: ["Grönlandwal", "Elefant", "Mensch", "Nilpferd"], answer: "Grönlandwal", difficulty: "schwer", funFact: "Er kann über 200 Jahre alt werden." },
+  { q: "Welches Tier nutzt einen elektrischen Sinn zur Jagd?", options: ["Hai", "Delfin", "Robbe", "Wal"], answer: "Hai", difficulty: "schwer" },
+  { q: "Welches Tier hat einen Höcker zur Wasserspeicherung (falsch verbreitet) – speichert dort aber Fett?", options: ["Kamel", "Lama", "Dromedar-Verwandte", "Alpaka"], answer: "Kamel", difficulty: "mittel", funFact: "Im Höcker ist Fett, nicht Wasser." },
+  { q: "Welches Tier wechselt im Winter die Fellfarbe zu Weiß?", options: ["Schneehase", "Eichhörnchen", "Reh", "Fuchs"], answer: "Schneehase", difficulty: "mittel" },
+  { q: "Welcher Fisch baut ein Nest aus Luftblasen?", options: ["Kampffisch", "Goldfisch", "Guppy", "Wels"], answer: "Kampffisch", difficulty: "schwer" },
+  { q: "Welche Tierart bildet Staaten mit Königin, Arbeiterinnen und Drohnen?", options: ["Honigbiene", "Heuschrecke", "Spinne", "Libelle"], answer: "Honigbiene", difficulty: "mittel" },
+  { q: "Welches Tier kann seine Beute mit einem Schlag betäuben und ist ein Krebstier?", options: ["Fangschreckenkrebs", "Hummer", "Krabbe", "Garnele"], answer: "Fangschreckenkrebs", difficulty: "schwer", funFact: "Sein Schlag ist einer der schnellsten im Tierreich." },
+  { q: "Welche Tiere bilden die größte Landwanderung der Welt?", options: ["Gnus", "Elefanten", "Zebras", "Karibus"], answer: "Gnus", difficulty: "schwer" },
+  { q: "Welcher Vogel kann am längsten ununterbrochen fliegen?", options: ["Mauersegler", "Albatros", "Storch", "Kranich"], answer: "Mauersegler", difficulty: "schwer", funFact: "Er bleibt monatelang in der Luft." },
+  { q: "Welche Tierart ist für ihre Intelligenz und Werkzeuggebrauch unter Vögeln bekannt?", options: ["Rabe", "Taube", "Spatz", "Amsel"], answer: "Rabe", difficulty: "mittel" },
+  { q: "Welches Tier ist das giftigste Meerestier?", options: ["Seewespe", "Rotfeuerfisch", "Steinfisch", "Kegelschnecke"], answer: "Seewespe", difficulty: "schwer" },
 ],
   essen: [
   // ── EINFACH ──
@@ -672,8 +802,240 @@ const TOPIC_QUESTIONS = {
   { q: "Welche Gärung verwandelt Most in Wein?", options: ["Alkoholische Gärung", "Milchsäuregärung", "Essigsäuregärung", "Buttersäuregärung"], answer: "Alkoholische Gärung", difficulty: "schwer" },
   { q: "Welches Getränk entsteht durch zweifache Destillation von Wein?", options: ["Cognac", "Whisky", "Rum", "Gin"], answer: "Cognac", difficulty: "schwer" },
   { q: "Welcher Teil der Vanille wird als Gewürz verwendet?", options: ["Die Schote", "Die Wurzel", "Das Blatt", "Die Blüte"], answer: "Die Schote", difficulty: "schwer" },
+
+  { q: "Aus welchem Land stammt der Cappuccino?", options: ["Italien", "Frankreich", "Österreich", "Spanien"], answer: "Italien", difficulty: "mittel" },
+  { q: "Welches Gemüse ist die Hauptzutat von Borschtsch?", options: ["Rote Bete", "Kohl", "Kartoffel", "Karotte"], answer: "Rote Bete", difficulty: "schwer" },
+  { q: "Welches Land ist Heimat des Gerichts Sushi?", options: ["Japan", "China", "Korea", "Thailand"], answer: "Japan", difficulty: "mittel" },
+  { q: "Welche Frucht wird traditionell zu Wein in der Champagne angebaut?", options: ["Trauben", "Äpfel", "Birnen", "Beeren"], answer: "Trauben", difficulty: "mittel" },
+  { q: "Welches Nationalgericht stammt aus Ungarn?", options: ["Gulasch", "Paella", "Risotto", "Moussaka"], answer: "Gulasch", difficulty: "mittel" },
+  { q: "Welches Getreide wird für klassisches Bier gemälzt?", options: ["Gerste", "Weizen", "Roggen", "Hafer"], answer: "Gerste", difficulty: "mittel" },
+  { q: "Welcher Käse wird für eine echte Pizza Napoletana verwendet?", options: ["Mozzarella", "Parmesan", "Gouda", "Cheddar"], answer: "Mozzarella", difficulty: "mittel" },
+  { q: "Welches Gewürz wird aus Krokusblüten gewonnen?", options: ["Safran", "Kurkuma", "Paprika", "Kreuzkümmel"], answer: "Safran", difficulty: "mittel" },
+  { q: "Welche Frucht ist die Hauptzutat von Wein?", options: ["Weintraube", "Apfel", "Holunder", "Johannisbeere"], answer: "Weintraube", difficulty: "mittel" },
+  { q: "Welches Land ist berühmt für Feta-Käse?", options: ["Griechenland", "Italien", "Frankreich", "Spanien"], answer: "Griechenland", difficulty: "mittel" },
+  { q: "Welches Brot ist typisch für Frankreich?", options: ["Baguette", "Ciabatta", "Brezel", "Pita"], answer: "Baguette", difficulty: "mittel" },
+  { q: "Welche scharfe Paste ist Bestandteil koreanischer Küche?", options: ["Gochujang", "Wasabi", "Harissa", "Sambal"], answer: "Gochujang", difficulty: "schwer" },
+  { q: "Welche Spirituose wird aus Wacholder hergestellt?", options: ["Gin", "Wodka", "Rum", "Tequila"], answer: "Gin", difficulty: "schwer" },
+  { q: "Welcher Reis wird für Paella verwendet?", options: ["Rundkornreis", "Basmati", "Jasminreis", "Wildreis"], answer: "Rundkornreis", difficulty: "schwer" },
+  { q: "Welche Frucht steckt in einem klassischen Daiquiri?", options: ["Limette", "Zitrone", "Orange", "Ananas"], answer: "Limette", difficulty: "schwer" },
+  { q: "Welches Land hat die Croissants als Frühstücksgebäck perfektioniert?", options: ["Frankreich", "Italien", "Belgien", "Spanien"], answer: "Frankreich", difficulty: "mittel" },
+  { q: "Welche Bohne wird für Espresso geröstet?", options: ["Kaffeebohne", "Kakaobohne", "Sojabohne", "Vanillebohne"], answer: "Kaffeebohne", difficulty: "mittel" },
+  { q: "Welches japanische Gericht besteht aus frittiertem Gemüse oder Meeresfrüchten im Teigmantel?", options: ["Tempura", "Sashimi", "Ramen", "Udon"], answer: "Tempura", difficulty: "schwer" },
+  { q: "Welche Zutat darf in einem echten Schwarzwälder Kirschtorte nicht fehlen?", options: ["Kirschwasser", "Rum", "Likör", "Cognac"], answer: "Kirschwasser", difficulty: "schwer" },
+  { q: "Welches Gewürz wird aus getrockneten Beeren eines Kletterstrauchs gewonnen?", options: ["Pfeffer", "Nelke", "Piment", "Wacholder"], answer: "Pfeffer", difficulty: "mittel" },
+  { q: "Welche italienische Süßspeise besteht aus Mascarpone, Kaffee und Löffelbiskuits?", options: ["Tiramisu", "Panna Cotta", "Cannoli", "Zabaione"], answer: "Tiramisu", difficulty: "mittel" },
+  { q: "Welches Tier liefert Parmaschinken?", options: ["Schwein", "Rind", "Schaf", "Ziege"], answer: "Schwein", difficulty: "mittel" },
+  { q: "Welche Nuss wird für Nougat (Gianduja) typischerweise verwendet?", options: ["Haselnuss", "Mandel", "Walnuss", "Erdnuss"], answer: "Haselnuss", difficulty: "schwer" },
+  { q: "Welcher Cocktail wird aus Tequila, Limette und Triple Sec gemischt?", options: ["Margarita", "Mojito", "Daiquiri", "Cuba Libre"], answer: "Margarita", difficulty: "schwer" },
+  { q: "Welches Gewürz gibt Lebkuchen seinen typischen Geschmack?", options: ["Zimt", "Vanille", "Muskat", "Anis"], answer: "Zimt", difficulty: "mittel" },
+],
+  allgemein: [
+  // ── EINFACH ──
+  { q: "Wie viele Bundesländer hat Deutschland?", options: ["16", "14", "18", "12"], answer: "16", difficulty: "einfach" },
+  { q: "Welche Farbe entsteht, wenn man Blau und Gelb mischt?", options: ["Grün", "Orange", "Lila", "Braun"], answer: "Grün", difficulty: "einfach" },
+  { q: "Wie viele Minuten hat eine Stunde?", options: ["60", "100", "50", "90"], answer: "60", difficulty: "einfach" },
+  { q: "Welches Tier bellt?", options: ["Hund", "Katze", "Kuh", "Pferd"], answer: "Hund", difficulty: "einfach" },
+  { q: "Welcher Planet ist unser Heimatplanet?", options: ["Erde", "Mars", "Venus", "Jupiter"], answer: "Erde", difficulty: "einfach" },
+  { q: "Wie heißt die Hauptstadt von Deutschland?", options: ["Berlin", "München", "Hamburg", "Köln"], answer: "Berlin", difficulty: "einfach" },
+  { q: "Wie viele Tage hat eine Woche?", options: ["7", "5", "6", "8"], answer: "7", difficulty: "einfach" },
+  { q: "Welches Werkzeug nutzt man, um einen Nagel einzuschlagen?", options: ["Hammer", "Säge", "Zange", "Schraubenzieher"], answer: "Hammer", difficulty: "einfach" },
+  { q: "Welche Jahreszeit kommt nach dem Sommer?", options: ["Herbst", "Frühling", "Winter", "Regenzeit"], answer: "Herbst", difficulty: "einfach" },
+  { q: "Wie viele Cent hat ein Euro?", options: ["100", "50", "1000", "10"], answer: "100", difficulty: "einfach" },
+  { q: "Welches Verkehrsmittel fährt auf Schienen?", options: ["Zug", "Bus", "Flugzeug", "Schiff"], answer: "Zug", difficulty: "einfach" },
+  { q: "Welche Form hat ein Fußball?", options: ["Rund", "Eckig", "Oval", "Flach"], answer: "Rund", difficulty: "einfach" },
+  { q: "Wie nennt man gefrorenes Wasser?", options: ["Eis", "Dampf", "Schnee", "Tau"], answer: "Eis", difficulty: "einfach" },
+  { q: "Welches Organ schlägt im Brustkorb?", options: ["Herz", "Lunge", "Magen", "Leber"], answer: "Herz", difficulty: "einfach" },
+  { q: "Welche Sprache spricht man in Frankreich?", options: ["Französisch", "Spanisch", "Italienisch", "Englisch"], answer: "Französisch", difficulty: "einfach" },
+
+  // ── MITTEL ──
+  { q: "Wie heißt die Währung Japans?", options: ["Yen", "Won", "Yuan", "Baht"], answer: "Yen", difficulty: "mittel" },
+  { q: "Welcher Fluss fließt durch Paris?", options: ["Seine", "Loire", "Rhône", "Garonne"], answer: "Seine", difficulty: "mittel" },
+  { q: "Wie viele Kontinente gibt es?", options: ["7", "5", "6", "8"], answer: "7", difficulty: "mittel" },
+  { q: "Welches chemische Symbol steht für Sauerstoff?", options: ["O", "S", "Os", "Ox"], answer: "O", difficulty: "mittel" },
+  { q: "Wer schrieb das Drama 'Faust'?", options: ["Goethe", "Schiller", "Lessing", "Kleist"], answer: "Goethe", difficulty: "mittel" },
+  { q: "In welchem Erdteil liegt Ägypten größtenteils?", options: ["Afrika", "Asien", "Europa", "Naher Osten"], answer: "Afrika", difficulty: "mittel" },
+  { q: "Wie viele Saiten hat eine Geige?", options: ["4", "6", "5", "7"], answer: "4", difficulty: "mittel" },
+  { q: "Welcher Berg ist der höchste der Alpen?", options: ["Mont Blanc", "Matterhorn", "Zugspitze", "Großglockner"], answer: "Mont Blanc", difficulty: "mittel" },
+  { q: "Welches Land hat die meisten Einwohner?", options: ["Indien", "China", "USA", "Indonesien"], answer: "Indien", difficulty: "mittel", funFact: "Indien überholte China 2023 als bevölkerungsreichstes Land." },
+  { q: "Wie heißt der größte Ozean der Erde?", options: ["Pazifik", "Atlantik", "Indischer Ozean", "Arktischer Ozean"], answer: "Pazifik", difficulty: "mittel" },
+  { q: "Welcher Planet ist der größte im Sonnensystem?", options: ["Jupiter", "Saturn", "Neptun", "Erde"], answer: "Jupiter", difficulty: "mittel" },
+  { q: "Wie nennt man ein Vieleck mit fünf Ecken?", options: ["Fünfeck", "Sechseck", "Viereck", "Achteck"], answer: "Fünfeck", difficulty: "mittel" },
+  { q: "Welcher Stoff ist das härteste natürliche Material?", options: ["Diamant", "Eisen", "Quarz", "Granit"], answer: "Diamant", difficulty: "mittel" },
+  { q: "In welcher Stadt steht das Brandenburger Tor?", options: ["Berlin", "Hamburg", "München", "Dresden"], answer: "Berlin", difficulty: "mittel" },
+  { q: "Welches Tier ist das Wappentier der USA?", options: ["Weißkopfseeadler", "Bison", "Bär", "Puma"], answer: "Weißkopfseeadler", difficulty: "mittel" },
+  { q: "Wie viele Spieler hat eine Basketballmannschaft auf dem Feld?", options: ["5", "6", "7", "4"], answer: "5", difficulty: "mittel" },
+  { q: "Welches Metall ist bei Raumtemperatur flüssig?", options: ["Quecksilber", "Eisen", "Aluminium", "Kupfer"], answer: "Quecksilber", difficulty: "mittel" },
+  { q: "Welcher Künstler malte die Sternennacht?", options: ["Vincent van Gogh", "Claude Monet", "Pablo Picasso", "Salvador Dalí"], answer: "Vincent van Gogh", difficulty: "mittel" },
+  { q: "Wie heißt die Hauptstadt von Australien?", options: ["Canberra", "Sydney", "Melbourne", "Brisbane"], answer: "Canberra", difficulty: "mittel", funFact: "Nicht Sydney – das ist ein beliebter Irrtum." },
+  { q: "Welche Zahl ist eine Primzahl?", options: ["17", "21", "15", "9"], answer: "17", difficulty: "mittel" },
+  { q: "Wer entwickelte die Relativitätstheorie?", options: ["Albert Einstein", "Isaac Newton", "Galileo Galilei", "Nikola Tesla"], answer: "Albert Einstein", difficulty: "mittel" },
+  { q: "Welches Land ist flächenmäßig das größte der Welt?", options: ["Russland", "Kanada", "China", "USA"], answer: "Russland", difficulty: "mittel" },
+  { q: "Wie viele Beine hat eine Spinne?", options: ["8", "6", "10", "4"], answer: "8", difficulty: "mittel" },
+  { q: "Welcher Komponist schrieb die 'Zauberflöte'?", options: ["Mozart", "Beethoven", "Bach", "Wagner"], answer: "Mozart", difficulty: "mittel" },
+  { q: "Welche Hauptstadt gehört zu Kanada?", options: ["Ottawa", "Toronto", "Vancouver", "Montreal"], answer: "Ottawa", difficulty: "mittel" },
+  { q: "Welcher Planet ist als 'Roter Planet' bekannt?", options: ["Mars", "Venus", "Merkur", "Jupiter"], answer: "Mars", difficulty: "mittel" },
+  { q: "Welches Gas brauchen Pflanzen für die Fotosynthese?", options: ["Kohlendioxid", "Sauerstoff", "Stickstoff", "Helium"], answer: "Kohlendioxid", difficulty: "mittel" },
+  { q: "Wie nennt man die Lehre von den Sternen?", options: ["Astronomie", "Astrologie", "Geologie", "Meteorologie"], answer: "Astronomie", difficulty: "mittel" },
+  { q: "Welches Land erfand die Pizza?", options: ["Italien", "Griechenland", "Spanien", "Türkei"], answer: "Italien", difficulty: "mittel" },
+  { q: "Welcher deutsche Dichter schrieb 'Die Räuber'?", options: ["Friedrich Schiller", "Goethe", "Heinrich Heine", "Theodor Fontane"], answer: "Friedrich Schiller", difficulty: "mittel" },
+  { q: "Wie viele Grad hat ein rechter Winkel?", options: ["90", "180", "45", "360"], answer: "90", difficulty: "mittel" },
+  { q: "Welche Stadt ist die Hauptstadt Italiens?", options: ["Rom", "Mailand", "Neapel", "Florenz"], answer: "Rom", difficulty: "mittel" },
+  { q: "Welcher Wissenschaftler entdeckte die Schwerkraft (der Legende nach am Apfel)?", options: ["Isaac Newton", "Albert Einstein", "Galilei", "Kopernikus"], answer: "Isaac Newton", difficulty: "mittel" },
+  { q: "Welches Tier ist das schnellste der Welt (an Land)?", options: ["Gepard", "Löwe", "Pferd", "Antilope"], answer: "Gepard", difficulty: "mittel" },
+  { q: "Welche Farbe hat Smaragd?", options: ["Grün", "Rot", "Blau", "Gelb"], answer: "Grün", difficulty: "mittel" },
+
+  // ── SCHWER ──
+  { q: "Wie heißt die Hauptstadt von Kasachstan?", options: ["Astana", "Almaty", "Taschkent", "Bischkek"], answer: "Astana", difficulty: "schwer", funFact: "Die Stadt hieß zeitweise auch Nur-Sultan." },
+  { q: "Welches Element hat die Ordnungszahl 79?", options: ["Gold", "Silber", "Platin", "Quecksilber"], answer: "Gold", difficulty: "schwer" },
+  { q: "Wer schrieb den Roman 'Der Prozess'?", options: ["Franz Kafka", "Thomas Mann", "Hermann Hesse", "Robert Musil"], answer: "Franz Kafka", difficulty: "schwer" },
+  { q: "Welcher Fluss ist der längste der Welt?", options: ["Nil", "Amazonas", "Jangtse", "Mississippi"], answer: "Nil", difficulty: "schwer", funFact: "Über die genaue Länge wird bis heute gestritten." },
+  { q: "In welchem Jahr fiel die Berliner Mauer?", options: ["1989", "1990", "1987", "1991"], answer: "1989", difficulty: "schwer" },
+  { q: "Wie heißt die kleinste Knochengruppe im menschlichen Körper (im Ohr)?", options: ["Gehörknöchelchen", "Steigbügelband", "Trommelfellknochen", "Schädelnaht"], answer: "Gehörknöchelchen", difficulty: "schwer", funFact: "Hammer, Amboss und Steigbügel." },
+  { q: "Welcher Maler schuf 'Guernica'?", options: ["Pablo Picasso", "Salvador Dalí", "Joan Miró", "Diego Rivera"], answer: "Pablo Picasso", difficulty: "schwer" },
+  { q: "Welche Stadt war Hauptstadt des Byzantinischen Reiches?", options: ["Konstantinopel", "Athen", "Rom", "Alexandria"], answer: "Konstantinopel", difficulty: "schwer" },
+  { q: "Wie heißt das größte Organ des menschlichen Körpers?", options: ["Haut", "Leber", "Lunge", "Darm"], answer: "Haut", difficulty: "schwer" },
+  { q: "Welcher Planet hat die meisten bekannten Monde?", options: ["Saturn", "Jupiter", "Uranus", "Neptun"], answer: "Saturn", difficulty: "schwer" },
+  { q: "Wer komponierte die Oper 'Der Ring des Nibelungen'?", options: ["Richard Wagner", "Giuseppe Verdi", "Richard Strauss", "Gustav Mahler"], answer: "Richard Wagner", difficulty: "schwer" },
+  { q: "Welches Land hat die meisten Zeitzonen?", options: ["Frankreich", "Russland", "USA", "China"], answer: "Frankreich", difficulty: "schwer", funFact: "Dank seiner Überseegebiete hat Frankreich zwölf Zeitzonen." },
+  { q: "In welchem Jahr begann der Erste Weltkrieg?", options: ["1914", "1912", "1918", "1916"], answer: "1914", difficulty: "schwer" },
+  { q: "Welche Einheit misst die elektrische Spannung?", options: ["Volt", "Ampere", "Watt", "Ohm"], answer: "Volt", difficulty: "schwer" },
+  { q: "Wer schrieb 'Hundert Jahre Einsamkeit'?", options: ["Gabriel García Márquez", "Mario Vargas Llosa", "Jorge Luis Borges", "Isabel Allende"], answer: "Gabriel García Márquez", difficulty: "schwer" },
+  { q: "Welcher Stoff lässt Blut rot erscheinen?", options: ["Hämoglobin", "Melanin", "Chlorophyll", "Keratin"], answer: "Hämoglobin", difficulty: "schwer" },
+  { q: "Welche antike Stadt wurde 79 n. Chr. vom Vesuv verschüttet?", options: ["Pompeji", "Troja", "Karthago", "Sparta"], answer: "Pompeji", difficulty: "schwer" },
+  { q: "Welcher Komponist wurde in Bonn geboren?", options: ["Ludwig van Beethoven", "Johann Sebastian Bach", "Johannes Brahms", "Robert Schumann"], answer: "Ludwig van Beethoven", difficulty: "schwer" },
+  { q: "Wie viele Herzen hat ein Oktopus?", options: ["3", "1", "2", "4"], answer: "3", difficulty: "schwer" },
+  { q: "Welches Land grenzt an die meisten anderen Länder?", options: ["China", "Russland", "Brasilien", "Deutschland"], answer: "China", difficulty: "schwer", funFact: "China und Russland teilen sich diesen Rekord mit je 14 Nachbarn." },
+  { q: "Welcher griechische Philosoph war Lehrer von Alexander dem Großen?", options: ["Aristoteles", "Platon", "Sokrates", "Epikur"], answer: "Aristoteles", difficulty: "schwer" },
+  { q: "Welche Stadt liegt auf zwei Kontinenten?", options: ["Istanbul", "Kairo", "Moskau", "Athen"], answer: "Istanbul", difficulty: "schwer", funFact: "Sie liegt in Europa und Asien." },
+  { q: "Welches Element ist das häufigste in der Erdkruste?", options: ["Sauerstoff", "Silizium", "Eisen", "Aluminium"], answer: "Sauerstoff", difficulty: "schwer" },
+  { q: "Wer malte die Decke der Sixtinischen Kapelle?", options: ["Michelangelo", "Raffael", "Leonardo da Vinci", "Tizian"], answer: "Michelangelo", difficulty: "schwer" },
+  { q: "Wie heißt die Hauptstadt von Neuseeland?", options: ["Wellington", "Auckland", "Christchurch", "Hamilton"], answer: "Wellington", difficulty: "schwer", funFact: "Nicht Auckland – ein häufiger Irrtum." },
+  { q: "Welcher Planet dreht sich auf der Seite liegend um die Sonne?", options: ["Uranus", "Neptun", "Saturn", "Venus"], answer: "Uranus", difficulty: "schwer" },
+  { q: "Welche Sprache hat weltweit die meisten Muttersprachler?", options: ["Mandarin-Chinesisch", "Englisch", "Spanisch", "Hindi"], answer: "Mandarin-Chinesisch", difficulty: "schwer" },
+  { q: "In welchem Jahr landeten erstmals Menschen auf dem Mond?", options: ["1969", "1972", "1965", "1971"], answer: "1969", difficulty: "schwer" },
+  { q: "Welcher Wissenschaftler stellte das Periodensystem auf?", options: ["Dmitri Mendelejew", "Niels Bohr", "Marie Curie", "John Dalton"], answer: "Dmitri Mendelejew", difficulty: "schwer" },
+  { q: "Welches Tier hat die längste Lebensdauer?", options: ["Grönlandhai", "Riesenschildkröte", "Elefant", "Papagei"], answer: "Grönlandhai", difficulty: "schwer", funFact: "Er kann über 400 Jahre alt werden." },
+  { q: "Welcher See ist der tiefste der Erde?", options: ["Baikalsee", "Tanganjikasee", "Kaspisches Meer", "Titicacasee"], answer: "Baikalsee", difficulty: "schwer" },
+  { q: "Wer schrieb die Tragödie 'Hamlet'?", options: ["William Shakespeare", "Christopher Marlowe", "Ben Jonson", "Molière"], answer: "William Shakespeare", difficulty: "schwer" },
+  { q: "Welche Stadt war Austragungsort der ersten modernen Olympischen Spiele 1896?", options: ["Athen", "Paris", "London", "Rom"], answer: "Athen", difficulty: "schwer" },
+  { q: "Wie viele Knochen hat ein erwachsener Mensch?", options: ["206", "201", "212", "198"], answer: "206", difficulty: "schwer" },
+  { q: "Welche Währung wird in der Schweiz verwendet?", options: ["Schweizer Franken", "Euro", "Schilling", "Krone"], answer: "Schweizer Franken", difficulty: "schwer" },
+  { q: "Welcher Künstler schnitt sich ein Ohrläppchen ab?", options: ["Vincent van Gogh", "Pablo Picasso", "Claude Monet", "Edvard Munch"], answer: "Vincent van Gogh", difficulty: "schwer" },
+  { q: "Welcher Forscher prägte den Begriff der natürlichen Selektion?", options: ["Charles Darwin", "Gregor Mendel", "Carl von Linné", "Alfred Wallace"], answer: "Charles Darwin", difficulty: "schwer" },
+  { q: "Welche Wüste ist die größte Heißwüste der Welt?", options: ["Sahara", "Gobi", "Kalahari", "Atacama"], answer: "Sahara", difficulty: "schwer" },
+  { q: "Welcher römische Kaiser ließ Rom angeblich brennen?", options: ["Nero", "Augustus", "Caligula", "Trajan"], answer: "Nero", difficulty: "schwer" },
+  { q: "Welches mathematische Symbol steht für die Kreiszahl?", options: ["π", "Σ", "Ω", "Δ"], answer: "π", difficulty: "schwer" },
+  { q: "In welchem Land liegt die antike Stätte Machu Picchu?", options: ["Peru", "Mexiko", "Bolivien", "Chile"], answer: "Peru", difficulty: "schwer" },
+  { q: "Welcher Physiker formulierte die drei Bewegungsgesetze?", options: ["Isaac Newton", "Albert Einstein", "Galileo Galilei", "James Maxwell"], answer: "Isaac Newton", difficulty: "schwer" },
+  { q: "Welche Pflanze ist botanisch gesehen ein Gras?", options: ["Bambus", "Farn", "Efeu", "Moos"], answer: "Bambus", difficulty: "schwer" },
+  { q: "Welche Stadt gilt als Sitz des Europäischen Parlaments?", options: ["Straßburg", "Brüssel", "Luxemburg", "Den Haag"], answer: "Straßburg", difficulty: "schwer", funFact: "Brüssel ist der zweite Tagungsort." },
+  { q: "Welcher Komponist war zum Zeitpunkt seines Todes vollständig taub?", options: ["Beethoven", "Mozart", "Schubert", "Haydn"], answer: "Beethoven", difficulty: "schwer" },
 ],
 };
+
+const GOTHIC_QUESTIONS = [
+  // ── EINFACH ──
+  { q: "Wie heißt der Protagonist der Gothic-Reihe?", options: ["Der namenlose Held", "Diego", "Xardas", "Gorn"], answer: "Der namenlose Held", difficulty: "einfach", funFact: "Es ist eine Eigenheit der Reihe, dass er nie seinen Namen nennt." },
+  { q: "Welches Entwicklerstudio schuf Gothic?", options: ["Piranha Bytes", "CD Projekt", "Crytek", "Blue Byte"], answer: "Piranha Bytes", difficulty: "einfach", funFact: "Das Studio saß im Ruhrgebiet." },
+  { q: "In welchem Jahr erschien das erste Gothic?", options: ["2001", "1999", "2003", "2005"], answer: "2001", difficulty: "einfach" },
+  { q: "Was umschließt im ersten Gothic die Strafkolonie?", options: ["Eine magische Barriere", "Eine hohe Mauer", "Ein Fluss", "Ein Wald"], answer: "Eine magische Barriere", difficulty: "einfach" },
+  { q: "Was wird in der Minenkolonie abgebaut?", options: ["Erz", "Gold", "Kohle", "Diamanten"], answer: "Erz", difficulty: "einfach", funFact: "Das magische Erz dient auch als Währung." },
+  { q: "Wer ist der erste Charakter, den der Held in Gothic kennenlernt?", options: ["Diego", "Gomez", "Xardas", "Lester"], answer: "Diego", difficulty: "einfach" },
+  { q: "Wie viele Lager gibt es im ersten Gothic?", options: ["Drei", "Zwei", "Vier", "Fünf"], answer: "Drei", difficulty: "einfach", funFact: "Altes Lager, Neues Lager und Sumpflager." },
+  { q: "Wer ist der Anführer des Alten Lagers?", options: ["Gomez", "Lee", "Y'Berion", "Lares"], answer: "Gomez", difficulty: "einfach" },
+  { q: "Welches Studio-Nachfolgespiel setzt die Geschichte fort: Gothic ___?", options: ["II", "Reborn", "Online", "Legends"], answer: "II", difficulty: "einfach" },
+  { q: "Wie heißt der mächtige Magier, der dem Helden hilft?", options: ["Xardas", "Corristo", "Saturas", "Pyrokar"], answer: "Xardas", difficulty: "einfach", funFact: "Xardas ist ein Dämonenbeschwörer." },
+  { q: "Welches Wesen wird am Ende von Gothic 1 besiegt?", options: ["Der Schläfer", "Ein Drache", "Ein Troll", "Ein Ork-General"], answer: "Der Schläfer", difficulty: "einfach" },
+  { q: "Auf welcher Insel spielt Gothic 2?", options: ["Khorinis", "Myrtana", "Argaan", "Feshyr"], answer: "Khorinis", difficulty: "einfach" },
+  { q: "Welche Kreaturen bedrohen in Gothic 2 die 'Neue Welt'?", options: ["Orks und Drachen", "Trolle und Riesen", "Goblins und Skelette", "Piraten und Banditen"], answer: "Orks und Drachen", difficulty: "einfach" },
+  { q: "Wer entsendet in Gothic 2 seine Paladine nach Khorinis?", options: ["König Rhobar II.", "Gomez", "Xardas", "Lee"], answer: "König Rhobar II.", difficulty: "einfach" },
+  { q: "Wie heißt die offizielle Erweiterung zu Gothic 2?", options: ["Die Nacht des Raben", "Das Auge Innos", "Der Schläfer", "Die Barriere"], answer: "Die Nacht des Raben", difficulty: "einfach" },
+
+  // ── MITTEL ──
+  { q: "Wie heißen die Anführer des Alten Lagers, denen Gomez vorsteht?", options: ["Erzbarone", "Gurus", "Paladine", "Magnaten"], answer: "Erzbarone", difficulty: "mittel" },
+  { q: "Welche Schicht baut im Alten Lager das Erz in den Minen ab?", options: ["Buddler", "Schatten", "Gardisten", "Novizen"], answer: "Buddler", difficulty: "mittel" },
+  { q: "Wie nennt man die Händler, Diebe und Jäger des Alten Lagers?", options: ["Schatten", "Gardisten", "Buddler", "Templer"], answer: "Schatten", difficulty: "mittel" },
+  { q: "Welcher Magierkreis ist im Alten Lager beheimatet?", options: ["Kreis des Feuers", "Kreis des Wassers", "Kreis des Sturms", "Kreis der Erde"], answer: "Kreis des Feuers", difficulty: "mittel", funFact: "Die Feuermagier dienen Innos." },
+  { q: "Welche Sekte lebt im Sumpflager?", options: ["Sekte des Schläfers", "Bruderschaft des Erzes", "Orden der Barriere", "Zirkel des Sumpfes"], answer: "Sekte des Schläfers", difficulty: "mittel" },
+  { q: "Wer ist der Anführer des Sumpflagers in Gothic 1?", options: ["Y'Berion", "Cor Kalom", "Gomez", "Lee"], answer: "Y'Berion", difficulty: "mittel" },
+  { q: "Welches berauschende Handelsgut baut das Sumpflager an?", options: ["Sumpfkraut", "Schwarzes Erz", "Königsblau", "Beinwell"], answer: "Sumpfkraut", difficulty: "mittel" },
+  { q: "Wie heißt der Söldner-Anführer im Neuen Lager?", options: ["Lee", "Gorn", "Lares", "Torlof"], answer: "Lee", difficulty: "mittel", funFact: "Lee war einst ein General des Königs." },
+  { q: "Welcher spätere Begleiter ist ein Söldner, der wegen Ketzerei in die Barriere kam?", options: ["Gorn", "Milten", "Lester", "Diego"], answer: "Gorn", difficulty: "mittel" },
+  { q: "Welcher Gott steht in Gothic für das Licht und die Ordnung?", options: ["Innos", "Beliar", "Adanos", "Rhobar"], answer: "Innos", difficulty: "mittel", funFact: "Beliar ist sein finsterer Gegenspieler." },
+  { q: "Welches Artefakt kann in Gothic 2 die Drachen kurzzeitig zähmen?", options: ["Das Auge Innos", "Die Klaue Beliars", "Der Fokusstein", "Der Ulu-Mulu"], answer: "Das Auge Innos", difficulty: "mittel" },
+  { q: "Welcher Gegenstand ist das finstere Gegenstück zum Auge Innos?", options: ["Die Klaue Beliars", "Der Schläferstein", "Das Herz des Drachen", "Der Orkschild"], answer: "Die Klaue Beliars", difficulty: "mittel" },
+  { q: "Aus welchen Ruinen befreit Xardas den Helden zu Beginn von Gothic 2?", options: ["Dem Schläfertempel", "Der Garnisonsburg", "Der Alten Mine", "Dem Orkfriedhof"], answer: "Dem Schläfertempel", difficulty: "mittel" },
+  { q: "Wie heißt die Hafenstadt, die in Gothic 2 zur zentralen Spielwelt wird?", options: ["Khorinis", "Vengard", "Geldern", "Silden"], answer: "Khorinis", difficulty: "mittel" },
+  { q: "Welche drei Gilden kann der Held in Gothic 2 wählen?", options: ["Söldner, Miliz/Paladin, Feuermagier", "Schatten, Gardist, Buddler", "Novize, Templer, Guru", "Pirat, Bandit, Nomade"], answer: "Söldner, Miliz/Paladin, Feuermagier", difficulty: "mittel" },
+  { q: "Welcher Großbauer führt in Gothic 2 den Aufstand gegen die Stadt an?", options: ["Onar", "Akil", "Sekob", "Lobart"], answer: "Onar", difficulty: "mittel", funFact: "Onars Söldner sind eine eigene Fraktion." },
+  { q: "Welches neue Gebiet führt 'Die Nacht des Raben' ein?", options: ["Jharkendar", "Myrtana", "Nordmar", "Varant"], answer: "Jharkendar", difficulty: "mittel" },
+  { q: "Wer ist der Bösewicht, nach dem das Add-on 'Die Nacht des Raben' benannt ist?", options: ["Raven", "Gomez", "Xardas", "Cor Angar"], answer: "Raven", difficulty: "mittel", funFact: "Raven war früher ein Erzbaron des Alten Lagers." },
+  { q: "Welche Fraktion lebt im Sumpf von Jharkendar?", options: ["Banditen", "Paladine", "Templer", "Gardisten"], answer: "Banditen", difficulty: "mittel" },
+  { q: "Welche Magier öffnen in Jharkendar das Portal und erforschen das Alte Volk?", options: ["Wassermagier", "Feuermagier", "Nekromanten", "Steinmagier"], answer: "Wassermagier", difficulty: "mittel" },
+  { q: "Welches Volk hat Jharkendar in grauer Vorzeit bewohnt?", options: ["Das Alte Volk", "Die Orks", "Die Paladine", "Die Nomaden"], answer: "Das Alte Volk", difficulty: "mittel" },
+  { q: "Welcher Wassermagier predigt in der Stadt Khorinis?", options: ["Vatras", "Saturas", "Myxir", "Cronos"], answer: "Vatras", difficulty: "mittel" },
+  { q: "Wie heißt der Anführer der Wassermagier in Gothic?", options: ["Saturas", "Vatras", "Cronos", "Nefarius"], answer: "Saturas", difficulty: "mittel" },
+  { q: "Welcher Erzbaron-Begleiter ist ein Feuermagier-Lehrling und treuer Freund des Helden?", options: ["Milten", "Gorn", "Diego", "Lester"], answer: "Milten", difficulty: "mittel" },
+  { q: "Welcher lebenslustige Begleiter aus dem Sumpflager kifft gern?", options: ["Lester", "Milten", "Gorn", "Mud"], answer: "Lester", difficulty: "mittel" },
+  { q: "Wofür benötigt der Held in Gothic 2 das Auge Innos?", options: ["Um die Drachen zu befragen", "Um die Barriere zu öffnen", "Um Erz zu schmelzen", "Um Xardas zu finden"], answer: "Um die Drachen zu befragen", difficulty: "mittel" },
+  { q: "Welcher Publisher veröffentlichte Gothic 2?", options: ["JoWooD", "Electronic Arts", "Ubisoft", "THQ"], answer: "JoWooD", difficulty: "mittel" },
+  { q: "Was muss man in Gothic 1 herstellen, um ins Orklager zu gelangen?", options: ["Den Ulu-Mulu", "Den Fokusstein", "Die Klaue Beliars", "Das Auge Innos"], answer: "Den Ulu-Mulu", difficulty: "mittel" },
+  { q: "Welche Mittelalter-Rockband hat im Alten Lager einen Cameo-Auftritt?", options: ["In Extremo", "Subway to Sally", "Schandmaul", "Saltatio Mortis"], answer: "In Extremo", difficulty: "mittel", funFact: "Sie spielen das Lied 'Herr Mannelig'." },
+  { q: "Welche Waffe sucht Raven in Jharkendar?", options: ["Die Klaue Beliars", "Das Auge Innos", "Uriziel", "Den Orkschläger"], answer: "Die Klaue Beliars", difficulty: "mittel" },
+  { q: "Welche neue Fähigkeit kann man in 'Die Nacht des Raben' beim Erreichen von 90 Geschick erlernen?", options: ["Akrobatik", "Schleichen", "Schlösserknacken", "Schmieden"], answer: "Akrobatik", difficulty: "mittel" },
+  { q: "Welche Steintafeln erhöhen in Jharkendar die Attribute des Helden?", options: ["Steintafeln des Alten Volkes", "Runen der Magier", "Erzplatten", "Schriftrollen Beliars"], answer: "Steintafeln des Alten Volkes", difficulty: "mittel" },
+  { q: "Welcher Wassermagier löst am Ende des Add-ons Vatras in Khorinis ab?", options: ["Myxir", "Cronos", "Riordian", "Merdarion"], answer: "Myxir", difficulty: "mittel" },
+  { q: "Welcher Film diente als Inspiration für die abgeschottete Spielwelt?", options: ["Die Klapperschlange", "Mad Max", "Conan", "Highlander"], answer: "Die Klapperschlange", difficulty: "mittel", funFact: "Das abgeschottete Manhattan wurde zum Minental." },
+  { q: "Welche spätere erfolgreiche Spielreihe nennt Gothic als Inspiration?", options: ["The Witcher", "Skyrim", "Dark Souls", "Dragon Age"], answer: "The Witcher", difficulty: "mittel", funFact: "CD Projekt lokalisierte Gothic in Polen." },
+  { q: "Welcher Torwächter der Burg im Alten Lager stellt dem Helden eine Prüfung?", options: ["Thorus", "Scar", "Kirgo", "Fisk"], answer: "Thorus", difficulty: "mittel" },
+
+  // ── SCHWER ──
+  { q: "Wie heißt das legendäre Schwert, das der Held in Gothic 1 in Kapitel 5 erlangt?", options: ["Uriziel", "Die Klaue Beliars", "Orkschläger", "Drachentöter"], answer: "Uriziel", difficulty: "schwer" },
+  { q: "Wie viele Fokussteine muss der Held in Gothic 1 bergen?", options: ["Vier", "Drei", "Fünf", "Zwei"], answer: "Vier", difficulty: "schwer", funFact: "Mit ihnen wird der Schläfer beschworen." },
+  { q: "Aus wie vielen Kapiteln besteht Gothic 1?", options: ["Sechs", "Fünf", "Vier", "Sieben"], answer: "Sechs", difficulty: "schwer" },
+  { q: "Welcher Guru des Sumpflagers braut die Tränke und leitet das Schläfer-Ritual?", options: ["Cor Kalom", "Y'Berion", "Cor Angar", "Gor Na Drak"], answer: "Cor Kalom", difficulty: "schwer" },
+  { q: "Wie heißt der Zweihand-Lehrer der Templer im Sumpflager (Gothic 1)?", options: ["Cor Angar", "Thorus", "Lee", "Lares"], answer: "Cor Angar", difficulty: "schwer" },
+  { q: "Welcher Schatten-Anführer im Neuen Lager organisiert die Diebe?", options: ["Lares", "Lee", "Gorn", "Mordrag"], answer: "Lares", difficulty: "schwer" },
+  { q: "Wie heißt der untote Endgegner in den Hallen von Irdorath in Gothic 2?", options: ["Der untote Drache", "Der Schläfer", "Raven", "Beliar"], answer: "Der untote Drache", difficulty: "schwer", funFact: "Er wurde aus der Seele des Schläfers beschworen." },
+  { q: "Welcher Gott steht in der Gothic-Welt für Gleichgewicht und Wasser?", options: ["Adanos", "Innos", "Beliar", "Rhobar"], answer: "Adanos", difficulty: "schwer", funFact: "Die Wassermagier dienen Adanos." },
+  { q: "Wie viele Drachen muss der Held in Gothic 2 im Minental bekämpfen?", options: ["Vier", "Drei", "Fünf", "Zwei"], answer: "Vier", difficulty: "schwer", funFact: "Feuer-, Eis-, Sumpf- und Felsdrache." },
+  { q: "In welche Region gelangt man in Gothic 2, um die Drachen zu stellen?", options: ["Das Minental", "Jharkendar", "Nordmar", "Die Stadt Khorinis"], answer: "Das Minental", difficulty: "schwer" },
+  { q: "Welcher rätselhafte Mann mit Augenklappe begegnet dem Helden früh im Add-on?", options: ["Ein Pirat", "Ein Paladin", "Ein Nomade", "Ein Drachenjäger"], answer: "Ein Pirat", difficulty: "schwer" },
+  { q: "In welchem Grab in Jharkendar findet man die Magische Armbrust?", options: ["Grab von Quarhodron", "Tempel des Adanos", "Ravens Mine", "Halle von Irdorath"], answer: "Grab von Quarhodron", difficulty: "schwer" },
+  { q: "Welche Wirkung hat das 'Schwarze Erz' in Gothic 2?", options: ["Es verlangsamt die Zeit", "Es heilt vollständig", "Es macht unsichtbar", "Es erhöht die Stärke"], answer: "Es verlangsamt die Zeit", difficulty: "schwer" },
+  { q: "Wie heißt der Oberhaupt der Feuermagier im Kloster von Khorinis?", options: ["Pyrokar", "Vatras", "Saturas", "Corristo"], answer: "Pyrokar", difficulty: "schwer" },
+  { q: "Welcher Feuermagier leitet in Gothic 1 den Kreis im Alten Lager?", options: ["Corristo", "Pyrokar", "Milten", "Saturas"], answer: "Corristo", difficulty: "schwer" },
+  { q: "Welcher Erzbaron tötete einst Y'Berion nicht, sondern wurde selbst zum Verräter und floh nach Jharkendar?", options: ["Raven", "Gomez", "Arto", "Kirgo"], answer: "Raven", difficulty: "schwer" },
+  { q: "Welche Gruppe jagt im Sumpf von Jharkendar Drachen?", options: ["Die Drachenjäger", "Die Paladine", "Die Templer", "Die Assassinen"], answer: "Die Drachenjäger", difficulty: "schwer" },
+  { q: "Was raubt das Add-on zufolge den Bewohnern Khorinis' – sie verschwinden?", options: ["Sie werden als Sklaven verschleppt", "Sie fliehen vor den Orks", "Sie sterben an einer Seuche", "Sie schließen sich Onar an"], answer: "Sie werden als Sklaven verschleppt", difficulty: "schwer", funFact: "Piraten verkaufen sie an die Banditen." },
+  { q: "Wie heißen die östlichen Beschwörungstempel Beliars, in denen das Finale von Gothic 2 spielt?", options: ["Hallen von Irdorath", "Tempel des Schläfers", "Ruinen von Jharkendar", "Grab des Quarhodron"], answer: "Hallen von Irdorath", difficulty: "schwer" },
+  { q: "Welcher letzte Befehl des Schläfers lockte die Orks ins Minental?", options: ["'Kommt'", "'Tötet'", "'Erwacht'", "'Folgt mir'"], answer: "'Kommt'", difficulty: "schwer" },
+  { q: "Welcher Begleiter bleibt neben Diego und Gorn im Minental von Gothic 2 zurück?", options: ["Milten", "Lester", "Lee", "Lares"], answer: "Milten", difficulty: "schwer" },
+  { q: "Welche Sprache kann der Held im Add-on lernen, um Steintafeln zu lesen?", options: ["Die des Alten Volkes", "Orkisch", "Die Drachensprache", "Altmyrtanisch"], answer: "Die des Alten Volkes", difficulty: "schwer" },
+  { q: "Wie heißt der nervige NPC im Gothic-1-Remake, den man als Trophäe loswerden kann?", options: ["Mud", "Bloodwyn", "Fisk", "Snaf"], answer: "Mud", difficulty: "schwer", funFact: "Die zugehörige Trophäe heißt 'Wahnsinn'." },
+  { q: "Welcher Söldner soll laut Thorus' Prüfung aus dem Alten Lager verscheucht werden?", options: ["Mordrag", "Gorn", "Lee", "Lares"], answer: "Mordrag", difficulty: "schwer" },
+  { q: "Welches Buch schenkt Diego dem Helden zu Beginn von Gothic 2?", options: ["Das Glossar", "Das Auge Innos", "Die Chronik", "Das Runenbuch"], answer: "Das Glossar", difficulty: "schwer" },
+  { q: "Welcher Drache in Gothic 2 ist ein Eisdrache?", options: ["Einer der vier Minental-Drachen", "Raven", "Der Schläfer", "Der untote Drache"], answer: "Einer der vier Minental-Drachen", difficulty: "schwer" },
+  { q: "Aus welchem zerstörten Objekt besteht die Rampe zur belagerten Burg im Minental (Gothic 2)?", options: ["Einem Rammbock", "Einem Turm", "Einer Brücke", "Einem Wagen"], answer: "Einem Rammbock", difficulty: "schwer" },
+  { q: "Welche Fraktion errichtete an der Westküste Jharkendars ihr Lager?", options: ["Piraten", "Paladine", "Nomaden", "Templer"], answer: "Piraten", difficulty: "schwer" },
+  { q: "Wie heißt der Orkwall im Minental?", options: ["Sammelpunkt der Orktruppen", "Die innere Burg", "Der Drachenfels", "Die Schläferhalle"], answer: "Sammelpunkt der Orktruppen", difficulty: "schwer" },
+  { q: "Welcher Wassermagier ist ein berühmter 'Weltenwechsler', der in Khorinis und Jharkendar existiert?", options: ["Merdarion", "Vatras", "Saturas", "Cronos"], answer: "Merdarion", difficulty: "schwer" },
+  { q: "In welchem Kapitel von Gothic 1 endet das Spiel mit dem Tempel-Finale?", options: ["Kapitel 6", "Kapitel 5", "Kapitel 4", "Kapitel 7"], answer: "Kapitel 6", difficulty: "schwer" },
+  { q: "Welches Ereignis beendet Kapitel 1 in Gothic 1?", options: ["Der Beitritt zu einem Lager", "Das Fokus-Ritual", "Der Erhalt von Uriziel", "Die Drachenjagd"], answer: "Der Beitritt zu einem Lager", difficulty: "schwer" },
+  { q: "Welcher Magier des Wasserkreises hat sein Quartier in der verlassenen Stadt Jharkendars?", options: ["Saturas", "Pyrokar", "Corristo", "Milten"], answer: "Saturas", difficulty: "schwer" },
+  { q: "Welche Rüstung nutzt der Held, um sich bei den Banditen einzuschleichen?", options: ["Eine Piratenrüstung", "Eine Paladinrüstung", "Eine Templerrüstung", "Eine Erzrüstung"], answer: "Eine Piratenrüstung", difficulty: "schwer" },
+  { q: "Welcher Bauer betreibt nördlich von Khorinis eine versteckte Schwarzbrennerei?", options: ["Vino", "Onar", "Lobart", "Akil"], answer: "Vino", difficulty: "schwer", funFact: "Zum Öffnen der Winde braucht man Moleratfett." },
+  { q: "Welcher US-Zensur fiel in Gothic eine badende Sklavin zum Opfer?", options: ["Sie bekam einen BH verpasst", "Sie wurde entfernt", "Sie wurde bekleidet ergänzt", "Die Szene wurde geschnitten"], answer: "Sie bekam einen BH verpasst", difficulty: "schwer" },
+  { q: "Welches Tierfett wird benötigt, um Vinos Brennerei-Winde zu öffnen?", options: ["Moleratfett", "Scavengerfett", "Wolfsfett", "Lurkerfett"], answer: "Moleratfett", difficulty: "schwer" },
+  { q: "Welcher Bonus winkt für einen waghalsigen Sprung in eine Höhlenspalte (Stunt-Bonus)?", options: ["100 XP", "50 XP", "200 XP", "500 XP"], answer: "100 XP", difficulty: "schwer", funFact: "Wiederholt man es, gibt es einen Malus von −100 XP." },
+  { q: "Welches versteckte Easteregg findet man per Flug-Cheat in Jharkendars Canyon?", options: ["Ein Auto", "Ein Raumschiff", "Ein Telefon", "Eine Gitarre"], answer: "Ein Auto", difficulty: "schwer" },
+  { q: "Welcher Sprecher lieh dem namenlosen Helden in Gothic seine Stimme?", options: ["Christian Wewerka", "Uwe Koschel", "Helge Heynold", "Thomas Nero Wolff"], answer: "Christian Wewerka", difficulty: "schwer" },
+  { q: "Welche mindestens benötigte Version des Add-ons ermöglicht das Modden von Gothic 2?", options: ["Version 2.6", "Version 1.0", "Version 2.0", "Version 3.0"], answer: "Version 2.6", difficulty: "schwer" },
+  { q: "Welcher Drachenjäger-Anführer trainiert den Helden im Umgang mit schweren Waffen (NdR)?", options: ["Es gibt mehrere Drachenjäger-Lehrer", "Saturas", "Pyrokar", "Lee"], answer: "Es gibt mehrere Drachenjäger-Lehrer", difficulty: "schwer" },
+  { q: "Welche Gottheit beriefen laut Vatras' Predigt schon zu Anbeginn der Zeit Avatare?", options: ["Innos und Beliar", "Adanos allein", "Rhobar", "Die Drachen"], answer: "Innos und Beliar", difficulty: "schwer" },
+  { q: "Wie heißt der Hauptgegner-Drache aus Beliars Seele am Ende von Gothic 2?", options: ["Der untote Drache", "Der Feuerdrache", "Der Eisdrache", "Der Felsdrache"], answer: "Der untote Drache", difficulty: "schwer" },
+  { q: "Welcher Magier verlässt zu Beginn von Gothic 2 seinen Turm nicht und schickt den Helden los?", options: ["Xardas", "Saturas", "Pyrokar", "Vatras"], answer: "Xardas", difficulty: "schwer" },
+];
 
 const TOPICS = [
   { id: "laender", label: "Länder", icon: "🌍", desc: "Flaggen, Hauptstädte & Kontinente" },
@@ -683,7 +1045,9 @@ const TOPICS = [
   { id: "film_musik", label: "Filme & Musik", icon: "🎬", desc: "Kino, Bands & Klassik" },
   { id: "tiere", label: "Tiere", icon: "🐾", desc: "Arten, Rekorde & Kurioses" },
   { id: "essen", label: "Essen & Trinken", icon: "🍕", desc: "Küchen, Zutaten & Herkunft" },
+  { id: "allgemein", label: "Allgemeinwissen", icon: "🧠", desc: "Quiz-Klassiker quer durch alle Gebiete" },
   { id: "mix", label: "Bunter Mix", icon: "🎲", desc: "Fragen aus allen Themen gemischt" },
+  { id: "gothic", label: "Gothic", icon: "⚔️", desc: "Geheimes Thema: Gothic 1 & 2", secret: true },
 ];
 
 function shuffle(arr) {
@@ -794,6 +1158,8 @@ const TOPIC_ICONS = {
   film_musik: "🎬",
   tiere: "🐾",
   essen: "🍽️",
+  allgemein: "🧠",
+  gothic: "⚔️",
 };
 
 // Seeded RNG (mulberry32) for the daily challenge — same questions for everyone per day
@@ -874,6 +1240,16 @@ function buildRound(total, topic, allowedTypes, diff) {
   }
   if (topic === "mix") {
     return buildMixRound(total, onlyDiff);
+  }
+  // Gothic: separate secret pool, never part of mix/daily
+  if (topic === "gothic") {
+    let pool = GOTHIC_QUESTIONS;
+    if (onlyDiff) pool = pool.filter(it => it.difficulty === onlyDiff);
+    const avoid = recentSet("gothic");
+    const picked = balancedPickTopic(pool, total, avoid);
+    const qs = picked.map(item => makeTopicQuestion(item, "gothic"));
+    rememberQuestions("gothic", qs, pool.length);
+    return qs;
   }
   // Generic topic
   let pool = TOPIC_QUESTIONS[topic] || [];
@@ -987,8 +1363,8 @@ const DIFFICULTY_LEVELS = [
 // ── Online-Rangliste (Supabase) ───────────────────────────────
 // Trage hier deine zwei Supabase-Werte ein, dann ist die Rangliste live.
 // Anleitung bekommst du von Claude. Solange leer, zeigt die App einen Hinweis.
-const SUPABASE_URL = "";      // z.B. "https://abcdxyz.supabase.co"
-const SUPABASE_KEY = "";      // der "anon public" Key
+const SUPABASE_URL = "https://kxyqvqjxtyjmykbnfjoa.supabase.co";      // z.B. "https://abcdxyz.supabase.co"
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt4eXF2cWp4dHlqbXlrYm5mam9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI1MTcxMDEsImV4cCI6MjA5ODA5MzEwMX0.C1g89hTdCe2TzeJFCCR4wFK5iJ5zFnQODpZQCMYB1gA";      // der "anon public" Key
 const LEADERBOARD_ENABLED = SUPABASE_URL !== "" && SUPABASE_KEY !== "";
 
 async function fetchLeaderboard() {
@@ -1001,21 +1377,73 @@ async function fetchLeaderboard() {
 }
 
 async function submitScore(name, score, topic) {
+  const cleanName = name.slice(0, 20);
+  // Vorhandenen Bestwert für diesen Namen prüfen
+  let existing = null;
+  try {
+    const r = await fetch(
+      `${SUPABASE_URL}/rest/v1/scores?select=score&name=eq.${encodeURIComponent(cleanName)}`,
+      { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } }
+    );
+    if (r.ok) { const rows = await r.json(); existing = rows[0]?.score ?? null; }
+  } catch (e) { /* ignore */ }
+  // Nur eintragen/überschreiben, wenn neuer Wert höher ist (oder noch keiner existiert)
+  if (existing !== null && score <= existing) {
+    return { skipped: true, best: existing };
+  }
   const res = await fetch(`${SUPABASE_URL}/rest/v1/scores`, {
     method: "POST",
     headers: {
       apikey: SUPABASE_KEY,
       Authorization: `Bearer ${SUPABASE_KEY}`,
       "Content-Type": "application/json",
-      Prefer: "return=minimal",
+      Prefer: "resolution=merge-duplicates,return=minimal",
     },
-    body: JSON.stringify({ name: name.slice(0, 20), score, topic }),
+    body: JSON.stringify({ name: cleanName, score, topic }),
   });
   if (!res.ok) throw new Error("Eintrag konnte nicht gespeichert werden.");
+  return { skipped: false };
+}
+
+// ── Daily-Rangliste (eigene Tabelle 'daily_scores' mit Streak) ──
+async function fetchDailyLeaderboard() {
+  const res = await fetch(
+    `${SUPABASE_URL}/rest/v1/daily_scores?select=name,score,streak,day,created_at&order=score.desc&limit=20`,
+    { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } }
+  );
+  if (!res.ok) throw new Error("Tages-Rangliste konnte nicht geladen werden.");
+  return res.json();
+}
+
+async function submitDailyScore(name, score, streak, day) {
+  const cleanName = name.slice(0, 20);
+  let existing = null;
+  try {
+    const r = await fetch(
+      `${SUPABASE_URL}/rest/v1/daily_scores?select=score&name=eq.${encodeURIComponent(cleanName)}`,
+      { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } }
+    );
+    if (r.ok) { const rows = await r.json(); existing = rows[0]?.score ?? null; }
+  } catch (e) { /* ignore */ }
+  if (existing !== null && score <= existing) {
+    return { skipped: true, best: existing };
+  }
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/daily_scores`, {
+    method: "POST",
+    headers: {
+      apikey: SUPABASE_KEY,
+      Authorization: `Bearer ${SUPABASE_KEY}`,
+      "Content-Type": "application/json",
+      Prefer: "resolution=merge-duplicates,return=minimal",
+    },
+    body: JSON.stringify({ name: cleanName, score, streak, day }),
+  });
+  if (!res.ok) throw new Error("Tages-Eintrag konnte nicht gespeichert werden.");
+  return { skipped: false };
 }
 
 // ── App-Version & lokaler Speicher ────────────────────────────
-const APP_VERSION = "2.3"; // bei neuen Updates hochzählen, dann erscheint "Was ist neu?"
+const APP_VERSION = "2.8"; // bei neuen Updates hochzählen, dann erscheint "Was ist neu?"
 
 const store = {
   get(key, fallback) {
@@ -1058,7 +1486,8 @@ export default function LaenderDuell() {
   const [gameMode, setGameMode] = useState("solo");
   // Jokers (per round)
   const [fiftyUsed, setFiftyUsed] = useState(false);
-  const [skipUsed, setSkipUsed] = useState(false);
+  const [secondChanceArmed, setSecondChanceArmed] = useState(false); // Joker aktiviert, noch nicht verbraucht
+  const [secondChanceUsed, setSecondChanceUsed] = useState(false);   // Joker in dieser Runde schon genutzt
   const [hiddenOptions, setHiddenOptions] = useState([]); // options removed by 50:50
   // Duel
   const [duelPlayer, setDuelPlayer] = useState(1);        // 1 or 2
@@ -1073,12 +1502,20 @@ export default function LaenderDuell() {
   const [lbEntries, setLbEntries] = useState([]);
   const [lbLoading, setLbLoading] = useState(false);
   const [lbError, setLbError] = useState("");
-  const [playerName, setPlayerName] = useState("");
+  const [playerName, setPlayerName] = useState(() => store.get("qd_playerName", ""));
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  // Daily leaderboard + tab switch ("solo" | "daily")
+  const [lbTab, setLbTab] = useState("solo");
+  const [dailyLbEntries, setDailyLbEntries] = useState([]);
+  const [dailySubmitted, setDailySubmitted] = useState(false);
+  // Profil: Name-Eingabe-Overlay (beim ersten Start oder zum Ändern)
+  const [showNamePrompt, setShowNamePrompt] = useState(false);
+  const [nameInput, setNameInput] = useState("");
 
   // Persistent progress (saved to device storage)
   const [highscore, setHighscore] = useState(() => store.get("qd_highscore", 0));
+  const [dailyHighscore, setDailyHighscore] = useState(() => store.get("qd_dailyHighscore", 0));
   const [totalXp, setTotalXp] = useState(() => store.get("qd_totalXp", 0));
   const [gamesPlayed, setGamesPlayed] = useState(() => store.get("qd_gamesPlayed", 0));
 
@@ -1088,6 +1525,12 @@ export default function LaenderDuell() {
   // Daily challenge: remember the last completed day + its score
   const [dailyDone, setDailyDone] = useState(() => store.get("qd_dailyDone", { day: 0, score: 0 }));
   const [dailyStreak, setDailyStreak] = useState(() => store.get("qd_dailyStreak", 0));
+
+  // Gothic-Easter-Egg: freigeschaltet per Codewort (langes Tippen aufs Logo)
+  const [gothicUnlocked, setGothicUnlocked] = useState(() => store.get("qd_gothicUnlocked", false));
+  const [showSecretPrompt, setShowSecretPrompt] = useState(false);
+  const [secretInput, setSecretInput] = useState("");
+  const [secretError, setSecretError] = useState(false);
 
   const level = Math.floor(totalXp / XP_PER_LEVEL) + 1;
   const xpInLevel = totalXp % XP_PER_LEVEL;
@@ -1119,6 +1562,39 @@ export default function LaenderDuell() {
     setShowWhatsNew(false);
   };
 
+  // Long-press auf das Logo öffnet die geheime Code-Eingabe
+  const longPressTimer = useRef(null);
+  const startLogoPress = () => {
+    if (gothicUnlocked) return; // schon frei, kein Prompt nötig
+    longPressTimer.current = setTimeout(() => {
+      setSecretInput("");
+      setSecretError(false);
+      setShowSecretPrompt(true);
+    }, 1200); // 1,2 Sekunden halten
+  };
+  const cancelLogoPress = () => {
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
+  };
+
+  const [showGothicWelcome, setShowGothicWelcome] = useState(false);
+
+  const submitSecret = () => {
+    // Codewort: "Alles wird gut" – tolerant gegen Groß/Klein & Leerzeichen
+    const normalized = secretInput.trim().toLowerCase().replace(/\s+/g, " ");
+    if (normalized === "alles wird gut") {
+      setGothicUnlocked(true);
+      store.set("qd_gothicUnlocked", true);
+      setShowSecretPrompt(false);
+      setSecretError(false);
+      setShowGothicWelcome(true);
+    } else {
+      setSecretError(true);
+    }
+  };
+
   // Reset all per-round state and jokers
   const resetRoundState = () => {
     setCurrent(0);
@@ -1133,7 +1609,8 @@ export default function LaenderDuell() {
     setPointsGained(0);
     setConfirmQuit(false);
     setFiftyUsed(false);
-    setSkipUsed(false);
+    setSecondChanceArmed(false);
+    setSecondChanceUsed(false);
     setHiddenOptions([]);
     setDuelPlayer(1);
     setDuelScores({ 1: 0, 2: 0 });
@@ -1142,6 +1619,7 @@ export default function LaenderDuell() {
     setForcedTopic(null);
     setShowForcePicker(false);
     setSubmitted(false);
+    setDailySubmitted(false);
   };
 
   // Choose topic and start immediately (solo)
@@ -1197,10 +1675,21 @@ export default function LaenderDuell() {
 
   const handleSelect = (option) => {
     if (answered) return;
-    setSelected(option);
-    setAnswered(true);
     const q = questions[current];
     const correct = option === q.answer;
+
+    // Zweite-Chance-Joker: erster Fehlversuch wird verziehen
+    if (!correct && secondChanceArmed) {
+      setSecondChanceArmed(false);
+      setSecondChanceUsed(true);
+      setHiddenOptions(h => [...h, option]); // falsche Wahl ausblenden
+      setShake(true);
+      setTimeout(() => setShake(false), 400);
+      return; // NICHT als beantwortet werten – nochmal wählen
+    }
+
+    setSelected(option);
+    setAnswered(true);
     if (correct) {
       const diffMult = DIFFICULTY_META[q.difficulty]?.mult || 1;
       const timeBonus = timed ? Math.round((timeLeft / roundSeconds) * 20) : 0;
@@ -1241,13 +1730,10 @@ export default function LaenderDuell() {
     setFiftyUsed(true);
   };
 
-  // Skip — move to next question without scoring (counts as not answered)
-  const useSkip = () => {
-    if (skipUsed || answered) return;
-    setSkipUsed(true);
-    const q = questions[current];
-    setHistory(h => [...h, { question: q.question, correct: false, answer: q.answer, selected: "Übersprungen" }]);
-    goNext();
+  // Zweite Chance — aktivieren; erster Fehlversuch dieser Frage wird verziehen
+  const armSecondChance = () => {
+    if (secondChanceUsed || secondChanceArmed || answered) return;
+    setSecondChanceArmed(true);
   };
 
   // Advance to next question or finish (shared by next button, skip, duel)
@@ -1258,8 +1744,9 @@ export default function LaenderDuell() {
         setTotalXp(xp => xp + points);
         setGamesPlayed(g => g + 1);
       } else if (gameMode === "daily") {
-        setHighscore(h => Math.max(h, points));
-        setTotalXp(xp => xp + points);
+        // Daily hat einen EIGENEN Highscore (mehr Fragen + Bonus → nicht vergleichbar)
+        setDailyHighscore(h => { const nv = Math.max(h, points); store.set("qd_dailyHighscore", nv); return nv; });
+        setTotalXp(xp => xp + points);   // XP zählt zum Gesamtfortschritt
         setGamesPlayed(g => g + 1);
         const record = { day: todaySeed, score: points };
         setDailyDone(record);
@@ -1288,6 +1775,7 @@ export default function LaenderDuell() {
       setTimeLeft(roundSeconds);
       setPointsGained(0);
       setHiddenOptions([]);
+      setSecondChanceArmed(false); // pro Frage zurück; "used" bleibt (1×/Runde)
       if (gameMode === "duel") {
         setDuelPlayer(p => (p === 1 ? 2 : 1));
       }
@@ -1303,14 +1791,19 @@ export default function LaenderDuell() {
     setShowForcePicker(false);
   };
 
-  const openLeaderboard = async () => {
+  const openLeaderboard = async (tab) => {
     setScreen("leaderboard");
+    if (tab) setLbTab(tab);
     if (!LEADERBOARD_ENABLED) return;
     setLbLoading(true);
     setLbError("");
     try {
-      const data = await fetchLeaderboard();
-      setLbEntries(data);
+      const [solo, daily] = await Promise.all([
+        fetchLeaderboard().catch(() => []),
+        fetchDailyLeaderboard().catch(() => []),
+      ]);
+      setLbEntries(solo);
+      setDailyLbEntries(daily);
     } catch (e) {
       setLbError(e.message || "Fehler beim Laden.");
     } finally {
@@ -1318,18 +1811,49 @@ export default function LaenderDuell() {
     }
   };
 
+  const [submitMsg, setSubmitMsg] = useState("");
+
   const handleSubmitScore = async () => {
-    if (!playerName.trim() || submitting) return;
+    if (submitting) return;
+    // Kein Name gesetzt? Erst Profil-Eingabe öffnen
+    if (!playerName.trim()) {
+      setNameInput("");
+      setShowNamePrompt(true);
+      return;
+    }
     setSubmitting(true);
     setLbError("");
+    setSubmitMsg("");
     try {
-      await submitScore(playerName.trim(), points, topicMeta.label);
-      setSubmitted(true);
+      let result;
+      if (gameMode === "daily") {
+        result = await submitDailyScore(playerName.trim(), points, dailyStreak, todaySeed);
+        setDailySubmitted(true);
+      } else {
+        result = await submitScore(playerName.trim(), points, topicMeta.label);
+        setSubmitted(true);
+      }
+      if (result && result.skipped) {
+        setSubmitMsg(`Dein Bestwert (${result.best}) bleibt bestehen.`);
+      } else {
+        setSubmitMsg("Neuer Bestwert eingetragen!");
+      }
     } catch (e) {
       setLbError(e.message || "Fehler beim Speichern.");
+      setSubmitted(false);
+      setDailySubmitted(false);
     } finally {
       setSubmitting(false);
     }
+  };
+
+  // Profil-Namen speichern
+  const saveName = () => {
+    const n = nameInput.trim().slice(0, 20);
+    if (!n) return;
+    setPlayerName(n);
+    store.set("qd_playerName", n);
+    setShowNamePrompt(false);
   };
 
   const q = questions[current];
@@ -1350,6 +1874,144 @@ export default function LaenderDuell() {
       justifyContent: "center",
       padding: "16px",
     }}>
+
+      {/* GEHEIMES CODEWORT (Gothic-Easter-Egg) */}
+      {showSecretPrompt && (
+        <div style={{
+          position: "fixed", inset: 0, zIndex: 110,
+          background: "rgba(8,18,24,0.9)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          padding: 20,
+        }}>
+          <div style={{
+            background: "#12100f",
+            border: "1px solid rgba(180,140,90,0.35)",
+            borderRadius: 20,
+            padding: "26px 22px",
+            maxWidth: 360, width: "100%",
+            textAlign: "center",
+            boxShadow: "0 20px 60px rgba(0,0,0,0.7)",
+          }}>
+            <div style={{ fontSize: 36, marginBottom: 8 }}>🗝️</div>
+            <h2 style={{ margin: "0 0 6px", fontSize: 19, fontWeight: 800, color: "#d8b888" }}>Ein geheimes Codewort …</h2>
+            <p style={{ margin: "0 0 16px", fontSize: 13, color: "#9a8c78", lineHeight: 1.5 }}>
+              Wie lautet das Codewort, mit dem man im Alten Lager an die Liste der Alten Mine kommt?
+            </p>
+            <input
+              value={secretInput}
+              onChange={e => { setSecretInput(e.target.value); setSecretError(false); }}
+              onKeyDown={e => { if (e.key === "Enter") submitSecret(); }}
+              placeholder="Codewort eingeben"
+              autoFocus
+              style={{
+                width: "100%", boxSizing: "border-box", padding: "12px 14px", fontSize: 15,
+                background: "rgba(0,0,0,0.35)",
+                border: "1px solid " + (secretError ? "#ef4444" : "rgba(180,140,90,0.4)"),
+                borderRadius: 12, color: "#f0e6d8", outline: "none", textAlign: "center",
+              }}
+            />
+            {secretError && (
+              <div style={{ fontSize: 12, color: "#fca5a5", marginTop: 8 }}>Das ist nicht das richtige Wort …</div>
+            )}
+            <div style={{ display: "flex", gap: 10, marginTop: 16 }}>
+              <button onClick={() => setShowSecretPrompt(false)} style={{
+                flex: 1, padding: "12px", background: "none",
+                border: "1px solid rgba(255,255,255,0.15)", borderRadius: 12,
+                color: "#9a8c78", fontSize: 14, cursor: "pointer",
+              }}>Abbrechen</button>
+              <button onClick={submitSecret} style={{
+                flex: 1, padding: "12px", fontWeight: 700,
+                background: "linear-gradient(135deg, #b8864f, #8a5f2f)",
+                border: "none", borderRadius: 12, color: "#fff", fontSize: 14, cursor: "pointer",
+              }}>Bestätigen</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* NAME FESTLEGEN / ÄNDERN */}
+      {showNamePrompt && (
+        <div style={{
+          position: "fixed", inset: 0, zIndex: 115,
+          background: "rgba(8,18,24,0.9)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          padding: 20,
+        }}>
+          <div style={{
+            background: "#13252e",
+            border: "1px solid rgba(100,216,255,0.25)",
+            borderRadius: 20,
+            padding: "26px 22px",
+            maxWidth: 360, width: "100%",
+            textAlign: "center",
+            boxShadow: "0 20px 60px rgba(0,0,0,0.6)",
+          }}>
+            <div style={{ fontSize: 36, marginBottom: 8 }}>👤</div>
+            <h2 style={{ margin: "0 0 6px", fontSize: 19, fontWeight: 800, color: "#e8f4f8" }}>Dein Spielername</h2>
+            <p style={{ margin: "0 0 16px", fontSize: 13, color: "#94c8d8", lineHeight: 1.5 }}>
+              Unter diesem Namen erscheinst du in der Rangliste. Du kannst ihn später jederzeit ändern.
+            </p>
+            <input
+              value={nameInput}
+              onChange={e => setNameInput(e.target.value)}
+              onKeyDown={e => { if (e.key === "Enter") saveName(); }}
+              placeholder="z. B. Max"
+              maxLength={20}
+              autoFocus
+              style={{
+                width: "100%", boxSizing: "border-box", padding: "12px 14px", fontSize: 16,
+                background: "rgba(0,0,0,0.3)", border: "1px solid rgba(100,216,255,0.3)",
+                borderRadius: 12, color: "#e8f4f8", outline: "none", textAlign: "center",
+              }}
+            />
+            <div style={{ display: "flex", gap: 10, marginTop: 16 }}>
+              <button onClick={() => setShowNamePrompt(false)} style={{
+                flex: 1, padding: "12px", background: "none",
+                border: "1px solid rgba(255,255,255,0.15)", borderRadius: 12,
+                color: "#94c8d8", fontSize: 14, cursor: "pointer",
+              }}>Abbrechen</button>
+              <button onClick={saveName} disabled={!nameInput.trim()} style={{
+                flex: 1, padding: "12px", fontWeight: 700,
+                background: nameInput.trim() ? "linear-gradient(135deg, #3b82f6, #8b5cf6)" : "rgba(255,255,255,0.08)",
+                border: "none", borderRadius: 12,
+                color: nameInput.trim() ? "#fff" : "#5a7a8a", fontSize: 14,
+                cursor: nameInput.trim() ? "pointer" : "not-allowed",
+              }}>Speichern</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* WILLKOMMEN IM MINENTAL */}
+      {showGothicWelcome && (
+        <div style={{
+          position: "fixed", inset: 0, zIndex: 110,
+          background: "rgba(8,18,24,0.9)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          padding: 20,
+        }}>
+          <div style={{
+            background: "#12100f",
+            border: "1px solid rgba(180,140,90,0.4)",
+            borderRadius: 20,
+            padding: "30px 24px",
+            maxWidth: 360, width: "100%",
+            textAlign: "center",
+            boxShadow: "0 20px 60px rgba(0,0,0,0.7)",
+          }}>
+            <div style={{ fontSize: 46, marginBottom: 10 }}>⚔️</div>
+            <h2 style={{ margin: "0 0 8px", fontSize: 22, fontWeight: 800, color: "#d8b888" }}>Willkommen im Minental!</h2>
+            <p style={{ margin: "0 0 20px", fontSize: 14, color: "#b0a290", lineHeight: 1.5 }}>
+              Der geheime <strong>Gothic-Modus</strong> ist freigeschaltet. Du findest ihn ab jetzt in der Themenauswahl.
+            </p>
+            <button onClick={() => setShowGothicWelcome(false)} style={{
+              width: "100%", padding: "14px", fontWeight: 700,
+              background: "linear-gradient(135deg, #b8864f, #8a5f2f)",
+              border: "none", borderRadius: 14, color: "#fff", fontSize: 16, cursor: "pointer",
+            }}>Los geht's!</button>
+          </div>
+        </div>
+      )}
 
       {/* WAS IST NEU? */}
       {showWhatsNew && (
@@ -1382,10 +2044,11 @@ export default function LaenderDuell() {
               { icon: "🎲", title: "Bunter Mix", text: "Fragen aus allen Themen wild gemischt." },
               { icon: "📅", title: "Tägliche Challenge", text: "Jeden Tag 10 Fragen – für alle gleich. Vergleicht euch!" },
               { icon: "⚔️", title: "Duell zu zweit", text: "Tretet am selben Gerät gegeneinander an." },
-              { icon: "🃏", title: "Joker", text: "50:50 und Überspringen helfen bei kniffligen Fragen." },
+              { icon: "🃏", title: "Joker", text: "50:50 und die Zweite Chance helfen bei kniffligen Fragen." },
               { icon: "📚", title: "Über 570 neue Fragen", text: "Jedes Thema hat jetzt rund 100 Fragen – kaum noch Wiederholungen." },
               { icon: "🔥", title: "Tägliche Challenge neu", text: "15 knifflige Fragen, doppelte Punkte und eine Tagesstreak." },
               { icon: "🎯", title: "Schwierigkeit & Duell-Joker", text: "Wähle die Schwierigkeit – und zwinge dem Gegner im Duell ein schweres Thema auf." },
+              { icon: "🧠", title: "Hunderte neue Fragen", text: "Neues Thema Allgemeinwissen und viele Fragen mehr in jeder Kategorie." },
             ].map((f, i) => (
               <div key={i} style={{ display: "flex", gap: 12, alignItems: "flex-start", marginBottom: 14 }}>
                 <span style={{ fontSize: 24, lineHeight: 1.2 }}>{f.icon}</span>
@@ -1409,7 +2072,15 @@ export default function LaenderDuell() {
       {/* HOME */}
       {screen === "home" && (
         <div style={{ textAlign: "center", maxWidth: 380, width: "100%" }}>
-          <div style={{ fontSize: 72, marginBottom: 8, filter: "drop-shadow(0 0 24px rgba(100,200,255,0.4))" }}>🧠</div>
+          <div
+            onMouseDown={startLogoPress}
+            onMouseUp={cancelLogoPress}
+            onMouseLeave={cancelLogoPress}
+            onTouchStart={startLogoPress}
+            onTouchEnd={cancelLogoPress}
+            onTouchCancel={cancelLogoPress}
+            style={{ fontSize: 72, marginBottom: 8, filter: "drop-shadow(0 0 24px rgba(100,200,255,0.4))", cursor: "default", userSelect: "none", WebkitUserSelect: "none" }}
+          >{gothicUnlocked ? "🧠" : "🧠"}</div>
           <h1 style={{
             fontSize: 36,
             fontWeight: 800,
@@ -1419,30 +2090,9 @@ export default function LaenderDuell() {
             WebkitTextFillColor: "transparent",
             letterSpacing: "-1px",
           }}>Quiz-Duell</h1>
-          <p style={{ color: "#94c8d8", fontSize: 15, margin: "0 0 32px", lineHeight: 1.5 }}>
-            7 Themenwelten, je 10 Fragen –<br />wie viel weißt du wirklich?
+          <p style={{ color: "#94c8d8", fontSize: 15, margin: "0 0 28px", lineHeight: 1.5 }}>
+            Wähle deinen Modus –<br />wie viel weißt du wirklich?
           </p>
-
-          <div style={{ display: "flex", gap: 8, justifyContent: "center", marginBottom: 24, flexWrap: "wrap" }}>
-            {TOPICS.slice(0, 4).map(t => (
-              <span key={t.id} style={{
-                background: "rgba(100,216,255,0.1)",
-                border: "1px solid rgba(100,216,255,0.25)",
-                borderRadius: 20,
-                padding: "4px 12px",
-                fontSize: 13,
-                color: "#64d8ff",
-              }}>{t.icon} {t.label.split(" ")[0]}</span>
-            ))}
-            <span style={{
-              background: "rgba(167,139,250,0.1)",
-              border: "1px solid rgba(167,139,250,0.25)",
-              borderRadius: 20,
-              padding: "4px 12px",
-              fontSize: 13,
-              color: "#a78bfa",
-            }}>+3 mehr</span>
-          </div>
 
           {/* Level + Highscore */}
           {gamesPlayed > 0 && (
@@ -1470,108 +2120,136 @@ export default function LaenderDuell() {
             </div>
           )}
 
-          {/* Time mode selector */}
-          <div style={{ marginBottom: 16 }}>
-            <div style={{ fontSize: 12, color: "#7aa8b8", marginBottom: 8, textAlign: "left", fontWeight: 600 }}>⏱️ Zeit pro Frage</div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-              {TIME_MODES.map(m => {
-                const active = timeMode === m.id;
-                return (
-                  <button key={m.id} onClick={() => setTimeMode(m.id)} style={{
-                    padding: "10px 8px",
-                    background: active ? "rgba(59,130,246,0.18)" : "rgba(255,255,255,0.04)",
-                    border: active ? "2px solid #3b82f6" : "2px solid rgba(255,255,255,0.08)",
-                    borderRadius: 12,
-                    cursor: "pointer",
-                    textAlign: "center",
-                    transition: "all 0.15s",
-                  }}>
-                    <div style={{ fontSize: 18, lineHeight: 1, marginBottom: 3 }}>{m.icon}</div>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: active ? "#e8f4f8" : "#94c8d8" }}>{m.label}</div>
-                    <div style={{ fontSize: 10, color: "#6a9aaa", marginTop: 1 }}>{m.desc}</div>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
+          {/* ── Drei Modus-Karten ── */}
 
-          {/* Difficulty selector */}
-          <div style={{ marginBottom: 16 }}>
-            <div style={{ fontSize: 12, color: "#7aa8b8", marginBottom: 8, textAlign: "left", fontWeight: 600 }}>🎯 Schwierigkeit</div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 8 }}>
-              {DIFFICULTY_LEVELS.map(lvl => {
-                const active = difficulty === lvl.id;
-                return (
-                  <button key={lvl.id} onClick={() => setDifficulty(lvl.id)} style={{
-                    padding: "10px 4px",
-                    background: active ? "rgba(59,130,246,0.18)" : "rgba(255,255,255,0.04)",
-                    border: active ? "2px solid #3b82f6" : "2px solid rgba(255,255,255,0.08)",
-                    borderRadius: 12,
-                    cursor: "pointer",
-                    textAlign: "center",
-                    transition: "all 0.15s",
-                  }}>
-                    <div style={{ fontSize: 16, lineHeight: 1, marginBottom: 3 }}>{lvl.icon}</div>
-                    <div style={{ fontSize: 11, fontWeight: 700, color: active ? "#e8f4f8" : "#94c8d8" }}>{lvl.label}</div>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          <button onClick={() => setScreen("topics")} style={{
-            width: "100%",
+          {/* Karte 1: Solo */}
+          <div style={{
+            background: "rgba(59,130,246,0.08)",
+            border: "1px solid rgba(59,130,246,0.25)",
+            borderRadius: 18,
             padding: "16px",
-            fontSize: 18,
-            fontWeight: 700,
-            background: "linear-gradient(135deg, #3b82f6, #8b5cf6)",
-            color: "#fff",
-            border: "none",
-            borderRadius: 16,
-            cursor: "pointer",
-            boxShadow: "0 8px 32px rgba(59,130,246,0.4)",
-            transition: "transform 0.1s",
-          }}
-            onMouseDown={e => e.currentTarget.style.transform = "scale(0.97)"}
-            onMouseUp={e => e.currentTarget.style.transform = "scale(1)"}
-          >
-            {gamesPlayed > 0 ? "Weiterspielen" : "Spielen"} →
-          </button>
+            marginBottom: 12,
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
+              <span style={{ fontSize: 26 }}>🧩</span>
+              <div style={{ textAlign: "left" }}>
+                <div style={{ fontSize: 16, fontWeight: 800, color: "#e8f4f8" }}>Solo spielen</div>
+                <div style={{ fontSize: 12, color: "#94c8d8" }}>Ein Thema, 10 Fragen, dein Highscore</div>
+              </div>
+            </div>
 
-          {shownStreak > 0 && (
-            <div style={{
-              marginTop: 14, marginBottom: -2, textAlign: "center",
-              fontSize: 13, fontWeight: 700, color: "#fb923c",
-            }}>🔥 {shownStreak} {shownStreak === 1 ? "Tag" : "Tage"} in Folge!</div>
-          )}
+            {/* Zeit-Wähler */}
+            <div style={{ marginBottom: 12 }}>
+              <div style={{ fontSize: 11, color: "#7aa8b8", marginBottom: 6, textAlign: "left", fontWeight: 600 }}>⏱️ Zeit pro Frage</div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 6 }}>
+                {TIME_MODES.map(m => {
+                  const active = timeMode === m.id;
+                  return (
+                    <button key={m.id} onClick={() => setTimeMode(m.id)} style={{
+                      padding: "8px 2px",
+                      background: active ? "rgba(59,130,246,0.25)" : "rgba(255,255,255,0.04)",
+                      border: active ? "2px solid #3b82f6" : "2px solid rgba(255,255,255,0.08)",
+                      borderRadius: 10, cursor: "pointer", textAlign: "center",
+                    }}>
+                      <div style={{ fontSize: 15, lineHeight: 1, marginBottom: 2 }}>{m.icon}</div>
+                      <div style={{ fontSize: 10, fontWeight: 700, color: active ? "#e8f4f8" : "#94c8d8" }}>{m.label}</div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
 
-          <div style={{ display: "flex", gap: 10, marginTop: 10 }}>
+            {/* Schwierigkeit */}
+            <div style={{ marginBottom: 14 }}>
+              <div style={{ fontSize: 11, color: "#7aa8b8", marginBottom: 6, textAlign: "left", fontWeight: 600 }}>🎯 Schwierigkeit</div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 6 }}>
+                {DIFFICULTY_LEVELS.map(lvl => {
+                  const active = difficulty === lvl.id;
+                  return (
+                    <button key={lvl.id} onClick={() => setDifficulty(lvl.id)} style={{
+                      padding: "8px 2px",
+                      background: active ? "rgba(59,130,246,0.25)" : "rgba(255,255,255,0.04)",
+                      border: active ? "2px solid #3b82f6" : "2px solid rgba(255,255,255,0.08)",
+                      borderRadius: 10, cursor: "pointer", textAlign: "center",
+                    }}>
+                      <div style={{ fontSize: 14, lineHeight: 1, marginBottom: 2 }}>{lvl.icon}</div>
+                      <div style={{ fontSize: 10, fontWeight: 700, color: active ? "#e8f4f8" : "#94c8d8" }}>{lvl.label}</div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <button onClick={() => setScreen("topics")} style={{
+              width: "100%", padding: "14px", fontSize: 16, fontWeight: 700,
+              background: "linear-gradient(135deg, #3b82f6, #8b5cf6)",
+              color: "#fff", border: "none", borderRadius: 14, cursor: "pointer",
+              boxShadow: "0 6px 20px rgba(59,130,246,0.35)",
+            }}>
+              {gamesPlayed > 0 ? "Thema wählen & weiterspielen" : "Thema wählen & spielen"} →
+            </button>
+          </div>
+
+          {/* Karte 2: Duell */}
+          <div style={{
+            background: "rgba(244,63,94,0.08)",
+            border: "1px solid rgba(244,63,94,0.25)",
+            borderRadius: 18,
+            padding: "16px",
+            marginBottom: 12,
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
+              <span style={{ fontSize: 26 }}>⚔️</span>
+              <div style={{ textAlign: "left" }}>
+                <div style={{ fontSize: 16, fontWeight: 800, color: "#e8f4f8" }}>Duell</div>
+                <div style={{ fontSize: 12, color: "#94c8d8" }}>Zwei Spieler, ein Gerät, abwechselnd</div>
+              </div>
+            </div>
+            <button onClick={startDuel} style={{
+              width: "100%", padding: "14px", fontSize: 16, fontWeight: 700,
+              background: "linear-gradient(135deg, #f43f5e, #e11d48)",
+              color: "#fff", border: "none", borderRadius: 14, cursor: "pointer",
+              boxShadow: "0 6px 20px rgba(244,63,94,0.3)",
+            }}>Duell starten →</button>
+          </div>
+
+          {/* Karte 3: Tägliche Challenge */}
+          <div style={{
+            background: "rgba(16,185,129,0.08)",
+            border: "1px solid rgba(16,185,129,0.25)",
+            borderRadius: 18,
+            padding: "16px",
+            marginBottom: 20,
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
+              <span style={{ fontSize: 26 }}>📅</span>
+              <div style={{ textAlign: "left", flex: 1 }}>
+                <div style={{ fontSize: 16, fontWeight: 800, color: "#e8f4f8" }}>Tägliche Challenge</div>
+                <div style={{ fontSize: 12, color: "#94c8d8" }}>
+                  15 Fragen · ×2 Punkte
+                  {dailyHighscore > 0 ? ` · Bestwert ${dailyHighscore}` : ""}
+                </div>
+              </div>
+              {shownStreak > 0 && (
+                <span style={{ fontSize: 13, fontWeight: 700, color: "#fb923c", whiteSpace: "nowrap" }}>🔥 {shownStreak}</span>
+              )}
+            </div>
             <button
               onClick={startDaily}
               disabled={dailyPlayedToday}
               style={{
-                flex: 1, padding: "13px 8px", fontSize: 14, fontWeight: 700,
+                width: "100%", padding: "14px", fontSize: 16, fontWeight: 700,
                 background: dailyPlayedToday ? "rgba(16,185,129,0.15)" : "linear-gradient(135deg, #10b981, #059669)",
                 color: dailyPlayedToday ? "#6ee7b7" : "#fff",
                 border: dailyPlayedToday ? "1px solid rgba(16,185,129,0.4)" : "none",
                 borderRadius: 14, cursor: dailyPlayedToday ? "default" : "pointer",
-                lineHeight: 1.3,
               }}>
-              {dailyPlayedToday
-                ? <>✓ Heute erledigt<br/><span style={{ fontSize: 12, fontWeight: 600 }}>{dailyDone.score} 💎</span></>
-                : <>📅 Tägliche Challenge<br/><span style={{ fontSize: 11, fontWeight: 600, opacity: 0.85 }}>15 Fragen · ×2 Punkte</span></>}
+              {dailyPlayedToday ? `✓ Heute erledigt – ${dailyDone.score} 💎` : "Challenge starten →"}
             </button>
-            <button onClick={startDuel} style={{
-              flex: 1, padding: "13px 8px", fontSize: 14, fontWeight: 700,
-              background: "linear-gradient(135deg, #f43f5e, #e11d48)",
-              color: "#fff", border: "none", borderRadius: 14, cursor: "pointer",
-              lineHeight: 1.3,
-            }}>⚔️ Duell<br/><span style={{ fontSize: 11, fontWeight: 600, opacity: 0.85 }}>2 Spieler</span></button>
           </div>
 
           <button onClick={openLeaderboard} style={{
             width: "100%",
-            marginTop: 10,
             padding: "13px",
             fontSize: 15,
             fontWeight: 600,
@@ -1581,6 +2259,20 @@ export default function LaenderDuell() {
             borderRadius: 14,
             cursor: "pointer",
           }}>🏆 Rangliste</button>
+
+          <div style={{ marginTop: 14, fontSize: 12, color: "#6a9aaa" }}>
+            {playerName.trim()
+              ? <>Spielername: <strong style={{ color: "#94c8d8" }}>{playerName}</strong>
+                  <button onClick={() => { setNameInput(playerName); setShowNamePrompt(true); }} style={{
+                    marginLeft: 6, background: "none", border: "none", color: "#64d8ff",
+                    fontSize: 12, cursor: "pointer", textDecoration: "underline",
+                  }}>ändern</button>
+                </>
+              : <button onClick={() => { setNameInput(""); setShowNamePrompt(true); }} style={{
+                  background: "none", border: "none", color: "#64d8ff",
+                  fontSize: 12, cursor: "pointer", textDecoration: "underline",
+                }}>👤 Spielername festlegen</button>}
+          </div>
         </div>
       )}
 
@@ -1592,7 +2284,7 @@ export default function LaenderDuell() {
           <p style={{ color: "#94c8d8", fontSize: 14, margin: "0 0 24px" }}>Worüber willst du raten?</p>
 
           <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 20 }}>
-            {TOPICS.map(topic => (
+            {TOPICS.filter(topic => !topic.secret || gothicUnlocked).map(topic => (
               <button key={topic.id} onClick={() => chooseTopic(topic.id)} style={{
                 width: "100%",
                 padding: "16px 18px",
@@ -1848,13 +2540,18 @@ export default function LaenderDuell() {
                 borderRadius: 12, color: fiftyUsed ? "#5a7a8a" : "#c4b5fd",
                 cursor: fiftyUsed ? "not-allowed" : "pointer",
               }}>✂️ 50:50</button>
-              <button onClick={useSkip} disabled={skipUsed} style={{
+              <button onClick={armSecondChance} disabled={secondChanceUsed || secondChanceArmed} style={{
                 flex: 1, padding: "11px", fontSize: 14, fontWeight: 700,
-                background: skipUsed ? "rgba(255,255,255,0.04)" : "rgba(100,216,255,0.12)",
-                border: "1px solid " + (skipUsed ? "rgba(255,255,255,0.08)" : "rgba(100,216,255,0.35)"),
-                borderRadius: 12, color: skipUsed ? "#5a7a8a" : "#64d8ff",
-                cursor: skipUsed ? "not-allowed" : "pointer",
-              }}>⏭️ Überspringen</button>
+                background: secondChanceArmed ? "rgba(34,197,94,0.25)" : (secondChanceUsed ? "rgba(255,255,255,0.04)" : "rgba(34,197,94,0.12)"),
+                border: "1px solid " + (secondChanceArmed ? "#22c55e" : (secondChanceUsed ? "rgba(255,255,255,0.08)" : "rgba(34,197,94,0.35)")),
+                borderRadius: 12, color: secondChanceUsed && !secondChanceArmed ? "#5a7a8a" : (secondChanceArmed ? "#86efac" : "#4ade80"),
+                cursor: (secondChanceUsed || secondChanceArmed) ? "default" : "pointer",
+              }}>{secondChanceArmed ? "🛡️ Aktiv!" : "🛡️ Zweite Chance"}</button>
+            </div>
+          )}
+          {secondChanceArmed && !answered && (
+            <div style={{ marginTop: 8, fontSize: 12, color: "#86efac", textAlign: "center" }}>
+              🛡️ Dein erster Fehler bei dieser Frage wird verziehen!
             </div>
           )}
 
@@ -1878,29 +2575,6 @@ export default function LaenderDuell() {
                     boxShadow: "0 4px 16px rgba(34,197,94,0.4)",
                   }}>+{pointsGained} 💎{gameMode !== "duel" && streak >= 2 ? `  🔥 ${streak}x Serie!` : ""}</span>
                 </div>
-              )}
-              {selectedTopic === "laender" && (
-                <div style={{
-                  background: "rgba(167,139,250,0.1)",
-                  border: "1px solid rgba(167,139,250,0.25)",
-                  borderRadius: 12,
-                  padding: "12px 16px",
-                  fontSize: 14,
-                  color: "#c4b5fd",
-                  marginBottom: 12,
-                }}>💡 {q.fact}</div>
-              )}
-              {q.funFact && (
-                <div style={{
-                  background: "rgba(251,191,36,0.1)",
-                  border: "1px solid rgba(251,191,36,0.3)",
-                  borderRadius: 12,
-                  padding: "12px 16px",
-                  fontSize: 14,
-                  color: "#fcd34d",
-                  marginBottom: 12,
-                  lineHeight: 1.5,
-                }}>🤓 <strong>Unnützes Wissen:</strong> {q.funFact}</div>
               )}
               {gameMode === "duel" && current + 1 < roundTotal && !forceUsed[duelPlayer] && (
                 <button onClick={() => setShowForcePicker(true)} style={{
@@ -1937,6 +2611,29 @@ export default function LaenderDuell() {
                     ? `Weiter zu Spieler ${duelPlayer === 1 ? 2 : 1} →`
                     : "Weiter →"}
               </button>
+              {selectedTopic === "laender" && (
+                <div style={{
+                  background: "rgba(167,139,250,0.1)",
+                  border: "1px solid rgba(167,139,250,0.25)",
+                  borderRadius: 12,
+                  padding: "12px 16px",
+                  fontSize: 14,
+                  color: "#c4b5fd",
+                  marginTop: 12,
+                }}>💡 {q.fact}</div>
+              )}
+              {q.funFact && (
+                <div style={{
+                  background: "rgba(251,191,36,0.1)",
+                  border: "1px solid rgba(251,191,36,0.3)",
+                  borderRadius: 12,
+                  padding: "12px 16px",
+                  fontSize: 14,
+                  color: "#fcd34d",
+                  marginTop: 12,
+                  lineHeight: 1.5,
+                }}>🤓 <strong>Unnützes Wissen:</strong> {q.funFact}</div>
+              )}
             </div>
           )}
 
@@ -2080,7 +2777,7 @@ export default function LaenderDuell() {
             }}>📅 Tägliche Challenge{dailyStreak > 0 ? `  ·  🔥 ${dailyStreak} ${dailyStreak === 1 ? "Tag" : "Tage"}` : ""}</div>
           )}
 
-          {points >= highscore && points > 0 && (
+          {points >= (gameMode === "daily" ? dailyHighscore : highscore) && points > 0 && (
             <div style={{
               display: "inline-block",
               background: "linear-gradient(135deg, #fbbf24, #f59e0b)",
@@ -2159,10 +2856,10 @@ export default function LaenderDuell() {
               padding: "16px",
               marginBottom: 16,
             }}>
-              {submitted ? (
+              {(gameMode === "daily" ? dailySubmitted : submitted) ? (
                 <div style={{ textAlign: "center", color: "#fcd34d", fontSize: 14, fontWeight: 600 }}>
-                  ✅ In der Rangliste eingetragen!
-                  <button onClick={openLeaderboard} style={{
+                  ✅ {submitMsg || `In der ${gameMode === "daily" ? "Tages-Rangliste" : "Rangliste"} eingetragen!`}
+                  <button onClick={() => openLeaderboard(gameMode === "daily" ? "daily" : "solo")} style={{
                     display: "block", margin: "10px auto 0", padding: "8px 16px",
                     background: "rgba(251,191,36,0.15)", border: "1px solid rgba(251,191,36,0.4)",
                     borderRadius: 10, color: "#fbbf24", fontSize: 13, fontWeight: 600, cursor: "pointer",
@@ -2170,33 +2867,34 @@ export default function LaenderDuell() {
                 </div>
               ) : (
                 <div>
-                  <div style={{ fontSize: 13, color: "#fcd34d", marginBottom: 8, fontWeight: 600, textAlign: "center" }}>
-                    🏆 Trag dich in die Rangliste ein
+                  <div style={{ fontSize: 13, color: "#fcd34d", marginBottom: 10, fontWeight: 600, textAlign: "center" }}>
+                    {gameMode === "daily" ? "🏆 In die Tages-Rangliste eintragen" : "🏆 In die Rangliste eintragen"}
                   </div>
-                  <div style={{ display: "flex", gap: 8 }}>
-                    <input
-                      value={playerName}
-                      onChange={e => setPlayerName(e.target.value)}
-                      placeholder="Dein Name"
-                      maxLength={20}
-                      style={{
-                        flex: 1, padding: "11px 14px", fontSize: 15,
-                        background: "rgba(0,0,0,0.25)", border: "1px solid rgba(255,255,255,0.15)",
-                        borderRadius: 12, color: "#e8f4f8", outline: "none",
-                      }}
-                    />
-                    <button
-                      onClick={handleSubmitScore}
-                      disabled={!playerName.trim() || submitting}
-                      style={{
-                        padding: "11px 18px", fontSize: 15, fontWeight: 700,
-                        background: !playerName.trim() || submitting ? "rgba(255,255,255,0.08)" : "linear-gradient(135deg, #fbbf24, #f59e0b)",
-                        color: !playerName.trim() || submitting ? "#5a7a8a" : "#1a1a1a",
-                        border: "none", borderRadius: 12,
-                        cursor: !playerName.trim() || submitting ? "not-allowed" : "pointer",
-                      }}
-                    >{submitting ? "…" : "Senden"}</button>
-                  </div>
+                  {playerName.trim() && (
+                    <div style={{ fontSize: 13, color: "#94c8d8", marginBottom: 10, textAlign: "center" }}>
+                      als <strong style={{ color: "#e8f4f8" }}>{playerName}</strong>
+                      <button onClick={() => { setNameInput(playerName); setShowNamePrompt(true); }} style={{
+                        marginLeft: 8, background: "none", border: "none", color: "#64d8ff",
+                        fontSize: 12, cursor: "pointer", textDecoration: "underline",
+                      }}>ändern</button>
+                    </div>
+                  )}
+                  <button
+                    onClick={handleSubmitScore}
+                    disabled={submitting}
+                    style={{
+                      width: "100%", padding: "13px", fontSize: 15, fontWeight: 700,
+                      background: submitting ? "rgba(255,255,255,0.08)" : "linear-gradient(135deg, #fbbf24, #f59e0b)",
+                      color: submitting ? "#5a7a8a" : "#1a1a1a",
+                      border: "none", borderRadius: 12,
+                      cursor: submitting ? "not-allowed" : "pointer",
+                    }}
+                  >{submitting ? "…" : (playerName.trim() ? "Eintragen" : "Namen festlegen & eintragen")}</button>
+                  {gameMode === "daily" && (
+                    <div style={{ fontSize: 11, color: "#fb923c", marginTop: 8, textAlign: "center" }}>
+                      🔥 Deine Streak ({dailyStreak}) wird mit eingetragen
+                    </div>
+                  )}
                   {lbError && <div style={{ fontSize: 12, color: "#fca5a5", marginTop: 8, textAlign: "center" }}>{lbError}</div>}
                 </div>
               )}
@@ -2251,7 +2949,23 @@ export default function LaenderDuell() {
         <div style={{ textAlign: "center", maxWidth: 440, width: "100%" }}>
           <div style={{ fontSize: 48, marginBottom: 6 }}>🏆</div>
           <h2 style={{ fontSize: 26, fontWeight: 800, margin: "0 0 6px", color: "#e8f4f8" }}>Rangliste</h2>
-          <p style={{ color: "#94c8d8", fontSize: 14, margin: "0 0 24px" }}>Die besten 20 Ergebnisse weltweit</p>
+          <p style={{ color: "#94c8d8", fontSize: 14, margin: "0 0 18px" }}>Die besten 20 weltweit</p>
+
+          {/* Tabs */}
+          <div style={{ display: "flex", gap: 8, marginBottom: 18 }}>
+            <button onClick={() => setLbTab("solo")} style={{
+              flex: 1, padding: "10px", fontSize: 14, fontWeight: 700,
+              background: lbTab === "solo" ? "rgba(100,216,255,0.18)" : "rgba(255,255,255,0.04)",
+              border: lbTab === "solo" ? "2px solid #64d8ff" : "2px solid rgba(255,255,255,0.08)",
+              borderRadius: 12, color: lbTab === "solo" ? "#e8f4f8" : "#94c8d8", cursor: "pointer",
+            }}>🧩 Solo</button>
+            <button onClick={() => setLbTab("daily")} style={{
+              flex: 1, padding: "10px", fontSize: 14, fontWeight: 700,
+              background: lbTab === "daily" ? "rgba(16,185,129,0.18)" : "rgba(255,255,255,0.04)",
+              border: lbTab === "daily" ? "2px solid #10b981" : "2px solid rgba(255,255,255,0.08)",
+              borderRadius: 12, color: lbTab === "daily" ? "#e8f4f8" : "#94c8d8", cursor: "pointer",
+            }}>📅 Tageschallenge</button>
+          </div>
 
           {!LEADERBOARD_ENABLED ? (
             <div style={{
@@ -2271,34 +2985,45 @@ export default function LaenderDuell() {
             <div style={{ padding: "40px 0", color: "#64d8ff", fontSize: 15 }}>Lädt…</div>
           ) : lbError ? (
             <div style={{ padding: "24px", color: "#fca5a5", fontSize: 14 }}>{lbError}</div>
-          ) : lbEntries.length === 0 ? (
-            <div style={{ padding: "40px 20px", color: "#7aa8b8", fontSize: 14 }}>
-              Noch keine Einträge – sei der Erste!
-            </div>
-          ) : (
-            <div style={{ marginBottom: 20 }}>
-              {lbEntries.map((e, i) => {
-                const medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `${i + 1}.`;
-                return (
-                  <div key={i} style={{
-                    display: "flex", alignItems: "center", gap: 12,
-                    padding: "12px 14px",
-                    background: i < 3 ? "rgba(251,191,36,0.08)" : "rgba(255,255,255,0.03)",
-                    border: "1px solid " + (i < 3 ? "rgba(251,191,36,0.2)" : "rgba(255,255,255,0.06)"),
-                    borderRadius: 12,
-                    marginBottom: 6,
-                  }}>
-                    <span style={{ fontSize: 16, fontWeight: 700, width: 32, textAlign: "center", color: i < 3 ? "#fbbf24" : "#7aa8b8" }}>{medal}</span>
-                    <div style={{ flex: 1, textAlign: "left", minWidth: 0 }}>
-                      <div style={{ fontSize: 15, fontWeight: 600, color: "#e8f4f8", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{e.name}</div>
-                      <div style={{ fontSize: 12, color: "#6a9aaa" }}>{e.topic}</div>
+          ) : (() => {
+            const entries = lbTab === "daily" ? dailyLbEntries : lbEntries;
+            if (entries.length === 0) {
+              return (
+                <div style={{ padding: "40px 20px", color: "#7aa8b8", fontSize: 14 }}>
+                  Noch keine Einträge – sei der Erste!
+                </div>
+              );
+            }
+            return (
+              <div style={{ marginBottom: 20 }}>
+                {entries.map((e, i) => {
+                  const medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `${i + 1}.`;
+                  const accent = lbTab === "daily" ? "#6ee7b7" : "#64d8ff";
+                  return (
+                    <div key={i} style={{
+                      display: "flex", alignItems: "center", gap: 12,
+                      padding: "12px 14px",
+                      background: i < 3 ? "rgba(251,191,36,0.08)" : "rgba(255,255,255,0.03)",
+                      border: "1px solid " + (i < 3 ? "rgba(251,191,36,0.2)" : "rgba(255,255,255,0.06)"),
+                      borderRadius: 12,
+                      marginBottom: 6,
+                    }}>
+                      <span style={{ fontSize: 16, fontWeight: 700, width: 32, textAlign: "center", color: i < 3 ? "#fbbf24" : "#7aa8b8" }}>{medal}</span>
+                      <div style={{ flex: 1, textAlign: "left", minWidth: 0 }}>
+                        <div style={{ fontSize: 15, fontWeight: 600, color: "#e8f4f8", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{e.name}</div>
+                        <div style={{ fontSize: 12, color: "#6a9aaa" }}>
+                          {lbTab === "daily"
+                            ? (e.streak > 0 ? `🔥 ${e.streak} ${e.streak === 1 ? "Tag" : "Tage"} in Folge` : "Tageschallenge")
+                            : e.topic}
+                        </div>
+                      </div>
+                      <span style={{ fontSize: 16, fontWeight: 800, color: accent }}>{e.score} 💎</span>
                     </div>
-                    <span style={{ fontSize: 16, fontWeight: 800, color: "#64d8ff" }}>{e.score} 💎</span>
-                  </div>
-                );
-              })}
-            </div>
-          )}
+                  );
+                })}
+              </div>
+            );
+          })()}
 
           <button onClick={() => setScreen("home")} style={{
             background: "none", border: "none", color: "#6a9aaa", fontSize: 14, cursor: "pointer", marginTop: 8,
