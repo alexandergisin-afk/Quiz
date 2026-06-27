@@ -1412,8 +1412,32 @@ async function submitScore(name, score, topic) {
   if (!res.ok) throw new Error("Eintrag konnte nicht gespeichert werden.");
 }
 
+// ── Daily-Rangliste (eigene Tabelle 'daily_scores' mit Streak) ──
+async function fetchDailyLeaderboard() {
+  const res = await fetch(
+    `${SUPABASE_URL}/rest/v1/daily_scores?select=name,score,streak,day,created_at&order=score.desc&limit=20`,
+    { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } }
+  );
+  if (!res.ok) throw new Error("Tages-Rangliste konnte nicht geladen werden.");
+  return res.json();
+}
+
+async function submitDailyScore(name, score, streak, day) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/daily_scores`, {
+    method: "POST",
+    headers: {
+      apikey: SUPABASE_KEY,
+      Authorization: `Bearer ${SUPABASE_KEY}`,
+      "Content-Type": "application/json",
+      Prefer: "return=minimal",
+    },
+    body: JSON.stringify({ name: name.slice(0, 20), score, streak, day }),
+  });
+  if (!res.ok) throw new Error("Tages-Eintrag konnte nicht gespeichert werden.");
+}
+
 // ── App-Version & lokaler Speicher ────────────────────────────
-const APP_VERSION = "2.4"; // bei neuen Updates hochzählen, dann erscheint "Was ist neu?"
+const APP_VERSION = "2.6"; // bei neuen Updates hochzählen, dann erscheint "Was ist neu?"
 
 const store = {
   get(key, fallback) {
@@ -1471,12 +1495,17 @@ function LaenderDuell() {
   const [lbEntries, setLbEntries] = useState([]);
   const [lbLoading, setLbLoading] = useState(false);
   const [lbError, setLbError] = useState("");
-  const [playerName, setPlayerName] = useState("");
+  const [playerName, setPlayerName] = useState(() => store.get("qd_playerName", ""));
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  // Daily leaderboard + tab switch ("solo" | "daily")
+  const [lbTab, setLbTab] = useState("solo");
+  const [dailyLbEntries, setDailyLbEntries] = useState([]);
+  const [dailySubmitted, setDailySubmitted] = useState(false);
 
   // Persistent progress (saved to device storage)
   const [highscore, setHighscore] = useState(() => store.get("qd_highscore", 0));
+  const [dailyHighscore, setDailyHighscore] = useState(() => store.get("qd_dailyHighscore", 0));
   const [totalXp, setTotalXp] = useState(() => store.get("qd_totalXp", 0));
   const [gamesPlayed, setGamesPlayed] = useState(() => store.get("qd_gamesPlayed", 0));
 
@@ -1579,6 +1608,7 @@ function LaenderDuell() {
     setForcedTopic(null);
     setShowForcePicker(false);
     setSubmitted(false);
+    setDailySubmitted(false);
   };
 
   // Choose topic and start immediately (solo)
@@ -1695,8 +1725,9 @@ function LaenderDuell() {
         setTotalXp(xp => xp + points);
         setGamesPlayed(g => g + 1);
       } else if (gameMode === "daily") {
-        setHighscore(h => Math.max(h, points));
-        setTotalXp(xp => xp + points);
+        // Daily hat einen EIGENEN Highscore (mehr Fragen + Bonus → nicht vergleichbar)
+        setDailyHighscore(h => { const nv = Math.max(h, points); store.set("qd_dailyHighscore", nv); return nv; });
+        setTotalXp(xp => xp + points);   // XP zählt zum Gesamtfortschritt
         setGamesPlayed(g => g + 1);
         const record = { day: todaySeed, score: points };
         setDailyDone(record);
@@ -1740,14 +1771,19 @@ function LaenderDuell() {
     setShowForcePicker(false);
   };
 
-  const openLeaderboard = async () => {
+  const openLeaderboard = async (tab) => {
     setScreen("leaderboard");
+    if (tab) setLbTab(tab);
     if (!LEADERBOARD_ENABLED) return;
     setLbLoading(true);
     setLbError("");
     try {
-      const data = await fetchLeaderboard();
-      setLbEntries(data);
+      const [solo, daily] = await Promise.all([
+        fetchLeaderboard().catch(() => []),
+        fetchDailyLeaderboard().catch(() => []),
+      ]);
+      setLbEntries(solo);
+      setDailyLbEntries(daily);
     } catch (e) {
       setLbError(e.message || "Fehler beim Laden.");
     } finally {
@@ -1759,9 +1795,15 @@ function LaenderDuell() {
     if (!playerName.trim() || submitting) return;
     setSubmitting(true);
     setLbError("");
+    store.set("qd_playerName", playerName.trim());
     try {
-      await submitScore(playerName.trim(), points, topicMeta.label);
-      setSubmitted(true);
+      if (gameMode === "daily") {
+        await submitDailyScore(playerName.trim(), points, dailyStreak, todaySeed);
+        setDailySubmitted(true);
+      } else {
+        await submitScore(playerName.trim(), points, topicMeta.label);
+        setSubmitted(true);
+      }
     } catch (e) {
       setLbError(e.message || "Fehler beim Speichern.");
     } finally {
@@ -1950,30 +1992,9 @@ function LaenderDuell() {
             WebkitTextFillColor: "transparent",
             letterSpacing: "-1px",
           }}>Quiz-Duell</h1>
-          <p style={{ color: "#94c8d8", fontSize: 15, margin: "0 0 32px", lineHeight: 1.5 }}>
-            7 Themenwelten, je 10 Fragen –<br />wie viel weißt du wirklich?
+          <p style={{ color: "#94c8d8", fontSize: 15, margin: "0 0 28px", lineHeight: 1.5 }}>
+            Wähle deinen Modus –<br />wie viel weißt du wirklich?
           </p>
-
-          <div style={{ display: "flex", gap: 8, justifyContent: "center", marginBottom: 24, flexWrap: "wrap" }}>
-            {TOPICS.slice(0, 4).map(t => (
-              <span key={t.id} style={{
-                background: "rgba(100,216,255,0.1)",
-                border: "1px solid rgba(100,216,255,0.25)",
-                borderRadius: 20,
-                padding: "4px 12px",
-                fontSize: 13,
-                color: "#64d8ff",
-              }}>{t.icon} {t.label.split(" ")[0]}</span>
-            ))}
-            <span style={{
-              background: "rgba(167,139,250,0.1)",
-              border: "1px solid rgba(167,139,250,0.25)",
-              borderRadius: 20,
-              padding: "4px 12px",
-              fontSize: 13,
-              color: "#a78bfa",
-            }}>+3 mehr</span>
-          </div>
 
           {/* Level + Highscore */}
           {gamesPlayed > 0 && (
@@ -2001,108 +2022,136 @@ function LaenderDuell() {
             </div>
           )}
 
-          {/* Time mode selector */}
-          <div style={{ marginBottom: 16 }}>
-            <div style={{ fontSize: 12, color: "#7aa8b8", marginBottom: 8, textAlign: "left", fontWeight: 600 }}>⏱️ Zeit pro Frage</div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-              {TIME_MODES.map(m => {
-                const active = timeMode === m.id;
-                return (
-                  <button key={m.id} onClick={() => setTimeMode(m.id)} style={{
-                    padding: "10px 8px",
-                    background: active ? "rgba(59,130,246,0.18)" : "rgba(255,255,255,0.04)",
-                    border: active ? "2px solid #3b82f6" : "2px solid rgba(255,255,255,0.08)",
-                    borderRadius: 12,
-                    cursor: "pointer",
-                    textAlign: "center",
-                    transition: "all 0.15s",
-                  }}>
-                    <div style={{ fontSize: 18, lineHeight: 1, marginBottom: 3 }}>{m.icon}</div>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: active ? "#e8f4f8" : "#94c8d8" }}>{m.label}</div>
-                    <div style={{ fontSize: 10, color: "#6a9aaa", marginTop: 1 }}>{m.desc}</div>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
+          {/* ── Drei Modus-Karten ── */}
 
-          {/* Difficulty selector */}
-          <div style={{ marginBottom: 16 }}>
-            <div style={{ fontSize: 12, color: "#7aa8b8", marginBottom: 8, textAlign: "left", fontWeight: 600 }}>🎯 Schwierigkeit</div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 8 }}>
-              {DIFFICULTY_LEVELS.map(lvl => {
-                const active = difficulty === lvl.id;
-                return (
-                  <button key={lvl.id} onClick={() => setDifficulty(lvl.id)} style={{
-                    padding: "10px 4px",
-                    background: active ? "rgba(59,130,246,0.18)" : "rgba(255,255,255,0.04)",
-                    border: active ? "2px solid #3b82f6" : "2px solid rgba(255,255,255,0.08)",
-                    borderRadius: 12,
-                    cursor: "pointer",
-                    textAlign: "center",
-                    transition: "all 0.15s",
-                  }}>
-                    <div style={{ fontSize: 16, lineHeight: 1, marginBottom: 3 }}>{lvl.icon}</div>
-                    <div style={{ fontSize: 11, fontWeight: 700, color: active ? "#e8f4f8" : "#94c8d8" }}>{lvl.label}</div>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          <button onClick={() => setScreen("topics")} style={{
-            width: "100%",
+          {/* Karte 1: Solo */}
+          <div style={{
+            background: "rgba(59,130,246,0.08)",
+            border: "1px solid rgba(59,130,246,0.25)",
+            borderRadius: 18,
             padding: "16px",
-            fontSize: 18,
-            fontWeight: 700,
-            background: "linear-gradient(135deg, #3b82f6, #8b5cf6)",
-            color: "#fff",
-            border: "none",
-            borderRadius: 16,
-            cursor: "pointer",
-            boxShadow: "0 8px 32px rgba(59,130,246,0.4)",
-            transition: "transform 0.1s",
-          }}
-            onMouseDown={e => e.currentTarget.style.transform = "scale(0.97)"}
-            onMouseUp={e => e.currentTarget.style.transform = "scale(1)"}
-          >
-            {gamesPlayed > 0 ? "Weiterspielen" : "Spielen"} →
-          </button>
+            marginBottom: 12,
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
+              <span style={{ fontSize: 26 }}>🧩</span>
+              <div style={{ textAlign: "left" }}>
+                <div style={{ fontSize: 16, fontWeight: 800, color: "#e8f4f8" }}>Solo spielen</div>
+                <div style={{ fontSize: 12, color: "#94c8d8" }}>Ein Thema, 10 Fragen, dein Highscore</div>
+              </div>
+            </div>
 
-          {shownStreak > 0 && (
-            <div style={{
-              marginTop: 14, marginBottom: -2, textAlign: "center",
-              fontSize: 13, fontWeight: 700, color: "#fb923c",
-            }}>🔥 {shownStreak} {shownStreak === 1 ? "Tag" : "Tage"} in Folge!</div>
-          )}
+            {/* Zeit-Wähler */}
+            <div style={{ marginBottom: 12 }}>
+              <div style={{ fontSize: 11, color: "#7aa8b8", marginBottom: 6, textAlign: "left", fontWeight: 600 }}>⏱️ Zeit pro Frage</div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 6 }}>
+                {TIME_MODES.map(m => {
+                  const active = timeMode === m.id;
+                  return (
+                    <button key={m.id} onClick={() => setTimeMode(m.id)} style={{
+                      padding: "8px 2px",
+                      background: active ? "rgba(59,130,246,0.25)" : "rgba(255,255,255,0.04)",
+                      border: active ? "2px solid #3b82f6" : "2px solid rgba(255,255,255,0.08)",
+                      borderRadius: 10, cursor: "pointer", textAlign: "center",
+                    }}>
+                      <div style={{ fontSize: 15, lineHeight: 1, marginBottom: 2 }}>{m.icon}</div>
+                      <div style={{ fontSize: 10, fontWeight: 700, color: active ? "#e8f4f8" : "#94c8d8" }}>{m.label}</div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
 
-          <div style={{ display: "flex", gap: 10, marginTop: 10 }}>
+            {/* Schwierigkeit */}
+            <div style={{ marginBottom: 14 }}>
+              <div style={{ fontSize: 11, color: "#7aa8b8", marginBottom: 6, textAlign: "left", fontWeight: 600 }}>🎯 Schwierigkeit</div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 6 }}>
+                {DIFFICULTY_LEVELS.map(lvl => {
+                  const active = difficulty === lvl.id;
+                  return (
+                    <button key={lvl.id} onClick={() => setDifficulty(lvl.id)} style={{
+                      padding: "8px 2px",
+                      background: active ? "rgba(59,130,246,0.25)" : "rgba(255,255,255,0.04)",
+                      border: active ? "2px solid #3b82f6" : "2px solid rgba(255,255,255,0.08)",
+                      borderRadius: 10, cursor: "pointer", textAlign: "center",
+                    }}>
+                      <div style={{ fontSize: 14, lineHeight: 1, marginBottom: 2 }}>{lvl.icon}</div>
+                      <div style={{ fontSize: 10, fontWeight: 700, color: active ? "#e8f4f8" : "#94c8d8" }}>{lvl.label}</div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <button onClick={() => setScreen("topics")} style={{
+              width: "100%", padding: "14px", fontSize: 16, fontWeight: 700,
+              background: "linear-gradient(135deg, #3b82f6, #8b5cf6)",
+              color: "#fff", border: "none", borderRadius: 14, cursor: "pointer",
+              boxShadow: "0 6px 20px rgba(59,130,246,0.35)",
+            }}>
+              {gamesPlayed > 0 ? "Thema wählen & weiterspielen" : "Thema wählen & spielen"} →
+            </button>
+          </div>
+
+          {/* Karte 2: Duell */}
+          <div style={{
+            background: "rgba(244,63,94,0.08)",
+            border: "1px solid rgba(244,63,94,0.25)",
+            borderRadius: 18,
+            padding: "16px",
+            marginBottom: 12,
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
+              <span style={{ fontSize: 26 }}>⚔️</span>
+              <div style={{ textAlign: "left" }}>
+                <div style={{ fontSize: 16, fontWeight: 800, color: "#e8f4f8" }}>Duell</div>
+                <div style={{ fontSize: 12, color: "#94c8d8" }}>Zwei Spieler, ein Gerät, abwechselnd</div>
+              </div>
+            </div>
+            <button onClick={startDuel} style={{
+              width: "100%", padding: "14px", fontSize: 16, fontWeight: 700,
+              background: "linear-gradient(135deg, #f43f5e, #e11d48)",
+              color: "#fff", border: "none", borderRadius: 14, cursor: "pointer",
+              boxShadow: "0 6px 20px rgba(244,63,94,0.3)",
+            }}>Duell starten →</button>
+          </div>
+
+          {/* Karte 3: Tägliche Challenge */}
+          <div style={{
+            background: "rgba(16,185,129,0.08)",
+            border: "1px solid rgba(16,185,129,0.25)",
+            borderRadius: 18,
+            padding: "16px",
+            marginBottom: 20,
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
+              <span style={{ fontSize: 26 }}>📅</span>
+              <div style={{ textAlign: "left", flex: 1 }}>
+                <div style={{ fontSize: 16, fontWeight: 800, color: "#e8f4f8" }}>Tägliche Challenge</div>
+                <div style={{ fontSize: 12, color: "#94c8d8" }}>
+                  15 Fragen · ×2 Punkte
+                  {dailyHighscore > 0 ? ` · Bestwert ${dailyHighscore}` : ""}
+                </div>
+              </div>
+              {shownStreak > 0 && (
+                <span style={{ fontSize: 13, fontWeight: 700, color: "#fb923c", whiteSpace: "nowrap" }}>🔥 {shownStreak}</span>
+              )}
+            </div>
             <button
               onClick={startDaily}
               disabled={dailyPlayedToday}
               style={{
-                flex: 1, padding: "13px 8px", fontSize: 14, fontWeight: 700,
+                width: "100%", padding: "14px", fontSize: 16, fontWeight: 700,
                 background: dailyPlayedToday ? "rgba(16,185,129,0.15)" : "linear-gradient(135deg, #10b981, #059669)",
                 color: dailyPlayedToday ? "#6ee7b7" : "#fff",
                 border: dailyPlayedToday ? "1px solid rgba(16,185,129,0.4)" : "none",
                 borderRadius: 14, cursor: dailyPlayedToday ? "default" : "pointer",
-                lineHeight: 1.3,
               }}>
-              {dailyPlayedToday
-                ? <>✓ Heute erledigt<br/><span style={{ fontSize: 12, fontWeight: 600 }}>{dailyDone.score} 💎</span></>
-                : <>📅 Tägliche Challenge<br/><span style={{ fontSize: 11, fontWeight: 600, opacity: 0.85 }}>15 Fragen · ×2 Punkte</span></>}
+              {dailyPlayedToday ? `✓ Heute erledigt – ${dailyDone.score} 💎` : "Challenge starten →"}
             </button>
-            <button onClick={startDuel} style={{
-              flex: 1, padding: "13px 8px", fontSize: 14, fontWeight: 700,
-              background: "linear-gradient(135deg, #f43f5e, #e11d48)",
-              color: "#fff", border: "none", borderRadius: 14, cursor: "pointer",
-              lineHeight: 1.3,
-            }}>⚔️ Duell<br/><span style={{ fontSize: 11, fontWeight: 600, opacity: 0.85 }}>2 Spieler</span></button>
           </div>
 
           <button onClick={openLeaderboard} style={{
             width: "100%",
-            marginTop: 10,
             padding: "13px",
             fontSize: 15,
             fontWeight: 600,
@@ -2611,7 +2660,7 @@ function LaenderDuell() {
             }}>📅 Tägliche Challenge{dailyStreak > 0 ? `  ·  🔥 ${dailyStreak} ${dailyStreak === 1 ? "Tag" : "Tage"}` : ""}</div>
           )}
 
-          {points >= highscore && points > 0 && (
+          {points >= (gameMode === "daily" ? dailyHighscore : highscore) && points > 0 && (
             <div style={{
               display: "inline-block",
               background: "linear-gradient(135deg, #fbbf24, #f59e0b)",
@@ -2690,10 +2739,10 @@ function LaenderDuell() {
               padding: "16px",
               marginBottom: 16,
             }}>
-              {submitted ? (
+              {(gameMode === "daily" ? dailySubmitted : submitted) ? (
                 <div style={{ textAlign: "center", color: "#fcd34d", fontSize: 14, fontWeight: 600 }}>
-                  ✅ In der Rangliste eingetragen!
-                  <button onClick={openLeaderboard} style={{
+                  ✅ In der {gameMode === "daily" ? "Tages-Rangliste" : "Rangliste"} eingetragen!
+                  <button onClick={() => openLeaderboard(gameMode === "daily" ? "daily" : "solo")} style={{
                     display: "block", margin: "10px auto 0", padding: "8px 16px",
                     background: "rgba(251,191,36,0.15)", border: "1px solid rgba(251,191,36,0.4)",
                     borderRadius: 10, color: "#fbbf24", fontSize: 13, fontWeight: 600, cursor: "pointer",
@@ -2702,7 +2751,7 @@ function LaenderDuell() {
               ) : (
                 <div>
                   <div style={{ fontSize: 13, color: "#fcd34d", marginBottom: 8, fontWeight: 600, textAlign: "center" }}>
-                    🏆 Trag dich in die Rangliste ein
+                    {gameMode === "daily" ? "🏆 Trag dich in die Tages-Rangliste ein" : "🏆 Trag dich in die Rangliste ein"}
                   </div>
                   <div style={{ display: "flex", gap: 8 }}>
                     <input
@@ -2728,6 +2777,11 @@ function LaenderDuell() {
                       }}
                     >{submitting ? "…" : "Senden"}</button>
                   </div>
+                  {gameMode === "daily" && (
+                    <div style={{ fontSize: 11, color: "#fb923c", marginTop: 8, textAlign: "center" }}>
+                      🔥 Deine Streak ({dailyStreak}) wird mit eingetragen
+                    </div>
+                  )}
                   {lbError && <div style={{ fontSize: 12, color: "#fca5a5", marginTop: 8, textAlign: "center" }}>{lbError}</div>}
                 </div>
               )}
@@ -2782,7 +2836,23 @@ function LaenderDuell() {
         <div style={{ textAlign: "center", maxWidth: 440, width: "100%" }}>
           <div style={{ fontSize: 48, marginBottom: 6 }}>🏆</div>
           <h2 style={{ fontSize: 26, fontWeight: 800, margin: "0 0 6px", color: "#e8f4f8" }}>Rangliste</h2>
-          <p style={{ color: "#94c8d8", fontSize: 14, margin: "0 0 24px" }}>Die besten 20 Ergebnisse weltweit</p>
+          <p style={{ color: "#94c8d8", fontSize: 14, margin: "0 0 18px" }}>Die besten 20 weltweit</p>
+
+          {/* Tabs */}
+          <div style={{ display: "flex", gap: 8, marginBottom: 18 }}>
+            <button onClick={() => setLbTab("solo")} style={{
+              flex: 1, padding: "10px", fontSize: 14, fontWeight: 700,
+              background: lbTab === "solo" ? "rgba(100,216,255,0.18)" : "rgba(255,255,255,0.04)",
+              border: lbTab === "solo" ? "2px solid #64d8ff" : "2px solid rgba(255,255,255,0.08)",
+              borderRadius: 12, color: lbTab === "solo" ? "#e8f4f8" : "#94c8d8", cursor: "pointer",
+            }}>🧩 Solo</button>
+            <button onClick={() => setLbTab("daily")} style={{
+              flex: 1, padding: "10px", fontSize: 14, fontWeight: 700,
+              background: lbTab === "daily" ? "rgba(16,185,129,0.18)" : "rgba(255,255,255,0.04)",
+              border: lbTab === "daily" ? "2px solid #10b981" : "2px solid rgba(255,255,255,0.08)",
+              borderRadius: 12, color: lbTab === "daily" ? "#e8f4f8" : "#94c8d8", cursor: "pointer",
+            }}>📅 Tageschallenge</button>
+          </div>
 
           {!LEADERBOARD_ENABLED ? (
             <div style={{
@@ -2802,34 +2872,45 @@ function LaenderDuell() {
             <div style={{ padding: "40px 0", color: "#64d8ff", fontSize: 15 }}>Lädt…</div>
           ) : lbError ? (
             <div style={{ padding: "24px", color: "#fca5a5", fontSize: 14 }}>{lbError}</div>
-          ) : lbEntries.length === 0 ? (
-            <div style={{ padding: "40px 20px", color: "#7aa8b8", fontSize: 14 }}>
-              Noch keine Einträge – sei der Erste!
-            </div>
-          ) : (
-            <div style={{ marginBottom: 20 }}>
-              {lbEntries.map((e, i) => {
-                const medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `${i + 1}.`;
-                return (
-                  <div key={i} style={{
-                    display: "flex", alignItems: "center", gap: 12,
-                    padding: "12px 14px",
-                    background: i < 3 ? "rgba(251,191,36,0.08)" : "rgba(255,255,255,0.03)",
-                    border: "1px solid " + (i < 3 ? "rgba(251,191,36,0.2)" : "rgba(255,255,255,0.06)"),
-                    borderRadius: 12,
-                    marginBottom: 6,
-                  }}>
-                    <span style={{ fontSize: 16, fontWeight: 700, width: 32, textAlign: "center", color: i < 3 ? "#fbbf24" : "#7aa8b8" }}>{medal}</span>
-                    <div style={{ flex: 1, textAlign: "left", minWidth: 0 }}>
-                      <div style={{ fontSize: 15, fontWeight: 600, color: "#e8f4f8", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{e.name}</div>
-                      <div style={{ fontSize: 12, color: "#6a9aaa" }}>{e.topic}</div>
+          ) : (() => {
+            const entries = lbTab === "daily" ? dailyLbEntries : lbEntries;
+            if (entries.length === 0) {
+              return (
+                <div style={{ padding: "40px 20px", color: "#7aa8b8", fontSize: 14 }}>
+                  Noch keine Einträge – sei der Erste!
+                </div>
+              );
+            }
+            return (
+              <div style={{ marginBottom: 20 }}>
+                {entries.map((e, i) => {
+                  const medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `${i + 1}.`;
+                  const accent = lbTab === "daily" ? "#6ee7b7" : "#64d8ff";
+                  return (
+                    <div key={i} style={{
+                      display: "flex", alignItems: "center", gap: 12,
+                      padding: "12px 14px",
+                      background: i < 3 ? "rgba(251,191,36,0.08)" : "rgba(255,255,255,0.03)",
+                      border: "1px solid " + (i < 3 ? "rgba(251,191,36,0.2)" : "rgba(255,255,255,0.06)"),
+                      borderRadius: 12,
+                      marginBottom: 6,
+                    }}>
+                      <span style={{ fontSize: 16, fontWeight: 700, width: 32, textAlign: "center", color: i < 3 ? "#fbbf24" : "#7aa8b8" }}>{medal}</span>
+                      <div style={{ flex: 1, textAlign: "left", minWidth: 0 }}>
+                        <div style={{ fontSize: 15, fontWeight: 600, color: "#e8f4f8", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{e.name}</div>
+                        <div style={{ fontSize: 12, color: "#6a9aaa" }}>
+                          {lbTab === "daily"
+                            ? (e.streak > 0 ? `🔥 ${e.streak} ${e.streak === 1 ? "Tag" : "Tage"} in Folge` : "Tageschallenge")
+                            : e.topic}
+                        </div>
+                      </div>
+                      <span style={{ fontSize: 16, fontWeight: 800, color: accent }}>{e.score} 💎</span>
                     </div>
-                    <span style={{ fontSize: 16, fontWeight: 800, color: "#64d8ff" }}>{e.score} 💎</span>
-                  </div>
-                );
-              })}
-            </div>
-          )}
+                  );
+                })}
+              </div>
+            );
+          })()}
 
           <button onClick={() => setScreen("home")} style={{
             background: "none", border: "none", color: "#6a9aaa", fontSize: 14, cursor: "pointer", marginTop: 8,
