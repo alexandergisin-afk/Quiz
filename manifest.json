@@ -1,13 +1,19 @@
 {
   "name": "Quiz-Duell",
   "short_name": "Quiz-Duell",
-  "description": "7 Themenwelten, je 10 Fragen – teste dein Wissen!",
+  "description": "Viele Themenwelten, hunderte Fragen – teste dein Wissen!",
   "start_url": "./",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#0f2027",
   "theme_color": "#0f2027",
   "icons": [
+    {
+      "src": "./icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
     {
       "src": "./icon.png",
       "sizes": "512x512",
