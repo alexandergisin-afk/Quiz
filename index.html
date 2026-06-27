@@ -1590,6 +1590,13 @@ async function submitDuelResult(duelId, isP1, scoreVal) {
 // ── App-Version & lokaler Speicher ────────────────────────────
 const APP_VERSION = "3.0"; // bei neuen Updates hochzählen, dann erscheint "Was ist neu?"
 
+// Nur die Neuerungen der AKTUELLEN Version. Bei jedem Update hier ersetzen.
+const WHATS_NEW = [
+  { icon: "🌐", title: "Online-Duelle", text: "Fordere Freunde heraus – jeder spielt, wann er mag." },
+  { icon: "🛡️", title: "Iron Man", text: "Spiele endlos weiter – bis zum ersten Fehler. Eigene Rangliste!" },
+  { icon: "🗂️", title: "Aufgeräumtes Menü", text: "Klarere Modus-Auswahl; Zeit & Schwierigkeit beim Solo-Start." },
+];
+
 const store = {
   get(key, fallback) {
     try {
@@ -1691,7 +1698,9 @@ function LaenderDuell() {
   const xpInLevel = totalXp % XP_PER_LEVEL;
   const timeModeMeta = TIME_MODES.find(m => m.id === timeMode) || TIME_MODES[2];
   // Iron Man & Online-Duell erzwingen einen knackigen Timer (15s)
-  const roundSeconds = (gameMode === "ironman" || gameMode === "online") ? 15 : timeModeMeta.seconds; // 0 = no timer
+  // Duell, Online & Iron Man: knackige 10s. Sonst die gewählte Zeit.
+  const roundSeconds = (gameMode === "duel" || gameMode === "online" || gameMode === "ironman") ? 10
+    : timeModeMeta.seconds; // 0 = no timer
   const timed = roundSeconds > 0;
   const todaySeed = dailySeed();
   const dailyPlayedToday = dailyDone.day === todaySeed;
@@ -1803,16 +1812,16 @@ function LaenderDuell() {
   const startDuel = () => {
     setSelectedTopic("mix");
     setGameMode("duel");
-    setQuestions(buildMixRound(TOTAL_QUESTIONS, difficulty !== "gemischt" ? difficulty : null));
+    setQuestions(buildMixRound(TOTAL_QUESTIONS, "schwer")); // Duell ist immer knackig: nur schwere Fragen
     resetRoundState();
     setScreen("game");
   };
 
-  // Iron Man — endlos, bis zum ersten Fehler. Großer Mix-Vorrat.
+  // Iron Man — endlos, bis zum ersten Fehler. Knackig: nur schwere Fragen.
   const startIronman = () => {
     setSelectedTopic("mix");
     setGameMode("ironman");
-    setQuestions(buildMixRound(IRONMAN_POOL, difficulty !== "gemischt" ? difficulty : null));
+    setQuestions(buildMixRound(IRONMAN_POOL, "schwer"));
     resetRoundState();
     setScreen("game");
   };
@@ -1851,7 +1860,7 @@ function LaenderDuell() {
     setShowOpponentPicker(false);
     setOdError("");
     try {
-      const qs = buildMixRound(TOTAL_QUESTIONS, difficulty !== "gemischt" ? difficulty : null);
+      const qs = buildMixRound(TOTAL_QUESTIONS, "schwer"); // Online-Duell ebenfalls knackig
       // Fragen kompakt für die DB serialisieren (nur was zum Wiederaufbau nötig ist)
       const duel = await createDuel(playerName.trim(), opponent, qs);
       // sofort selbst spielen
@@ -2290,18 +2299,7 @@ function LaenderDuell() {
               <p style={{ margin: "4px 0 0", fontSize: 12, color: "#6a9aaa" }}>Version {APP_VERSION}</p>
             </div>
 
-            {[
-              { icon: "🎲", title: "Bunter Mix", text: "Fragen aus allen Themen wild gemischt." },
-              { icon: "📅", title: "Tägliche Challenge", text: "Jeden Tag 10 Fragen – für alle gleich. Vergleicht euch!" },
-              { icon: "⚔️", title: "Duell zu zweit", text: "Tretet am selben Gerät gegeneinander an." },
-              { icon: "🃏", title: "Joker", text: "50:50 und die Zweite Chance helfen bei kniffligen Fragen." },
-              { icon: "🛡️", title: "Iron Man", text: "Spiele endlos weiter – bis zum ersten Fehler. Eigene Rangliste!" },
-              { icon: "🌐", title: "Online-Duelle", text: "Fordere Freunde heraus – jeder spielt, wann er mag." },
-              { icon: "📚", title: "Über 570 neue Fragen", text: "Jedes Thema hat jetzt rund 100 Fragen – kaum noch Wiederholungen." },
-              { icon: "🔥", title: "Tägliche Challenge neu", text: "15 knifflige Fragen, doppelte Punkte und eine Tagesstreak." },
-              { icon: "🎯", title: "Schwierigkeit & Duell-Joker", text: "Wähle die Schwierigkeit – und zwinge dem Gegner im Duell ein schweres Thema auf." },
-              { icon: "🧠", title: "Hunderte neue Fragen", text: "Neues Thema Allgemeinwissen und viele Fragen mehr in jeder Kategorie." },
-            ].map((f, i) => (
+            {WHATS_NEW.map((f, i) => (
               <div key={i} style={{ display: "flex", gap: 12, alignItems: "flex-start", marginBottom: 14 }}>
                 <span style={{ fontSize: 24, lineHeight: 1.2 }}>{f.icon}</span>
                 <div style={{ textAlign: "left" }}>
@@ -2374,75 +2372,7 @@ function LaenderDuell() {
 
           {/* ── Drei Modus-Karten ── */}
 
-          {/* Karte 1: Solo */}
-          <div style={{
-            background: "rgba(59,130,246,0.08)",
-            border: "1px solid rgba(59,130,246,0.25)",
-            borderRadius: 18,
-            padding: "16px",
-            marginBottom: 12,
-          }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
-              <span style={{ fontSize: 26 }}>🧩</span>
-              <div style={{ textAlign: "left" }}>
-                <div style={{ fontSize: 16, fontWeight: 800, color: "#e8f4f8" }}>Solo spielen</div>
-                <div style={{ fontSize: 12, color: "#94c8d8" }}>Ein Thema, 10 Fragen, dein Highscore</div>
-              </div>
-            </div>
-
-            {/* Zeit-Wähler */}
-            <div style={{ marginBottom: 12 }}>
-              <div style={{ fontSize: 11, color: "#7aa8b8", marginBottom: 6, textAlign: "left", fontWeight: 600 }}>⏱️ Zeit pro Frage</div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 6 }}>
-                {TIME_MODES.map(m => {
-                  const active = timeMode === m.id;
-                  return (
-                    <button key={m.id} onClick={() => setTimeMode(m.id)} style={{
-                      padding: "8px 2px",
-                      background: active ? "rgba(59,130,246,0.25)" : "rgba(255,255,255,0.04)",
-                      border: active ? "2px solid #3b82f6" : "2px solid rgba(255,255,255,0.08)",
-                      borderRadius: 10, cursor: "pointer", textAlign: "center",
-                    }}>
-                      <div style={{ fontSize: 15, lineHeight: 1, marginBottom: 2 }}>{m.icon}</div>
-                      <div style={{ fontSize: 10, fontWeight: 700, color: active ? "#e8f4f8" : "#94c8d8" }}>{m.label}</div>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Schwierigkeit */}
-            <div style={{ marginBottom: 14 }}>
-              <div style={{ fontSize: 11, color: "#7aa8b8", marginBottom: 6, textAlign: "left", fontWeight: 600 }}>🎯 Schwierigkeit</div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 6 }}>
-                {DIFFICULTY_LEVELS.map(lvl => {
-                  const active = difficulty === lvl.id;
-                  return (
-                    <button key={lvl.id} onClick={() => setDifficulty(lvl.id)} style={{
-                      padding: "8px 2px",
-                      background: active ? "rgba(59,130,246,0.25)" : "rgba(255,255,255,0.04)",
-                      border: active ? "2px solid #3b82f6" : "2px solid rgba(255,255,255,0.08)",
-                      borderRadius: 10, cursor: "pointer", textAlign: "center",
-                    }}>
-                      <div style={{ fontSize: 14, lineHeight: 1, marginBottom: 2 }}>{lvl.icon}</div>
-                      <div style={{ fontSize: 10, fontWeight: 700, color: active ? "#e8f4f8" : "#94c8d8" }}>{lvl.label}</div>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            <button onClick={() => setScreen("topics")} style={{
-              width: "100%", padding: "14px", fontSize: 16, fontWeight: 700,
-              background: "linear-gradient(135deg, #3b82f6, #8b5cf6)",
-              color: "#fff", border: "none", borderRadius: 14, cursor: "pointer",
-              boxShadow: "0 6px 20px rgba(59,130,246,0.35)",
-            }}>
-              {gamesPlayed > 0 ? "Thema wählen & weiterspielen" : "Thema wählen & spielen"} →
-            </button>
-          </div>
-
-          {/* Karte 2: Duell */}
+          {/* Karte 1: Duell */}
           <div style={{
             background: "rgba(244,63,94,0.08)",
             border: "1px solid rgba(244,63,94,0.25)",
@@ -2454,7 +2384,7 @@ function LaenderDuell() {
               <span style={{ fontSize: 26 }}>⚔️</span>
               <div style={{ textAlign: "left" }}>
                 <div style={{ fontSize: 16, fontWeight: 800, color: "#e8f4f8" }}>Duell</div>
-                <div style={{ fontSize: 12, color: "#94c8d8" }}>Gegeneinander antreten</div>
+                <div style={{ fontSize: 12, color: "#94c8d8" }}>⏱️ 10 Sek · 🔴 Schwer · für beide gleich</div>
               </div>
             </div>
             <button onClick={startDuel} style={{
@@ -2470,39 +2400,13 @@ function LaenderDuell() {
             }}>🌐 Online · gegen Freunde →</button>
           </div>
 
-          {/* Karte: Iron Man */}
-          <div style={{
-            background: "rgba(234,179,8,0.08)",
-            border: "1px solid rgba(234,179,8,0.3)",
-            borderRadius: 18,
-            padding: "16px",
-            marginBottom: 12,
-          }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
-              <span style={{ fontSize: 26 }}>🛡️</span>
-              <div style={{ textAlign: "left", flex: 1 }}>
-                <div style={{ fontSize: 16, fontWeight: 800, color: "#e8f4f8" }}>Iron Man</div>
-                <div style={{ fontSize: 12, color: "#94c8d8" }}>
-                  Endlos bis zum ersten Fehler
-                  {ironmanHighscore > 0 ? ` · Rekord ${ironmanHighscore}` : ""}
-                </div>
-              </div>
-            </div>
-            <button onClick={startIronman} style={{
-              width: "100%", padding: "14px", fontSize: 16, fontWeight: 700,
-              background: "linear-gradient(135deg, #eab308, #ca8a04)",
-              color: "#1a1a1a", border: "none", borderRadius: 14, cursor: "pointer",
-              boxShadow: "0 6px 20px rgba(234,179,8,0.3)",
-            }}>Iron Man starten →</button>
-          </div>
-
-          {/* Karte 3: Tägliche Challenge */}
+          {/* Karte 2: Tägliche Challenge */}
           <div style={{
             background: "rgba(16,185,129,0.08)",
             border: "1px solid rgba(16,185,129,0.25)",
             borderRadius: 18,
             padding: "16px",
-            marginBottom: 20,
+            marginBottom: 12,
           }}>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
               <span style={{ fontSize: 26 }}>📅</span>
@@ -2528,6 +2432,57 @@ function LaenderDuell() {
                 borderRadius: 14, cursor: dailyPlayedToday ? "default" : "pointer",
               }}>
               {dailyPlayedToday ? `✓ Heute erledigt – ${dailyDone.score} 💎` : "Challenge starten →"}
+            </button>
+          </div>
+
+          {/* Karte 3: Iron Man */}
+          <div style={{
+            background: "rgba(234,179,8,0.08)",
+            border: "1px solid rgba(234,179,8,0.3)",
+            borderRadius: 18,
+            padding: "16px",
+            marginBottom: 12,
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
+              <span style={{ fontSize: 26 }}>🛡️</span>
+              <div style={{ textAlign: "left", flex: 1 }}>
+                <div style={{ fontSize: 16, fontWeight: 800, color: "#e8f4f8" }}>Iron Man</div>
+                <div style={{ fontSize: 12, color: "#94c8d8" }}>
+                  ⏱️ 10 Sek · 🔴 Schwer · bis zum ersten Fehler
+                  {ironmanHighscore > 0 ? ` · Rekord ${ironmanHighscore}` : ""}
+                </div>
+              </div>
+            </div>
+            <button onClick={startIronman} style={{
+              width: "100%", padding: "14px", fontSize: 16, fontWeight: 700,
+              background: "linear-gradient(135deg, #eab308, #ca8a04)",
+              color: "#1a1a1a", border: "none", borderRadius: 14, cursor: "pointer",
+              boxShadow: "0 6px 20px rgba(234,179,8,0.3)",
+            }}>Iron Man starten →</button>
+          </div>
+
+          {/* Karte 4: Solo */}
+          <div style={{
+            background: "rgba(59,130,246,0.08)",
+            border: "1px solid rgba(59,130,246,0.25)",
+            borderRadius: 18,
+            padding: "16px",
+            marginBottom: 20,
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
+              <span style={{ fontSize: 26 }}>🧩</span>
+              <div style={{ textAlign: "left" }}>
+                <div style={{ fontSize: 16, fontWeight: 800, color: "#e8f4f8" }}>Solo spielen</div>
+                <div style={{ fontSize: 12, color: "#94c8d8" }}>Ein Thema, 10 Fragen, dein Highscore</div>
+              </div>
+            </div>
+            <button onClick={() => setScreen("topics")} style={{
+              width: "100%", padding: "14px", fontSize: 16, fontWeight: 700,
+              background: "linear-gradient(135deg, #3b82f6, #8b5cf6)",
+              color: "#fff", border: "none", borderRadius: 14, cursor: "pointer",
+              boxShadow: "0 6px 20px rgba(59,130,246,0.35)",
+            }}>
+              {gamesPlayed > 0 ? "Thema wählen & weiterspielen" : "Thema wählen & spielen"} →
             </button>
           </div>
 
@@ -2564,7 +2519,49 @@ function LaenderDuell() {
         <div style={{ textAlign: "center", maxWidth: 440, width: "100%" }}>
           <div style={{ fontSize: 44, marginBottom: 6 }}>🗂️</div>
           <h2 style={{ fontSize: 26, fontWeight: 800, margin: "0 0 6px", color: "#e8f4f8" }}>Thema wählen</h2>
-          <p style={{ color: "#94c8d8", fontSize: 14, margin: "0 0 24px" }}>Worüber willst du raten?</p>
+          <p style={{ color: "#94c8d8", fontSize: 14, margin: "0 0 20px" }}>Worüber willst du raten?</p>
+
+          {/* Zeit-Wähler */}
+          <div style={{ marginBottom: 12 }}>
+            <div style={{ fontSize: 12, color: "#7aa8b8", marginBottom: 7, textAlign: "left", fontWeight: 600 }}>⏱️ Zeit pro Frage</div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 7 }}>
+              {TIME_MODES.map(m => {
+                const active = timeMode === m.id;
+                return (
+                  <button key={m.id} onClick={() => setTimeMode(m.id)} style={{
+                    padding: "9px 2px",
+                    background: active ? "rgba(59,130,246,0.25)" : "rgba(255,255,255,0.04)",
+                    border: active ? "2px solid #3b82f6" : "2px solid rgba(255,255,255,0.08)",
+                    borderRadius: 10, cursor: "pointer", textAlign: "center",
+                  }}>
+                    <div style={{ fontSize: 16, lineHeight: 1, marginBottom: 3 }}>{m.icon}</div>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: active ? "#e8f4f8" : "#94c8d8" }}>{m.label}</div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Schwierigkeit */}
+          <div style={{ marginBottom: 22 }}>
+            <div style={{ fontSize: 12, color: "#7aa8b8", marginBottom: 7, textAlign: "left", fontWeight: 600 }}>🎯 Schwierigkeit</div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 7 }}>
+              {DIFFICULTY_LEVELS.map(lvl => {
+                const active = difficulty === lvl.id;
+                return (
+                  <button key={lvl.id} onClick={() => setDifficulty(lvl.id)} style={{
+                    padding: "9px 2px",
+                    background: active ? "rgba(59,130,246,0.25)" : "rgba(255,255,255,0.04)",
+                    border: active ? "2px solid #3b82f6" : "2px solid rgba(255,255,255,0.08)",
+                    borderRadius: 10, cursor: "pointer", textAlign: "center",
+                  }}>
+                    <div style={{ fontSize: 15, lineHeight: 1, marginBottom: 3 }}>{lvl.icon}</div>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: active ? "#e8f4f8" : "#94c8d8" }}>{lvl.label}</div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
 
           <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 20 }}>
             {TOPICS.filter(topic => !topic.secret || gothicUnlocked).map(topic => (
