@@ -1343,6 +1343,7 @@ const DAILY_QUESTIONS = 15;       // Daily ist länger als normale Runden
 const DAILY_BONUS = 2;            // Punkte werden im Daily verdoppelt
 
 const TOTAL_QUESTIONS = 10;
+const IRONMAN_POOL = 60;   // großer Vorrat – Lauf endet meist vorher beim ersten Fehler
 const XP_PER_LEVEL = 300;
 
 const TIME_MODES = [
@@ -1442,8 +1443,45 @@ async function submitDailyScore(name, score, streak, day) {
   return { skipped: false };
 }
 
+// ── Iron-Man-Rangliste (eigene Tabelle 'ironman_scores', wertet die Serie) ──
+async function fetchIronmanLeaderboard() {
+  const res = await fetch(
+    `${SUPABASE_URL}/rest/v1/ironman_scores?select=name,score,created_at&order=score.desc&limit=20`,
+    { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } }
+  );
+  if (!res.ok) throw new Error("Iron-Man-Rangliste konnte nicht geladen werden.");
+  return res.json();
+}
+
+async function submitIronmanScore(name, score) {
+  const cleanName = name.slice(0, 20);
+  let existing = null;
+  try {
+    const r = await fetch(
+      `${SUPABASE_URL}/rest/v1/ironman_scores?select=score&name=eq.${encodeURIComponent(cleanName)}`,
+      { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } }
+    );
+    if (r.ok) { const rows = await r.json(); existing = rows[0]?.score ?? null; }
+  } catch (e) { /* ignore */ }
+  if (existing !== null && score <= existing) {
+    return { skipped: true, best: existing };
+  }
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/ironman_scores`, {
+    method: "POST",
+    headers: {
+      apikey: SUPABASE_KEY,
+      Authorization: `Bearer ${SUPABASE_KEY}`,
+      "Content-Type": "application/json",
+      Prefer: "resolution=merge-duplicates,return=minimal",
+    },
+    body: JSON.stringify({ name: cleanName, score }),
+  });
+  if (!res.ok) throw new Error("Iron-Man-Eintrag konnte nicht gespeichert werden.");
+  return { skipped: false };
+}
+
 // ── App-Version & lokaler Speicher ────────────────────────────
-const APP_VERSION = "2.8"; // bei neuen Updates hochzählen, dann erscheint "Was ist neu?"
+const APP_VERSION = "2.9"; // bei neuen Updates hochzählen, dann erscheint "Was ist neu?"
 
 const store = {
   get(key, fallback) {
@@ -1488,6 +1526,7 @@ export default function LaenderDuell() {
   const [fiftyUsed, setFiftyUsed] = useState(false);
   const [secondChanceArmed, setSecondChanceArmed] = useState(false); // Joker aktiviert, noch nicht verbraucht
   const [secondChanceUsed, setSecondChanceUsed] = useState(false);   // Joker in dieser Runde schon genutzt
+  const [ironmanOver, setIronmanOver] = useState(false);             // Iron-Man-Lauf beim ersten Fehler beendet
   const [hiddenOptions, setHiddenOptions] = useState([]); // options removed by 50:50
   // Duel
   const [duelPlayer, setDuelPlayer] = useState(1);        // 1 or 2
@@ -1505,10 +1544,11 @@ export default function LaenderDuell() {
   const [playerName, setPlayerName] = useState(() => store.get("qd_playerName", ""));
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  // Daily leaderboard + tab switch ("solo" | "daily")
+  // Daily leaderboard + tab switch ("solo" | "daily" | "ironman")
   const [lbTab, setLbTab] = useState("solo");
   const [dailyLbEntries, setDailyLbEntries] = useState([]);
   const [dailySubmitted, setDailySubmitted] = useState(false);
+  const [ironmanLbEntries, setIronmanLbEntries] = useState([]);
   // Profil: Name-Eingabe-Overlay (beim ersten Start oder zum Ändern)
   const [showNamePrompt, setShowNamePrompt] = useState(false);
   const [nameInput, setNameInput] = useState("");
@@ -1516,6 +1556,7 @@ export default function LaenderDuell() {
   // Persistent progress (saved to device storage)
   const [highscore, setHighscore] = useState(() => store.get("qd_highscore", 0));
   const [dailyHighscore, setDailyHighscore] = useState(() => store.get("qd_dailyHighscore", 0));
+  const [ironmanHighscore, setIronmanHighscore] = useState(() => store.get("qd_ironmanHighscore", 0));
   const [totalXp, setTotalXp] = useState(() => store.get("qd_totalXp", 0));
   const [gamesPlayed, setGamesPlayed] = useState(() => store.get("qd_gamesPlayed", 0));
 
@@ -1535,7 +1576,8 @@ export default function LaenderDuell() {
   const level = Math.floor(totalXp / XP_PER_LEVEL) + 1;
   const xpInLevel = totalXp % XP_PER_LEVEL;
   const timeModeMeta = TIME_MODES.find(m => m.id === timeMode) || TIME_MODES[2];
-  const roundSeconds = timeModeMeta.seconds; // 0 = no timer
+  // Iron Man erzwingt einen knackigen Timer (15s), auch wenn sonst "Entspannt" gewählt ist
+  const roundSeconds = gameMode === "ironman" ? 15 : timeModeMeta.seconds; // 0 = no timer
   const timed = roundSeconds > 0;
   const todaySeed = dailySeed();
   const dailyPlayedToday = dailyDone.day === todaySeed;
@@ -1611,6 +1653,7 @@ export default function LaenderDuell() {
     setFiftyUsed(false);
     setSecondChanceArmed(false);
     setSecondChanceUsed(false);
+    setIronmanOver(false);
     setHiddenOptions([]);
     setDuelPlayer(1);
     setDuelScores({ 1: 0, 2: 0 });
@@ -1651,6 +1694,15 @@ export default function LaenderDuell() {
     setScreen("game");
   };
 
+  // Iron Man — endlos, bis zum ersten Fehler. Großer Mix-Vorrat.
+  const startIronman = () => {
+    setSelectedTopic("mix");
+    setGameMode("ironman");
+    setQuestions(buildMixRound(IRONMAN_POOL, difficulty !== "gemischt" ? difficulty : null));
+    resetRoundState();
+    setScreen("game");
+  };
+
   // Countdown timer per question (skipped in relaxed mode)
   useEffect(() => {
     if (!timed || screen !== "game" || answered || confirmQuit) return;
@@ -1667,6 +1719,7 @@ export default function LaenderDuell() {
     setAnswered(true);
     setSelected("__timeout__");
     setStreak(0);
+    if (gameMode === "ironman") setIronmanOver(true);
     setShake(true);
     setTimeout(() => setShake(false), 500);
     const q = questions[current];
@@ -1714,6 +1767,9 @@ export default function LaenderDuell() {
       if (gameMode !== "duel") {
         setStreak(0);
       }
+      if (gameMode === "ironman") {
+        setIronmanOver(true); // Lauf beendet
+      }
       setShake(true);
       setTimeout(() => setShake(false), 500);
     }
@@ -1738,6 +1794,15 @@ export default function LaenderDuell() {
 
   // Advance to next question or finish (shared by next button, skip, duel)
   const goNext = () => {
+    // Iron Man: Lauf endet beim ersten Fehler ODER wenn der Vorrat leer ist
+    if (gameMode === "ironman" && (ironmanOver || current + 1 >= roundTotal)) {
+      setIronmanHighscore(h => { const nv = Math.max(h, score); store.set("qd_ironmanHighscore", nv); return nv; });
+      setTotalXp(xp => xp + points);
+      setGamesPlayed(g => g + 1);
+      setSubmitted(false);
+      setScreen("result");
+      return;
+    }
     if (current + 1 >= roundTotal) {
       if (gameMode === "solo") {
         setHighscore(h => Math.max(h, points));
@@ -1798,12 +1863,14 @@ export default function LaenderDuell() {
     setLbLoading(true);
     setLbError("");
     try {
-      const [solo, daily] = await Promise.all([
+      const [solo, daily, ironman] = await Promise.all([
         fetchLeaderboard().catch(() => []),
         fetchDailyLeaderboard().catch(() => []),
+        fetchIronmanLeaderboard().catch(() => []),
       ]);
       setLbEntries(solo);
       setDailyLbEntries(daily);
+      setIronmanLbEntries(ironman);
     } catch (e) {
       setLbError(e.message || "Fehler beim Laden.");
     } finally {
@@ -1829,6 +1896,9 @@ export default function LaenderDuell() {
       if (gameMode === "daily") {
         result = await submitDailyScore(playerName.trim(), points, dailyStreak, todaySeed);
         setDailySubmitted(true);
+      } else if (gameMode === "ironman") {
+        result = await submitIronmanScore(playerName.trim(), score);
+        setSubmitted(true);
       } else {
         result = await submitScore(playerName.trim(), points, topicMeta.label);
         setSubmitted(true);
@@ -2045,6 +2115,7 @@ export default function LaenderDuell() {
               { icon: "📅", title: "Tägliche Challenge", text: "Jeden Tag 10 Fragen – für alle gleich. Vergleicht euch!" },
               { icon: "⚔️", title: "Duell zu zweit", text: "Tretet am selben Gerät gegeneinander an." },
               { icon: "🃏", title: "Joker", text: "50:50 und die Zweite Chance helfen bei kniffligen Fragen." },
+              { icon: "🛡️", title: "Iron Man", text: "Spiele endlos weiter – bis zum ersten Fehler. Eigene Rangliste!" },
               { icon: "📚", title: "Über 570 neue Fragen", text: "Jedes Thema hat jetzt rund 100 Fragen – kaum noch Wiederholungen." },
               { icon: "🔥", title: "Tägliche Challenge neu", text: "15 knifflige Fragen, doppelte Punkte und eine Tagesstreak." },
               { icon: "🎯", title: "Schwierigkeit & Duell-Joker", text: "Wähle die Schwierigkeit – und zwinge dem Gegner im Duell ein schweres Thema auf." },
@@ -2213,6 +2284,32 @@ export default function LaenderDuell() {
             }}>Duell starten →</button>
           </div>
 
+          {/* Karte: Iron Man */}
+          <div style={{
+            background: "rgba(234,179,8,0.08)",
+            border: "1px solid rgba(234,179,8,0.3)",
+            borderRadius: 18,
+            padding: "16px",
+            marginBottom: 12,
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
+              <span style={{ fontSize: 26 }}>🛡️</span>
+              <div style={{ textAlign: "left", flex: 1 }}>
+                <div style={{ fontSize: 16, fontWeight: 800, color: "#e8f4f8" }}>Iron Man</div>
+                <div style={{ fontSize: 12, color: "#94c8d8" }}>
+                  Endlos bis zum ersten Fehler
+                  {ironmanHighscore > 0 ? ` · Rekord ${ironmanHighscore}` : ""}
+                </div>
+              </div>
+            </div>
+            <button onClick={startIronman} style={{
+              width: "100%", padding: "14px", fontSize: 16, fontWeight: 700,
+              background: "linear-gradient(135deg, #eab308, #ca8a04)",
+              color: "#1a1a1a", border: "none", borderRadius: 14, cursor: "pointer",
+              boxShadow: "0 6px 20px rgba(234,179,8,0.3)",
+            }}>Iron Man starten →</button>
+          </div>
+
           {/* Karte 3: Tägliche Challenge */}
           <div style={{
             background: "rgba(16,185,129,0.08)",
@@ -2336,7 +2433,9 @@ export default function LaenderDuell() {
                 }}
               >←</button>
               <div style={{ fontSize: 13, color: "#64d8ff", fontWeight: 600 }}>
-                {topicMeta.icon} {current + 1} / {roundTotal}
+                {gameMode === "ironman"
+                  ? `🛡️ Iron Man · Serie: ${score}`
+                  : `${topicMeta.icon} ${current + 1} / ${roundTotal}`}
               </div>
             </div>
             <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
@@ -2413,8 +2512,12 @@ export default function LaenderDuell() {
           <div style={{ height: 4, background: "rgba(255,255,255,0.08)", borderRadius: 4, marginBottom: 24, overflow: "hidden" }}>
             <div style={{
               height: "100%",
-              width: `${((current + 1) / roundTotal) * 100}%`,
-              background: "linear-gradient(90deg, #3b82f6, #8b5cf6)",
+              width: gameMode === "ironman"
+                ? `${Math.min(100, ironmanHighscore > 0 ? (score / ironmanHighscore) * 100 : (score % 10) * 10)}%`
+                : `${((current + 1) / roundTotal) * 100}%`,
+              background: gameMode === "ironman"
+                ? "linear-gradient(90deg, #22c55e, #eab308)"
+                : "linear-gradient(90deg, #3b82f6, #8b5cf6)",
               borderRadius: 4,
               transition: "width 0.4s ease",
             }} />
@@ -2605,11 +2708,15 @@ export default function LaenderDuell() {
                 borderRadius: 14,
                 cursor: "pointer",
               }}>
-                {current + 1 >= roundTotal
-                  ? "Ergebnis anzeigen →"
-                  : gameMode === "duel"
-                    ? `Weiter zu Spieler ${duelPlayer === 1 ? 2 : 1} →`
-                    : "Weiter →"}
+                {(gameMode === "ironman" && ironmanOver)
+                  ? "Lauf beendet – Ergebnis →"
+                  : current + 1 >= roundTotal
+                    ? "Ergebnis anzeigen →"
+                    : gameMode === "duel"
+                      ? `Weiter zu Spieler ${duelPlayer === 1 ? 2 : 1} →`
+                      : gameMode === "ironman"
+                        ? "Weiter – nicht stolpern! →"
+                        : "Weiter →"}
               </button>
               {selectedTopic === "laender" && (
                 <div style={{
@@ -2777,7 +2884,9 @@ export default function LaenderDuell() {
             }}>📅 Tägliche Challenge{dailyStreak > 0 ? `  ·  🔥 ${dailyStreak} ${dailyStreak === 1 ? "Tag" : "Tage"}` : ""}</div>
           )}
 
-          {points >= (gameMode === "daily" ? dailyHighscore : highscore) && points > 0 && (
+          {(gameMode === "ironman"
+              ? score >= ironmanHighscore && score > 0
+              : points >= (gameMode === "daily" ? dailyHighscore : highscore) && points > 0) && (
             <div style={{
               display: "inline-block",
               background: "linear-gradient(135deg, #fbbf24, #f59e0b)",
@@ -2796,12 +2905,16 @@ export default function LaenderDuell() {
             fontSize: 44,
             fontWeight: 800,
             margin: "0 0 4px",
-            background: "linear-gradient(90deg, #64d8ff, #a78bfa)",
+            background: gameMode === "ironman"
+              ? "linear-gradient(90deg, #eab308, #22c55e)"
+              : "linear-gradient(90deg, #64d8ff, #a78bfa)",
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
-          }}>{points} 💎</div>
+          }}>{gameMode === "ironman" ? `${score} 🛡️` : `${points} 💎`}</div>
           <h2 style={{ fontSize: 20, fontWeight: 700, margin: "0 0 8px", color: "#c8e8f0" }}>
-            {score} / {roundTotal} richtig
+            {gameMode === "ironman"
+              ? `${score} ${score === 1 ? "Frage" : "Fragen"} am Stück!`
+              : `${score} / ${roundTotal} richtig`}
           </h2>
           <p style={{ color: "#94c8d8", fontSize: 15, margin: "0 0 28px" }}>{remark}</p>
 
@@ -2859,7 +2972,7 @@ export default function LaenderDuell() {
               {(gameMode === "daily" ? dailySubmitted : submitted) ? (
                 <div style={{ textAlign: "center", color: "#fcd34d", fontSize: 14, fontWeight: 600 }}>
                   ✅ {submitMsg || `In der ${gameMode === "daily" ? "Tages-Rangliste" : "Rangliste"} eingetragen!`}
-                  <button onClick={() => openLeaderboard(gameMode === "daily" ? "daily" : "solo")} style={{
+                  <button onClick={() => openLeaderboard(gameMode === "daily" ? "daily" : gameMode === "ironman" ? "ironman" : "solo")} style={{
                     display: "block", margin: "10px auto 0", padding: "8px 16px",
                     background: "rgba(251,191,36,0.15)", border: "1px solid rgba(251,191,36,0.4)",
                     borderRadius: 10, color: "#fbbf24", fontSize: 13, fontWeight: 600, cursor: "pointer",
@@ -2868,7 +2981,7 @@ export default function LaenderDuell() {
               ) : (
                 <div>
                   <div style={{ fontSize: 13, color: "#fcd34d", marginBottom: 10, fontWeight: 600, textAlign: "center" }}>
-                    {gameMode === "daily" ? "🏆 In die Tages-Rangliste eintragen" : "🏆 In die Rangliste eintragen"}
+                    {gameMode === "daily" ? "🏆 In die Tages-Rangliste eintragen" : gameMode === "ironman" ? "🛡️ In die Iron-Man-Rangliste eintragen" : "🏆 In die Rangliste eintragen"}
                   </div>
                   {playerName.trim() && (
                     <div style={{ fontSize: 13, color: "#94c8d8", marginBottom: 10, textAlign: "center" }}>
@@ -2904,20 +3017,23 @@ export default function LaenderDuell() {
           {gameMode !== "daily" && (
             <button onClick={() => {
               if (gameMode === "duel") startDuel();
+              else if (gameMode === "ironman") startIronman();
               else chooseTopic(selectedTopic);
             }} style={{
               width: "100%",
               padding: "16px",
               fontSize: 17,
               fontWeight: 700,
-              background: "linear-gradient(135deg, #3b82f6, #8b5cf6)",
-              color: "#fff",
+              background: gameMode === "ironman"
+                ? "linear-gradient(135deg, #eab308, #ca8a04)"
+                : "linear-gradient(135deg, #3b82f6, #8b5cf6)",
+              color: gameMode === "ironman" ? "#1a1a1a" : "#fff",
               border: "none",
               borderRadius: 16,
               cursor: "pointer",
               boxShadow: "0 8px 32px rgba(59,130,246,0.4)",
             }}>
-              {gameMode === "duel" ? "⚔️ Neues Duell" : `🔄 Nochmal: ${topicMeta.label}`}
+              {gameMode === "duel" ? "⚔️ Neues Duell" : gameMode === "ironman" ? "🛡️ Nochmal versuchen" : `🔄 Nochmal: ${topicMeta.label}`}
             </button>
           )}
           {gameMode === "daily" && (
@@ -2952,19 +3068,25 @@ export default function LaenderDuell() {
           <p style={{ color: "#94c8d8", fontSize: 14, margin: "0 0 18px" }}>Die besten 20 weltweit</p>
 
           {/* Tabs */}
-          <div style={{ display: "flex", gap: 8, marginBottom: 18 }}>
+          <div style={{ display: "flex", gap: 6, marginBottom: 18 }}>
             <button onClick={() => setLbTab("solo")} style={{
-              flex: 1, padding: "10px", fontSize: 14, fontWeight: 700,
+              flex: 1, padding: "10px 4px", fontSize: 13, fontWeight: 700,
               background: lbTab === "solo" ? "rgba(100,216,255,0.18)" : "rgba(255,255,255,0.04)",
               border: lbTab === "solo" ? "2px solid #64d8ff" : "2px solid rgba(255,255,255,0.08)",
               borderRadius: 12, color: lbTab === "solo" ? "#e8f4f8" : "#94c8d8", cursor: "pointer",
             }}>🧩 Solo</button>
             <button onClick={() => setLbTab("daily")} style={{
-              flex: 1, padding: "10px", fontSize: 14, fontWeight: 700,
+              flex: 1, padding: "10px 4px", fontSize: 13, fontWeight: 700,
               background: lbTab === "daily" ? "rgba(16,185,129,0.18)" : "rgba(255,255,255,0.04)",
               border: lbTab === "daily" ? "2px solid #10b981" : "2px solid rgba(255,255,255,0.08)",
               borderRadius: 12, color: lbTab === "daily" ? "#e8f4f8" : "#94c8d8", cursor: "pointer",
-            }}>📅 Tageschallenge</button>
+            }}>📅 Daily</button>
+            <button onClick={() => setLbTab("ironman")} style={{
+              flex: 1, padding: "10px 4px", fontSize: 13, fontWeight: 700,
+              background: lbTab === "ironman" ? "rgba(234,179,8,0.18)" : "rgba(255,255,255,0.04)",
+              border: lbTab === "ironman" ? "2px solid #eab308" : "2px solid rgba(255,255,255,0.08)",
+              borderRadius: 12, color: lbTab === "ironman" ? "#e8f4f8" : "#94c8d8", cursor: "pointer",
+            }}>🛡️ Iron Man</button>
           </div>
 
           {!LEADERBOARD_ENABLED ? (
@@ -2986,7 +3108,7 @@ export default function LaenderDuell() {
           ) : lbError ? (
             <div style={{ padding: "24px", color: "#fca5a5", fontSize: 14 }}>{lbError}</div>
           ) : (() => {
-            const entries = lbTab === "daily" ? dailyLbEntries : lbEntries;
+            const entries = lbTab === "daily" ? dailyLbEntries : lbTab === "ironman" ? ironmanLbEntries : lbEntries;
             if (entries.length === 0) {
               return (
                 <div style={{ padding: "40px 20px", color: "#7aa8b8", fontSize: 14 }}>
@@ -2998,7 +3120,7 @@ export default function LaenderDuell() {
               <div style={{ marginBottom: 20 }}>
                 {entries.map((e, i) => {
                   const medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `${i + 1}.`;
-                  const accent = lbTab === "daily" ? "#6ee7b7" : "#64d8ff";
+                  const accent = lbTab === "daily" ? "#6ee7b7" : lbTab === "ironman" ? "#fbbf24" : "#64d8ff";
                   return (
                     <div key={i} style={{
                       display: "flex", alignItems: "center", gap: 12,
@@ -3014,10 +3136,14 @@ export default function LaenderDuell() {
                         <div style={{ fontSize: 12, color: "#6a9aaa" }}>
                           {lbTab === "daily"
                             ? (e.streak > 0 ? `🔥 ${e.streak} ${e.streak === 1 ? "Tag" : "Tage"} in Folge` : "Tageschallenge")
-                            : e.topic}
+                            : lbTab === "ironman"
+                              ? "längste Serie"
+                              : e.topic}
                         </div>
                       </div>
-                      <span style={{ fontSize: 16, fontWeight: 800, color: accent }}>{e.score} 💎</span>
+                      <span style={{ fontSize: 16, fontWeight: 800, color: accent }}>
+                        {lbTab === "ironman" ? `${e.score} 🛡️` : `${e.score} 💎`}
+                      </span>
                     </div>
                   );
                 })}
