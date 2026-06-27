@@ -1480,8 +1480,89 @@ async function submitIronmanScore(name, score) {
   return { skipped: false };
 }
 
+// ── Online-Duell (asynchron) ──────────────────────────────────
+// Tabelle 'players': name (unique). Tabelle 'duels': id, p1, p2, questions(jsonb),
+// p1_score, p2_score, p1_done, p2_done, created_at.
+
+// Spieler registrieren (für die Auswahlliste) – upsert auf name
+async function registerPlayer(name) {
+  const cleanName = name.slice(0, 20);
+  try {
+    await fetch(`${SUPABASE_URL}/rest/v1/players`, {
+      method: "POST",
+      headers: {
+        apikey: SUPABASE_KEY,
+        Authorization: `Bearer ${SUPABASE_KEY}`,
+        "Content-Type": "application/json",
+        Prefer: "resolution=merge-duplicates,return=minimal",
+      },
+      body: JSON.stringify({ name: cleanName, seen_at: new Date().toISOString() }),
+    });
+  } catch (e) { /* ignore – nicht kritisch */ }
+}
+
+// Alle Spieler holen (für die Gegnerauswahl)
+async function fetchPlayers() {
+  const res = await fetch(
+    `${SUPABASE_URL}/rest/v1/players?select=name,seen_at&order=seen_at.desc&limit=50`,
+    { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } }
+  );
+  if (!res.ok) throw new Error("Spielerliste konnte nicht geladen werden.");
+  return res.json();
+}
+
+// Neues Duell anlegen
+async function createDuel(p1, p2, questions) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/duels`, {
+    method: "POST",
+    headers: {
+      apikey: SUPABASE_KEY,
+      Authorization: `Bearer ${SUPABASE_KEY}`,
+      "Content-Type": "application/json",
+      Prefer: "return=representation",
+    },
+    body: JSON.stringify({
+      p1, p2, questions,
+      p1_score: null, p2_score: null,
+      p1_done: false, p2_done: false,
+    }),
+  });
+  if (!res.ok) throw new Error("Duell konnte nicht erstellt werden.");
+  const rows = await res.json();
+  return rows[0];
+}
+
+// Alle Duelle holen, an denen mein Name beteiligt ist
+async function fetchMyDuels(name) {
+  const enc = encodeURIComponent(name);
+  const res = await fetch(
+    `${SUPABASE_URL}/rest/v1/duels?select=*&or=(p1.eq.${enc},p2.eq.${enc})&order=created_at.desc&limit=30`,
+    { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } }
+  );
+  if (!res.ok) throw new Error("Duelle konnten nicht geladen werden.");
+  return res.json();
+}
+
+// Mein Ergebnis in ein Duell eintragen
+async function submitDuelResult(duelId, isP1, scoreVal) {
+  const patch = isP1
+    ? { p1_score: scoreVal, p1_done: true }
+    : { p2_score: scoreVal, p2_done: true };
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/duels?id=eq.${duelId}`, {
+    method: "PATCH",
+    headers: {
+      apikey: SUPABASE_KEY,
+      Authorization: `Bearer ${SUPABASE_KEY}`,
+      "Content-Type": "application/json",
+      Prefer: "return=minimal",
+    },
+    body: JSON.stringify(patch),
+  });
+  if (!res.ok) throw new Error("Ergebnis konnte nicht gespeichert werden.");
+}
+
 // ── App-Version & lokaler Speicher ────────────────────────────
-const APP_VERSION = "2.9"; // bei neuen Updates hochzählen, dann erscheint "Was ist neu?"
+const APP_VERSION = "3.0"; // bei neuen Updates hochzählen, dann erscheint "Was ist neu?"
 
 const store = {
   get(key, fallback) {
@@ -1549,6 +1630,13 @@ export default function LaenderDuell() {
   const [dailyLbEntries, setDailyLbEntries] = useState([]);
   const [dailySubmitted, setDailySubmitted] = useState(false);
   const [ironmanLbEntries, setIronmanLbEntries] = useState([]);
+  // Online-Duell (asynchron)
+  const [onlineDuels, setOnlineDuels] = useState([]);
+  const [playersList, setPlayersList] = useState([]);
+  const [odLoading, setOdLoading] = useState(false);
+  const [odError, setOdError] = useState("");
+  const [showOpponentPicker, setShowOpponentPicker] = useState(false);
+  const [activeDuel, setActiveDuel] = useState(null); // das gerade gespielte Online-Duell
   // Profil: Name-Eingabe-Overlay (beim ersten Start oder zum Ändern)
   const [showNamePrompt, setShowNamePrompt] = useState(false);
   const [nameInput, setNameInput] = useState("");
@@ -1576,8 +1664,8 @@ export default function LaenderDuell() {
   const level = Math.floor(totalXp / XP_PER_LEVEL) + 1;
   const xpInLevel = totalXp % XP_PER_LEVEL;
   const timeModeMeta = TIME_MODES.find(m => m.id === timeMode) || TIME_MODES[2];
-  // Iron Man erzwingt einen knackigen Timer (15s), auch wenn sonst "Entspannt" gewählt ist
-  const roundSeconds = gameMode === "ironman" ? 15 : timeModeMeta.seconds; // 0 = no timer
+  // Iron Man & Online-Duell erzwingen einen knackigen Timer (15s)
+  const roundSeconds = (gameMode === "ironman" || gameMode === "online") ? 15 : timeModeMeta.seconds; // 0 = no timer
   const timed = roundSeconds > 0;
   const todaySeed = dailySeed();
   const dailyPlayedToday = dailyDone.day === todaySeed;
@@ -1703,6 +1791,63 @@ export default function LaenderDuell() {
     setScreen("game");
   };
 
+  // ── Online-Duell-Handler ──
+  const openOnlineDuels = async () => {
+    setScreen("onlineduels");
+    if (!LEADERBOARD_ENABLED || !playerName.trim()) return;
+    setOdLoading(true);
+    setOdError("");
+    try {
+      registerPlayer(playerName.trim());
+      const duels = await fetchMyDuels(playerName.trim());
+      setOnlineDuels(duels);
+    } catch (e) {
+      setOdError(e.message || "Fehler beim Laden.");
+    } finally {
+      setOdLoading(false);
+    }
+  };
+
+  const openOpponentPicker = async () => {
+    setShowOpponentPicker(true);
+    setOdError("");
+    try {
+      const players = await fetchPlayers();
+      // sich selbst rausfiltern
+      setPlayersList(players.filter(p => p.name !== playerName.trim()));
+    } catch (e) {
+      setOdError(e.message || "Spielerliste-Fehler.");
+    }
+  };
+
+  // Neues Online-Duell gegen gewählten Gegner erstellen und sofort selbst spielen
+  const challengePlayer = async (opponent) => {
+    setShowOpponentPicker(false);
+    setOdError("");
+    try {
+      const qs = buildMixRound(TOTAL_QUESTIONS, difficulty !== "gemischt" ? difficulty : null);
+      // Fragen kompakt für die DB serialisieren (nur was zum Wiederaufbau nötig ist)
+      const duel = await createDuel(playerName.trim(), opponent, qs);
+      // sofort selbst spielen
+      setActiveDuel(duel);
+      setGameMode("online");
+      setQuestions(qs);
+      resetRoundState();
+      setScreen("game");
+    } catch (e) {
+      setOdError(e.message || "Duell konnte nicht erstellt werden.");
+    }
+  };
+
+  // Ein bestehendes Duell spielen (als herausgeforderter Spieler)
+  const playOnlineDuel = (duel) => {
+    setActiveDuel(duel);
+    setGameMode("online");
+    setQuestions(duel.questions);
+    resetRoundState();
+    setScreen("game");
+  };
+
   // Countdown timer per question (skipped in relaxed mode)
   useEffect(() => {
     if (!timed || screen !== "game" || answered || confirmQuit) return;
@@ -1808,6 +1953,14 @@ export default function LaenderDuell() {
         setHighscore(h => Math.max(h, points));
         setTotalXp(xp => xp + points);
         setGamesPlayed(g => g + 1);
+      } else if (gameMode === "online") {
+        // Online-Duell: mein Ergebnis (Punkte) ins Duell schreiben
+        setTotalXp(xp => xp + points);
+        setGamesPlayed(g => g + 1);
+        if (activeDuel) {
+          const isP1 = activeDuel.p1 === playerName.trim();
+          submitDuelResult(activeDuel.id, isP1, points).catch(() => {});
+        }
       } else if (gameMode === "daily") {
         // Daily hat einen EIGENEN Highscore (mehr Fragen + Bonus → nicht vergleichbar)
         setDailyHighscore(h => { const nv = Math.max(h, points); store.set("qd_dailyHighscore", nv); return nv; });
@@ -1924,6 +2077,7 @@ export default function LaenderDuell() {
     setPlayerName(n);
     store.set("qd_playerName", n);
     setShowNamePrompt(false);
+    if (LEADERBOARD_ENABLED) registerPlayer(n); // für Online-Duell-Auswahl
   };
 
   const q = questions[current];
@@ -2116,6 +2270,7 @@ export default function LaenderDuell() {
               { icon: "⚔️", title: "Duell zu zweit", text: "Tretet am selben Gerät gegeneinander an." },
               { icon: "🃏", title: "Joker", text: "50:50 und die Zweite Chance helfen bei kniffligen Fragen." },
               { icon: "🛡️", title: "Iron Man", text: "Spiele endlos weiter – bis zum ersten Fehler. Eigene Rangliste!" },
+              { icon: "🌐", title: "Online-Duelle", text: "Fordere Freunde heraus – jeder spielt, wann er mag." },
               { icon: "📚", title: "Über 570 neue Fragen", text: "Jedes Thema hat jetzt rund 100 Fragen – kaum noch Wiederholungen." },
               { icon: "🔥", title: "Tägliche Challenge neu", text: "15 knifflige Fragen, doppelte Punkte und eine Tagesstreak." },
               { icon: "🎯", title: "Schwierigkeit & Duell-Joker", text: "Wähle die Schwierigkeit – und zwinge dem Gegner im Duell ein schweres Thema auf." },
@@ -2273,15 +2428,20 @@ export default function LaenderDuell() {
               <span style={{ fontSize: 26 }}>⚔️</span>
               <div style={{ textAlign: "left" }}>
                 <div style={{ fontSize: 16, fontWeight: 800, color: "#e8f4f8" }}>Duell</div>
-                <div style={{ fontSize: 12, color: "#94c8d8" }}>Zwei Spieler, ein Gerät, abwechselnd</div>
+                <div style={{ fontSize: 12, color: "#94c8d8" }}>Gegeneinander antreten</div>
               </div>
             </div>
             <button onClick={startDuel} style={{
-              width: "100%", padding: "14px", fontSize: 16, fontWeight: 700,
+              width: "100%", padding: "13px", fontSize: 15, fontWeight: 700,
               background: "linear-gradient(135deg, #f43f5e, #e11d48)",
               color: "#fff", border: "none", borderRadius: 14, cursor: "pointer",
-              boxShadow: "0 6px 20px rgba(244,63,94,0.3)",
-            }}>Duell starten →</button>
+              boxShadow: "0 6px 20px rgba(244,63,94,0.3)", marginBottom: 8,
+            }}>📱 Lokal · 2 Spieler, 1 Gerät →</button>
+            <button onClick={openOnlineDuels} style={{
+              width: "100%", padding: "13px", fontSize: 15, fontWeight: 700,
+              background: "rgba(244,63,94,0.15)", color: "#fda4af",
+              border: "1px solid rgba(244,63,94,0.4)", borderRadius: 14, cursor: "pointer",
+            }}>🌐 Online · gegen Freunde →</button>
           </div>
 
           {/* Karte: Iron Man */}
@@ -2960,8 +3120,28 @@ export default function LaenderDuell() {
           </>
           )}
 
-          {/* Leaderboard submission (not in duel) */}
-          {gameMode !== "duel" && LEADERBOARD_ENABLED && (
+          {/* Online-Duell: Hinweis statt Rangliste */}
+          {gameMode === "online" && (
+            <div style={{
+              background: "rgba(244,63,94,0.1)", border: "1px solid rgba(244,63,94,0.3)",
+              borderRadius: 16, padding: "16px", marginBottom: 16, textAlign: "center",
+            }}>
+              <div style={{ fontSize: 14, color: "#fda4af", fontWeight: 700, marginBottom: 4 }}>
+                ⚔️ Ergebnis gespeichert!
+              </div>
+              <div style={{ fontSize: 13, color: "#94c8d8" }}>
+                {activeDuel ? `${(activeDuel.p1 === playerName.trim() ? activeDuel.p2_done : activeDuel.p1_done) ? "Beide fertig – schau in deine Duelle!" : `Jetzt ist ${activeDuel.p1 === playerName.trim() ? activeDuel.p2 : activeDuel.p1} dran.`}` : ""}
+              </div>
+              <button onClick={openOnlineDuels} style={{
+                marginTop: 12, padding: "10px 18px", background: "rgba(244,63,94,0.2)",
+                border: "1px solid rgba(244,63,94,0.4)", borderRadius: 12,
+                color: "#fda4af", fontSize: 14, fontWeight: 700, cursor: "pointer",
+              }}>🌐 Meine Duelle ansehen</button>
+            </div>
+          )}
+
+          {/* Leaderboard submission (not in duel/online) */}
+          {gameMode !== "duel" && gameMode !== "online" && LEADERBOARD_ENABLED && (
             <div style={{
               background: "rgba(251,191,36,0.08)",
               border: "1px solid rgba(251,191,36,0.25)",
@@ -3014,7 +3194,7 @@ export default function LaenderDuell() {
             </div>
           )}
 
-          {gameMode !== "daily" && (
+          {gameMode !== "daily" && gameMode !== "online" && (
             <button onClick={() => {
               if (gameMode === "duel") startDuel();
               else if (gameMode === "ironman") startIronman();
@@ -3154,6 +3334,145 @@ export default function LaenderDuell() {
           <button onClick={() => setScreen("home")} style={{
             background: "none", border: "none", color: "#6a9aaa", fontSize: 14, cursor: "pointer", marginTop: 8,
           }}>← Zurück zum Menü</button>
+        </div>
+      )}
+
+      {/* ONLINE-DUELLE */}
+      {screen === "onlineduels" && (
+        <div style={{ textAlign: "center", maxWidth: 460, width: "100%" }}>
+          <div style={{ fontSize: 44, marginBottom: 6 }}>🌐</div>
+          <h2 style={{ fontSize: 24, fontWeight: 800, margin: "0 0 4px", color: "#e8f4f8" }}>Online-Duelle</h2>
+          <p style={{ color: "#94c8d8", fontSize: 14, margin: "0 0 20px" }}>Fordere Freunde heraus – jeder spielt, wann er mag</p>
+
+          {!LEADERBOARD_ENABLED ? (
+            <div style={{
+              background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)",
+              borderRadius: 16, padding: "24px 20px", marginBottom: 20, color: "#94c8d8", fontSize: 14, lineHeight: 1.6,
+            }}>🔧 Online-Duelle brauchen den Cloud-Speicher. Wird noch eingerichtet.</div>
+          ) : !playerName.trim() ? (
+            <div style={{
+              background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)",
+              borderRadius: 16, padding: "24px 20px", marginBottom: 20, color: "#94c8d8", fontSize: 14, lineHeight: 1.6,
+            }}>
+              Lege zuerst deinen Spielernamen fest, um Online zu duellieren.
+              <button onClick={() => { setNameInput(""); setShowNamePrompt(true); }} style={{
+                display: "block", margin: "12px auto 0", padding: "10px 18px",
+                background: "linear-gradient(135deg, #3b82f6, #8b5cf6)", border: "none",
+                borderRadius: 12, color: "#fff", fontSize: 14, fontWeight: 700, cursor: "pointer",
+              }}>👤 Namen festlegen</button>
+            </div>
+          ) : (
+            <>
+              <button onClick={openOpponentPicker} style={{
+                width: "100%", padding: "15px", fontSize: 16, fontWeight: 700, marginBottom: 18,
+                background: "linear-gradient(135deg, #f43f5e, #e11d48)", color: "#fff",
+                border: "none", borderRadius: 14, cursor: "pointer", boxShadow: "0 6px 20px rgba(244,63,94,0.3)",
+              }}>⚔️ Neues Duell starten</button>
+
+              {odError && <div style={{ fontSize: 13, color: "#fca5a5", marginBottom: 12 }}>{odError}</div>}
+              {odLoading ? (
+                <div style={{ padding: "30px 0", color: "#64d8ff" }}>Lädt…</div>
+              ) : onlineDuels.length === 0 ? (
+                <div style={{ padding: "30px 20px", color: "#7aa8b8", fontSize: 14 }}>
+                  Noch keine Duelle. Starte das erste!
+                </div>
+              ) : (
+                <div style={{ marginBottom: 20 }}>
+                  {onlineDuels.map(d => {
+                    const me = playerName.trim();
+                    const isP1 = d.p1 === me;
+                    const opponent = isP1 ? d.p2 : d.p1;
+                    const myDone = isP1 ? d.p1_done : d.p2_done;
+                    const oppDone = isP1 ? d.p2_done : d.p1_done;
+                    const myScore = isP1 ? d.p1_score : d.p2_score;
+                    const oppScore = isP1 ? d.p2_score : d.p1_score;
+                    let status, statusColor, action = null;
+                    if (!myDone) {
+                      status = "Du bist dran!"; statusColor = "#4ade80";
+                      action = (
+                        <button onClick={() => playOnlineDuel(d)} style={{
+                          padding: "8px 16px", fontSize: 13, fontWeight: 700,
+                          background: "linear-gradient(135deg, #22c55e, #16a34a)", color: "#fff",
+                          border: "none", borderRadius: 10, cursor: "pointer", whiteSpace: "nowrap",
+                        }}>Spielen →</button>
+                      );
+                    } else if (!oppDone) {
+                      status = `Wartet auf ${opponent}`; statusColor = "#fbbf24";
+                    } else {
+                      const won = myScore > oppScore, draw = myScore === oppScore;
+                      status = draw ? "Unentschieden" : won ? "🏆 Gewonnen!" : "Verloren";
+                      statusColor = draw ? "#94c8d8" : won ? "#4ade80" : "#fca5a5";
+                    }
+                    return (
+                      <div key={d.id} style={{
+                        display: "flex", alignItems: "center", gap: 12, padding: "12px 14px",
+                        background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)",
+                        borderRadius: 12, marginBottom: 8,
+                      }}>
+                        <div style={{ flex: 1, textAlign: "left", minWidth: 0 }}>
+                          <div style={{ fontSize: 15, fontWeight: 700, color: "#e8f4f8" }}>vs. {opponent}</div>
+                          <div style={{ fontSize: 12, color: statusColor, fontWeight: 600 }}>
+                            {status}
+                            {myDone && oppDone ? `  (${myScore} : ${oppScore})` : ""}
+                          </div>
+                        </div>
+                        {action}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </>
+          )}
+
+          <button onClick={() => setScreen("home")} style={{
+            background: "none", border: "none", color: "#6a9aaa", fontSize: 14, cursor: "pointer", marginTop: 8,
+          }}>← Zurück zum Menü</button>
+        </div>
+      )}
+
+      {/* GEGNER-AUSWAHL (Online-Duell) */}
+      {showOpponentPicker && (
+        <div style={{
+          position: "fixed", inset: 0, zIndex: 115,
+          background: "rgba(8,18,24,0.9)",
+          display: "flex", alignItems: "center", justifyContent: "center", padding: 20,
+        }}>
+          <div style={{
+            background: "#13252e", border: "1px solid rgba(244,63,94,0.3)",
+            borderRadius: 20, padding: "24px 20px", maxWidth: 380, width: "100%",
+            maxHeight: "80vh", overflowY: "auto", boxShadow: "0 20px 60px rgba(0,0,0,0.6)",
+          }}>
+            <div style={{ textAlign: "center", marginBottom: 16 }}>
+              <div style={{ fontSize: 34, marginBottom: 4 }}>⚔️</div>
+              <h2 style={{ margin: 0, fontSize: 19, fontWeight: 800, color: "#fda4af" }}>Wen fordest du heraus?</h2>
+            </div>
+            {playersList.length === 0 ? (
+              <div style={{ padding: "20px", color: "#7aa8b8", fontSize: 14, textAlign: "center" }}>
+                Noch keine anderen Spieler online. Sobald jemand anderes die App mit Namen öffnet, erscheint er hier.
+              </div>
+            ) : (
+              <div>
+                {playersList.map(p => (
+                  <button key={p.name} onClick={() => challengePlayer(p.name)} style={{
+                    width: "100%", display: "flex", alignItems: "center", gap: 10,
+                    padding: "13px 14px", marginBottom: 8, textAlign: "left",
+                    background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.1)",
+                    borderRadius: 12, cursor: "pointer", color: "#e8f4f8",
+                  }}>
+                    <span style={{ fontSize: 20 }}>👤</span>
+                    <span style={{ fontSize: 15, fontWeight: 600 }}>{p.name}</span>
+                    <span style={{ marginLeft: "auto", fontSize: 13, color: "#fda4af" }}>Herausfordern →</span>
+                  </button>
+                ))}
+              </div>
+            )}
+            <button onClick={() => setShowOpponentPicker(false)} style={{
+              width: "100%", marginTop: 8, padding: "12px", background: "none",
+              border: "1px solid rgba(255,255,255,0.12)", borderRadius: 12,
+              color: "#94c8d8", fontSize: 14, cursor: "pointer",
+            }}>Abbrechen</button>
+          </div>
         </div>
       )}
 
