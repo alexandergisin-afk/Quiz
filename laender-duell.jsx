@@ -1392,13 +1392,27 @@ async function submitScore(name, score, topic) {
   if (existing !== null && score <= existing) {
     return { skipped: true, best: existing };
   }
+  if (existing !== null) {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/scores?name=eq.${encodeURIComponent(cleanName)}`, {
+      method: "PATCH",
+      headers: {
+        apikey: SUPABASE_KEY,
+        Authorization: `Bearer ${SUPABASE_KEY}`,
+        "Content-Type": "application/json",
+        Prefer: "return=minimal",
+      },
+      body: JSON.stringify({ score, topic }),
+    });
+    if (!res.ok) throw new Error("Eintrag konnte nicht gespeichert werden.");
+    return { skipped: false };
+  }
   const res = await fetch(`${SUPABASE_URL}/rest/v1/scores`, {
     method: "POST",
     headers: {
       apikey: SUPABASE_KEY,
       Authorization: `Bearer ${SUPABASE_KEY}`,
       "Content-Type": "application/json",
-      Prefer: "resolution=merge-duplicates,return=minimal",
+      Prefer: "return=minimal",
     },
     body: JSON.stringify({ name: cleanName, score, topic }),
   });
@@ -1429,13 +1443,27 @@ async function submitDailyScore(name, score, streak, day) {
   if (existing !== null && score <= existing) {
     return { skipped: true, best: existing };
   }
+  if (existing !== null) {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/daily_scores?name=eq.${encodeURIComponent(cleanName)}`, {
+      method: "PATCH",
+      headers: {
+        apikey: SUPABASE_KEY,
+        Authorization: `Bearer ${SUPABASE_KEY}`,
+        "Content-Type": "application/json",
+        Prefer: "return=minimal",
+      },
+      body: JSON.stringify({ score, streak, day }),
+    });
+    if (!res.ok) throw new Error("Tages-Eintrag konnte nicht gespeichert werden.");
+    return { skipped: false };
+  }
   const res = await fetch(`${SUPABASE_URL}/rest/v1/daily_scores`, {
     method: "POST",
     headers: {
       apikey: SUPABASE_KEY,
       Authorization: `Bearer ${SUPABASE_KEY}`,
       "Content-Type": "application/json",
-      Prefer: "resolution=merge-duplicates,return=minimal",
+      Prefer: "return=minimal",
     },
     body: JSON.stringify({ name: cleanName, score, streak, day }),
   });
@@ -1466,13 +1494,29 @@ async function submitIronmanScore(name, score) {
   if (existing !== null && score <= existing) {
     return { skipped: true, best: existing };
   }
+  if (existing !== null) {
+    // Eintrag existiert schon → aktualisieren (UPDATE), nicht neu einfügen
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/ironman_scores?name=eq.${encodeURIComponent(cleanName)}`, {
+      method: "PATCH",
+      headers: {
+        apikey: SUPABASE_KEY,
+        Authorization: `Bearer ${SUPABASE_KEY}`,
+        "Content-Type": "application/json",
+        Prefer: "return=minimal",
+      },
+      body: JSON.stringify({ score }),
+    });
+    if (!res.ok) throw new Error("Iron-Man-Eintrag konnte nicht gespeichert werden.");
+    return { skipped: false };
+  }
+  // Noch kein Eintrag → neu einfügen
   const res = await fetch(`${SUPABASE_URL}/rest/v1/ironman_scores`, {
     method: "POST",
     headers: {
       apikey: SUPABASE_KEY,
       Authorization: `Bearer ${SUPABASE_KEY}`,
       "Content-Type": "application/json",
-      Prefer: "resolution=merge-duplicates,return=minimal",
+      Prefer: "return=minimal",
     },
     body: JSON.stringify({ name: cleanName, score }),
   });
@@ -1562,7 +1606,7 @@ async function submitDuelResult(duelId, isP1, scoreVal) {
 }
 
 // ── App-Version & lokaler Speicher ────────────────────────────
-const APP_VERSION = "3.0"; // bei neuen Updates hochzählen, dann erscheint "Was ist neu?"
+const APP_VERSION = "3.1"; // bei neuen Updates hochzählen, dann erscheint "Was ist neu?"
 
 // Nur die Neuerungen der AKTUELLEN Version. Bei jedem Update hier ersetzen.
 const WHATS_NEW = [
@@ -1644,6 +1688,7 @@ export default function LaenderDuell() {
   const [odError, setOdError] = useState("");
   const [showOpponentPicker, setShowOpponentPicker] = useState(false);
   const [activeDuel, setActiveDuel] = useState(null); // das gerade gespielte Online-Duell
+  const [waitingDuels, setWaitingDuels] = useState(0); // wie viele Duelle warten auf mich ("du bist dran")
   // Profil: Name-Eingabe-Overlay (beim ersten Start oder zum Ändern)
   const [showNamePrompt, setShowNamePrompt] = useState(false);
   const [nameInput, setNameInput] = useState("");
@@ -1695,6 +1740,25 @@ export default function LaenderDuell() {
       setShowWhatsNew(true);
     }
   }, []);
+
+  // Beim Start prüfen, ob Online-Duelle auf mich warten (für den Menü-Hinweis)
+  useEffect(() => {
+    if (!LEADERBOARD_ENABLED || !playerName.trim()) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const duels = await fetchMyDuels(playerName.trim());
+        if (cancelled) return;
+        const me = playerName.trim();
+        const waiting = duels.filter(d => {
+          const isP1 = d.p1 === me;
+          return isP1 ? !d.p1_done : !d.p2_done;
+        }).length;
+        setWaitingDuels(waiting);
+      } catch (e) { /* ignore */ }
+    })();
+    return () => { cancelled = true; };
+  }, [playerName, screen]);
 
   const dismissWhatsNew = () => {
     store.set("qd_seenVersion", APP_VERSION);
@@ -2345,6 +2409,27 @@ export default function LaenderDuell() {
           )}
 
           {/* ── Drei Modus-Karten ── */}
+
+          {/* Hinweis: wartende Online-Duelle */}
+          {waitingDuels > 0 && (
+            <button onClick={openOnlineDuels} style={{
+              width: "100%", display: "flex", alignItems: "center", gap: 12,
+              padding: "14px 16px", marginBottom: 16,
+              background: "linear-gradient(135deg, rgba(244,63,94,0.25), rgba(225,29,72,0.15))",
+              border: "1px solid rgba(244,63,94,0.5)", borderRadius: 16,
+              cursor: "pointer", textAlign: "left",
+              animation: "pulse 2s ease-in-out infinite",
+            }}>
+              <span style={{ fontSize: 28 }}>🌐</span>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 15, fontWeight: 800, color: "#fff" }}>
+                  {waitingDuels === 1 ? "Ein Duell wartet auf dich!" : `${waitingDuels} Duelle warten auf dich!`}
+                </div>
+                <div style={{ fontSize: 12, color: "#fda4af" }}>Du bist am Zug – jetzt spielen</div>
+              </div>
+              <span style={{ fontSize: 18, color: "#fda4af" }}>→</span>
+            </button>
+          )}
 
           {/* Karte 1: Duell */}
           <div style={{
@@ -3483,6 +3568,10 @@ export default function LaenderDuell() {
           0% { transform: scale(0.6); opacity: 0; }
           60% { transform: scale(1.1); }
           100% { transform: scale(1); opacity: 1; }
+        }
+        @keyframes pulse {
+          0%, 100% { box-shadow: 0 0 0 0 rgba(244,63,94,0.4); }
+          50% { box-shadow: 0 0 0 8px rgba(244,63,94,0); }
         }
       `}</style>
     </div>
