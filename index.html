@@ -1396,14 +1396,14 @@ const LEADERBOARD_ENABLED = SUPABASE_URL !== "" && SUPABASE_KEY !== "";
 
 async function fetchLeaderboard() {
   const res = await fetch(
-    `${SUPABASE_URL}/rest/v1/scores?select=name,score,topic,created_at&order=score.desc&limit=20`,
+    `${SUPABASE_URL}/rest/v1/scores?select=name,score,topic,level,created_at&order=score.desc&limit=20`,
     { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } }
   );
   if (!res.ok) throw new Error("Rangliste konnte nicht geladen werden.");
   return res.json();
 }
 
-async function submitScore(name, score, topic) {
+async function submitScore(name, score, topic, level) {
   const cleanName = name.slice(0, 20);
   // Vorhandenen Bestwert für diesen Namen prüfen
   let existing = null;
@@ -1427,7 +1427,7 @@ async function submitScore(name, score, topic) {
         "Content-Type": "application/json",
         Prefer: "return=minimal",
       },
-      body: JSON.stringify({ score, topic }),
+      body: JSON.stringify({ score, topic, level }),
     });
     if (!res.ok) throw new Error("Eintrag konnte nicht gespeichert werden.");
     return { skipped: false };
@@ -1440,7 +1440,7 @@ async function submitScore(name, score, topic) {
       "Content-Type": "application/json",
       Prefer: "return=minimal",
     },
-    body: JSON.stringify({ name: cleanName, score, topic }),
+    body: JSON.stringify({ name: cleanName, score, topic, level }),
   });
   if (!res.ok) throw new Error("Eintrag konnte nicht gespeichert werden.");
   return { skipped: false };
@@ -1632,7 +1632,7 @@ async function submitDuelResult(duelId, isP1, scoreVal) {
 }
 
 // ── App-Version & lokaler Speicher ────────────────────────────
-const APP_VERSION = "3.1"; // bei neuen Updates hochzählen, dann erscheint "Was ist neu?"
+const APP_VERSION = "3.2"; // bei neuen Updates hochzählen, dann erscheint "Was ist neu?"
 
 // Nur die Neuerungen der AKTUELLEN Version. Bei jedem Update hier ersetzen.
 const WHATS_NEW = [
@@ -1715,6 +1715,7 @@ function LaenderDuell() {
   const [showOpponentPicker, setShowOpponentPicker] = useState(false);
   const [activeDuel, setActiveDuel] = useState(null); // das gerade gespielte Online-Duell
   const [waitingDuels, setWaitingDuels] = useState(0); // wie viele Duelle warten auf mich ("du bist dran")
+  const [hideFinishedDuels, setHideFinishedDuels] = useState(false);
   // Profil: Name-Eingabe-Overlay (beim ersten Start oder zum Ändern)
   const [showNamePrompt, setShowNamePrompt] = useState(false);
   const [nameInput, setNameInput] = useState("");
@@ -2152,7 +2153,7 @@ function LaenderDuell() {
         result = await submitIronmanScore(playerName.trim(), score);
         setSubmitted(true);
       } else {
-        result = await submitScore(playerName.trim(), points, topicMeta.label);
+        result = await submitScore(playerName.trim(), points, topicMeta.label, level);
         setSubmitted(true);
       }
       if (result && result.skipped) {
@@ -3420,7 +3421,16 @@ function LaenderDuell() {
                     }}>
                       <span style={{ fontSize: 16, fontWeight: 700, width: 32, textAlign: "center", color: i < 3 ? "#fbbf24" : "#7aa8b8" }}>{medal}</span>
                       <div style={{ flex: 1, textAlign: "left", minWidth: 0 }}>
-                        <div style={{ fontSize: 15, fontWeight: 600, color: "#e8f4f8", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{e.name}</div>
+                        <div style={{ fontSize: 15, fontWeight: 600, color: "#e8f4f8", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", display: "flex", alignItems: "center", gap: 6 }}>
+                          <span style={{ overflow: "hidden", textOverflow: "ellipsis" }}>{e.name}</span>
+                          {lbTab === "solo" && e.level > 0 && (
+                            <span style={{
+                              flexShrink: 0, fontSize: 10, fontWeight: 700, color: "#c4b5fd",
+                              background: "rgba(167,139,250,0.15)", border: "1px solid rgba(167,139,250,0.3)",
+                              borderRadius: 6, padding: "1px 6px",
+                            }}>Lvl {e.level}</span>
+                          )}
+                        </div>
                         <div style={{ fontSize: 12, color: "#6a9aaa" }}>
                           {lbTab === "daily"
                             ? (e.streak > 0 ? `🔥 ${e.streak} ${e.streak === 1 ? "Tag" : "Tage"} in Folge` : "Tageschallenge")
@@ -3478,16 +3488,57 @@ function LaenderDuell() {
               }}>⚔️ Neues Duell starten</button>
 
               {odError && <div style={{ fontSize: 13, color: "#fca5a5", marginBottom: 12 }}>{odError}</div>}
+
+              {/* Schalter: abgeschlossene ausblenden */}
+              {onlineDuels.length > 0 && (() => {
+                const me = playerName.trim();
+                const finishedCount = onlineDuels.filter(d => (d.p1_done && d.p2_done)).length;
+                if (finishedCount === 0) return null;
+                return (
+                  <button onClick={() => setHideFinishedDuels(v => !v)} style={{
+                    display: "block", marginLeft: "auto", marginBottom: 10,
+                    background: "none", border: "none", color: "#64d8ff",
+                    fontSize: 12, cursor: "pointer", textDecoration: "underline",
+                  }}>
+                    {hideFinishedDuels ? `Abgeschlossene zeigen (${finishedCount})` : "Abgeschlossene ausblenden"}
+                  </button>
+                );
+              })()}
+
               {odLoading ? (
                 <div style={{ padding: "30px 0", color: "#64d8ff" }}>Lädt…</div>
               ) : onlineDuels.length === 0 ? (
                 <div style={{ padding: "30px 20px", color: "#7aa8b8", fontSize: 14 }}>
                   Noch keine Duelle. Starte das erste!
                 </div>
-              ) : (
+              ) : (() => {
+                const me = playerName.trim();
+                // Phase: 0 = du bist dran, 1 = wartet auf Gegner, 2 = abgeschlossen
+                const phaseOf = (d) => {
+                  const isP1 = d.p1 === me;
+                  const myDone = isP1 ? d.p1_done : d.p2_done;
+                  const oppDone = isP1 ? d.p2_done : d.p1_done;
+                  if (!myDone) return 0;
+                  if (!oppDone) return 1;
+                  return 2;
+                };
+                let list = onlineDuels.slice();
+                if (hideFinishedDuels) list = list.filter(d => phaseOf(d) !== 2);
+                list.sort((a, b) => {
+                  const pa = phaseOf(a), pb = phaseOf(b);
+                  if (pa !== pb) return pa - pb; // dran → wartet → fertig
+                  return (b.id || 0) - (a.id || 0); // innerhalb gleicher Phase: neueste zuerst
+                });
+                if (list.length === 0) {
+                  return (
+                    <div style={{ padding: "30px 20px", color: "#7aa8b8", fontSize: 14 }}>
+                      Keine offenen Duelle. 🎉
+                    </div>
+                  );
+                }
+                return (
                 <div style={{ marginBottom: 20 }}>
-                  {onlineDuels.map(d => {
-                    const me = playerName.trim();
+                  {list.map(d => {
                     const isP1 = d.p1 === me;
                     const opponent = isP1 ? d.p2 : d.p1;
                     const myDone = isP1 ? d.p1_done : d.p2_done;
@@ -3529,7 +3580,8 @@ function LaenderDuell() {
                     );
                   })}
                 </div>
-              )}
+                );
+              })()}
             </>
           )}
 
