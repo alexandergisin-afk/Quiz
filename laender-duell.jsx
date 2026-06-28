@@ -2416,8 +2416,8 @@ export default function LaenderDuell() {
             <button onClick={openOnlineDuels} style={{
               width: "100%", display: "flex", alignItems: "center", gap: 12,
               padding: "14px 16px", marginBottom: 16,
-              background: "linear-gradient(135deg, rgba(244,63,94,0.25), rgba(225,29,72,0.15))",
-              border: "1px solid rgba(244,63,94,0.5)", borderRadius: 16,
+              background: "linear-gradient(135deg, rgba(139,92,246,0.25), rgba(124,58,237,0.15))",
+              border: "1px solid rgba(139,92,246,0.5)", borderRadius: 16,
               cursor: "pointer", textAlign: "left",
               animation: "pulse 2s ease-in-out infinite",
             }}>
@@ -2426,16 +2426,16 @@ export default function LaenderDuell() {
                 <div style={{ fontSize: 15, fontWeight: 800, color: "#fff" }}>
                   {waitingDuels === 1 ? "Ein Duell wartet auf dich!" : `${waitingDuels} Duelle warten auf dich!`}
                 </div>
-                <div style={{ fontSize: 12, color: "#fda4af" }}>Du bist am Zug – jetzt spielen</div>
+                <div style={{ fontSize: 12, color: "#c4b5fd" }}>Du bist am Zug – jetzt spielen</div>
               </div>
-              <span style={{ fontSize: 18, color: "#fda4af" }}>→</span>
+              <span style={{ fontSize: 18, color: "#c4b5fd" }}>→</span>
             </button>
           )}
 
           {/* Karte 1: Duell */}
           <div style={{
-            background: "rgba(244,63,94,0.08)",
-            border: "1px solid rgba(244,63,94,0.25)",
+            background: "rgba(139,92,246,0.08)",
+            border: "1px solid rgba(139,92,246,0.28)",
             borderRadius: 18,
             padding: "16px",
             marginBottom: 12,
@@ -2444,20 +2444,20 @@ export default function LaenderDuell() {
               <span style={{ fontSize: 26 }}>⚔️</span>
               <div style={{ textAlign: "left" }}>
                 <div style={{ fontSize: 16, fontWeight: 800, color: "#e8f4f8" }}>Duell</div>
-                <div style={{ fontSize: 12, color: "#94c8d8" }}>⏱️ 10 Sek · 🔴 Schwer · für beide gleich</div>
+                <div style={{ fontSize: 12, color: "#c4b5fd" }}>⏱️ 10 Sek · 🟣 Schwer · für beide gleich</div>
               </div>
             </div>
-            <button onClick={startDuel} style={{
-              width: "100%", padding: "13px", fontSize: 15, fontWeight: 700,
-              background: "linear-gradient(135deg, #f43f5e, #e11d48)",
-              color: "#fff", border: "none", borderRadius: 14, cursor: "pointer",
-              boxShadow: "0 6px 20px rgba(244,63,94,0.3)", marginBottom: 8,
-            }}>📱 Lokal · 2 Spieler, 1 Gerät →</button>
             <button onClick={openOnlineDuels} style={{
               width: "100%", padding: "13px", fontSize: 15, fontWeight: 700,
-              background: "rgba(244,63,94,0.15)", color: "#fda4af",
-              border: "1px solid rgba(244,63,94,0.4)", borderRadius: 14, cursor: "pointer",
+              background: "linear-gradient(135deg, #8b5cf6, #7c3aed)",
+              color: "#fff", border: "none", borderRadius: 14, cursor: "pointer",
+              boxShadow: "0 6px 20px rgba(139,92,246,0.35)", marginBottom: 8,
             }}>🌐 Online · gegen Freunde →</button>
+            <button onClick={startDuel} style={{
+              width: "100%", padding: "13px", fontSize: 15, fontWeight: 700,
+              background: "rgba(139,92,246,0.15)", color: "#c4b5fd",
+              border: "1px solid rgba(139,92,246,0.4)", borderRadius: 14, cursor: "pointer",
+            }}>📱 Lokal · 2 Spieler, 1 Gerät →</button>
           </div>
 
           {/* Karte 2: Tägliche Challenge */}
@@ -3206,19 +3206,19 @@ export default function LaenderDuell() {
           {/* Online-Duell: Hinweis statt Rangliste */}
           {gameMode === "online" && (
             <div style={{
-              background: "rgba(244,63,94,0.1)", border: "1px solid rgba(244,63,94,0.3)",
+              background: "rgba(139,92,246,0.1)", border: "1px solid rgba(139,92,246,0.3)",
               borderRadius: 16, padding: "16px", marginBottom: 16, textAlign: "center",
             }}>
-              <div style={{ fontSize: 14, color: "#fda4af", fontWeight: 700, marginBottom: 4 }}>
+              <div style={{ fontSize: 14, color: "#c4b5fd", fontWeight: 700, marginBottom: 4 }}>
                 ⚔️ Ergebnis gespeichert!
               </div>
               <div style={{ fontSize: 13, color: "#94c8d8" }}>
                 {activeDuel ? `${(activeDuel.p1 === playerName.trim() ? activeDuel.p2_done : activeDuel.p1_done) ? "Beide fertig – schau in deine Duelle!" : `Jetzt ist ${activeDuel.p1 === playerName.trim() ? activeDuel.p2 : activeDuel.p1} dran.`}` : ""}
               </div>
               <button onClick={openOnlineDuels} style={{
-                marginTop: 12, padding: "10px 18px", background: "rgba(244,63,94,0.2)",
-                border: "1px solid rgba(244,63,94,0.4)", borderRadius: 12,
-                color: "#fda4af", fontSize: 14, fontWeight: 700, cursor: "pointer",
+                marginTop: 12, padding: "10px 18px", background: "rgba(139,92,246,0.2)",
+                border: "1px solid rgba(139,92,246,0.4)", borderRadius: 12,
+                color: "#c4b5fd", fontSize: 14, fontWeight: 700, cursor: "pointer",
               }}>🌐 Meine Duelle ansehen</button>
             </div>
           )}
@@ -3457,8 +3457,8 @@ export default function LaenderDuell() {
             <>
               <button onClick={openOpponentPicker} style={{
                 width: "100%", padding: "15px", fontSize: 16, fontWeight: 700, marginBottom: 18,
-                background: "linear-gradient(135deg, #f43f5e, #e11d48)", color: "#fff",
-                border: "none", borderRadius: 14, cursor: "pointer", boxShadow: "0 6px 20px rgba(244,63,94,0.3)",
+                background: "linear-gradient(135deg, #8b5cf6, #7c3aed)", color: "#fff",
+                border: "none", borderRadius: 14, cursor: "pointer", boxShadow: "0 6px 20px rgba(139,92,246,0.3)",
               }}>⚔️ Neues Duell starten</button>
 
               {odError && <div style={{ fontSize: 13, color: "#fca5a5", marginBottom: 12 }}>{odError}</div>}
@@ -3573,13 +3573,13 @@ export default function LaenderDuell() {
           display: "flex", alignItems: "center", justifyContent: "center", padding: 20,
         }}>
           <div style={{
-            background: "#13252e", border: "1px solid rgba(244,63,94,0.3)",
+            background: "#13252e", border: "1px solid rgba(139,92,246,0.3)",
             borderRadius: 20, padding: "24px 20px", maxWidth: 380, width: "100%",
             maxHeight: "80vh", overflowY: "auto", boxShadow: "0 20px 60px rgba(0,0,0,0.6)",
           }}>
             <div style={{ textAlign: "center", marginBottom: 16 }}>
               <div style={{ fontSize: 34, marginBottom: 4 }}>⚔️</div>
-              <h2 style={{ margin: 0, fontSize: 19, fontWeight: 800, color: "#fda4af" }}>Wen fordest du heraus?</h2>
+              <h2 style={{ margin: 0, fontSize: 19, fontWeight: 800, color: "#c4b5fd" }}>Wen fordest du heraus?</h2>
             </div>
             {playersList.length === 0 ? (
               <div style={{ padding: "20px", color: "#7aa8b8", fontSize: 14, textAlign: "center" }}>
@@ -3596,7 +3596,7 @@ export default function LaenderDuell() {
                   }}>
                     <span style={{ fontSize: 20 }}>👤</span>
                     <span style={{ fontSize: 15, fontWeight: 600 }}>{p.name}</span>
-                    <span style={{ marginLeft: "auto", fontSize: 13, color: "#fda4af" }}>Herausfordern →</span>
+                    <span style={{ marginLeft: "auto", fontSize: 13, color: "#c4b5fd" }}>Herausfordern →</span>
                   </button>
                 ))}
               </div>
@@ -3622,8 +3622,8 @@ export default function LaenderDuell() {
           100% { transform: scale(1); opacity: 1; }
         }
         @keyframes pulse {
-          0%, 100% { box-shadow: 0 0 0 0 rgba(244,63,94,0.4); }
-          50% { box-shadow: 0 0 0 8px rgba(244,63,94,0); }
+          0%, 100% { box-shadow: 0 0 0 0 rgba(139,92,246,0.4); }
+          50% { box-shadow: 0 0 0 8px rgba(139,92,246,0); }
         }
       `}</style>
     </div>
