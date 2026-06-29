@@ -2653,6 +2653,10 @@ export default function LaenderDuell() {
                   fontSize: 12, cursor: "pointer", textDecoration: "underline",
                 }}>👤 Spielername festlegen</button>}
           </div>
+
+          <div style={{ marginTop: 16, fontSize: 11, color: "#3e5a66" }}>
+            Quiz-Duell · v{APP_VERSION}
+          </div>
         </div>
       )}
 
