@@ -1194,6 +1194,43 @@ function yesterdaySeed() {
   return d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
 }
 
+// "vor 5 Min" / "vor 2 Std" / "vor 3 Tagen" aus einem ISO-Zeitstempel
+function relativeTime(iso) {
+  if (!iso) return "";
+  const then = new Date(iso).getTime();
+  if (isNaN(then)) return "";
+  const sec = Math.max(0, Math.floor((Date.now() - then) / 1000));
+  if (sec < 60) return "gerade eben";
+  const min = Math.floor(sec / 60);
+  if (min < 60) return `vor ${min} Min`;
+  const std = Math.floor(min / 60);
+  if (std < 24) return `vor ${std} Std`;
+  const tag = Math.floor(std / 24);
+  if (tag === 1) return "gestern";
+  if (tag < 30) return `vor ${tag} Tagen`;
+  const mon = Math.floor(tag / 30);
+  if (mon < 12) return `vor ${mon} Mon.`;
+  return `vor ${Math.floor(mon / 12)} J.`;
+}
+
+// Head-to-Head-Bilanz gegen einen Gegner aus allen ABGESCHLOSSENEN Duellen.
+// Liefert { wins, losses, draws } aus Sicht von "me".
+function headToHead(allDuels, me, opponent) {
+  let wins = 0, losses = 0, draws = 0;
+  for (const d of allDuels) {
+    if (!(d.p1_done && d.p2_done)) continue; // nur fertige Duelle
+    const pair = (d.p1 === me && d.p2 === opponent) || (d.p1 === opponent && d.p2 === me);
+    if (!pair) continue;
+    const isP1 = d.p1 === me;
+    const myScore = isP1 ? d.p1_score : d.p2_score;
+    const oppScore = isP1 ? d.p2_score : d.p1_score;
+    if (myScore > oppScore) wins++;
+    else if (myScore < oppScore) losses++;
+    else draws++;
+  }
+  return { wins, losses, draws };
+}
+
 // Convert a raw topic-question item into the runtime question shape
 function makeTopicQuestion(item, topicId) {
   return {
@@ -1580,7 +1617,7 @@ async function createDuel(p1, p2, questions) {
 async function fetchMyDuels(name) {
   const enc = encodeURIComponent(name);
   const res = await fetch(
-    `${SUPABASE_URL}/rest/v1/duels?select=*&or=(p1.eq.${enc},p2.eq.${enc})&order=created_at.desc&limit=30`,
+    `${SUPABASE_URL}/rest/v1/duels?select=*&or=(p1.eq.${enc},p2.eq.${enc})&order=created_at.desc&limit=1000`,
     { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } }
   );
   if (!res.ok) throw new Error("Duelle konnten nicht geladen werden.");
@@ -1606,7 +1643,7 @@ async function submitDuelResult(duelId, isP1, scoreVal) {
 }
 
 // ── App-Version & lokaler Speicher ────────────────────────────
-const APP_VERSION = "3.2"; // bei neuen Updates hochzählen, dann erscheint "Was ist neu?"
+const APP_VERSION = "3.4"; // bei neuen Updates hochzählen, dann erscheint "Was ist neu?"
 
 // Nur die Neuerungen der AKTUELLEN Version. Bei jedem Update hier ersetzen.
 const WHATS_NEW = [
@@ -2012,6 +2049,46 @@ export default function LaenderDuell() {
   };
 
   // Advance to next question or finish (shared by next button, skip, duel)
+  // Automatisches Eintragen am Rundenende (Solo/Daily/Iron Man), nur wenn Name gesetzt.
+  // Lädt danach die Platzierung. Ergebnis landet in autoResult fürs Result-Fenster.
+  const autoSubmitScore = async (mode, myPoints, mySeries) => {
+    if (!LEADERBOARD_ENABLED || !playerName.trim()) {
+      setAutoResult({ state: "none" });
+      return;
+    }
+    const name = playerName.trim();
+    setAutoResult({ state: "loading" });
+    try {
+      let result, list, myVal;
+      if (mode === "ironman") {
+        result = await submitIronmanScore(name, mySeries);
+        list = await fetchIronmanLeaderboard().catch(() => []);
+        myVal = mySeries;
+      } else if (mode === "daily") {
+        result = await submitDailyScore(name, myPoints, dailyStreak, todaySeed);
+        list = await fetchDailyLeaderboard().catch(() => []);
+        myVal = myPoints;
+      } else {
+        result = await submitScore(name, myPoints, topicMeta.label, level);
+        list = await fetchLeaderboard().catch(() => []);
+        myVal = myPoints;
+      }
+      // Rang ermitteln: 1 + Anzahl Einträge mit echt höherem Wert (eigener Name zählt einmal)
+      const myEntry = list.find(e => e.name === name);
+      const effective = myEntry ? myEntry.score : myVal;
+      const higher = list.filter(e => e.score > effective).length;
+      const rank = higher + 1;
+      setAutoResult({
+        state: result && result.skipped ? "kept" : "new",
+        rank,
+        best: result && result.skipped ? result.best : myVal,
+        total: list.length,
+      });
+    } catch (e) {
+      setAutoResult({ state: "error" });
+    }
+  };
+
   const goNext = () => {
     // Iron Man: Lauf endet beim ersten Fehler ODER wenn der Vorrat leer ist
     if (gameMode === "ironman" && (ironmanOver || current + 1 >= roundTotal)) {
@@ -2019,6 +2096,7 @@ export default function LaenderDuell() {
       setTotalXp(xp => xp + points);
       setGamesPlayed(g => g + 1);
       setSubmitted(false);
+      autoSubmitScore("ironman", points, score);
       setScreen("result");
       return;
     }
@@ -2027,6 +2105,7 @@ export default function LaenderDuell() {
         setHighscore(h => Math.max(h, points));
         setTotalXp(xp => xp + points);
         setGamesPlayed(g => g + 1);
+        autoSubmitScore("solo", points, score);
       } else if (gameMode === "online") {
         // Online-Duell: mein Ergebnis (Punkte) ins Duell schreiben
         setTotalXp(xp => xp + points);
@@ -2047,6 +2126,7 @@ export default function LaenderDuell() {
         const newStreak = dailyDone.day === yesterdaySeed() ? dailyStreak + 1 : 1;
         setDailyStreak(newStreak);
         store.set("qd_dailyStreak", newStreak);
+        autoSubmitScore("daily", points, score);
       }
       setSubmitted(false);
       setScreen("result");
@@ -2106,6 +2186,8 @@ export default function LaenderDuell() {
   };
 
   const [submitMsg, setSubmitMsg] = useState("");
+  // Auto-Eintrag-Ergebnis fürs Result: { state: 'new'|'kept'|'none'|'loading', rank, best }
+  const [autoResult, setAutoResult] = useState(null);
 
   const handleSubmitScore = async () => {
     if (submitting) return;
@@ -3232,46 +3314,57 @@ export default function LaenderDuell() {
               padding: "16px",
               marginBottom: 16,
             }}>
-              {(gameMode === "daily" ? dailySubmitted : submitted) ? (
-                <div style={{ textAlign: "center", color: "#fcd34d", fontSize: 14, fontWeight: 600 }}>
-                  ✅ {submitMsg || `In der ${gameMode === "daily" ? "Tages-Rangliste" : "Rangliste"} eingetragen!`}
+              {!playerName.trim() ? (
+                // Kein Name → kein Auto-Eintrag, dezenter Hinweis
+                <div style={{ textAlign: "center" }}>
+                  <div style={{ fontSize: 13, color: "#94c8d8", marginBottom: 10 }}>
+                    Lege einen Namen fest, um in der Rangliste mitzuspielen.
+                  </div>
+                  <button onClick={() => { setNameInput(""); setShowNamePrompt(true); }} style={{
+                    padding: "10px 18px", background: "linear-gradient(135deg, #fbbf24, #f59e0b)",
+                    border: "none", borderRadius: 12, color: "#1a1a1a", fontSize: 14, fontWeight: 700, cursor: "pointer",
+                  }}>👤 Namen festlegen</button>
+                </div>
+              ) : autoResult?.state === "loading" || autoResult === null ? (
+                <div style={{ textAlign: "center", color: "#fcd34d", fontSize: 14 }}>Speichere Ergebnis…</div>
+              ) : autoResult?.state === "error" ? (
+                <div style={{ textAlign: "center", color: "#fca5a5", fontSize: 13 }}>
+                  Konnte nicht gespeichert werden. Beim nächsten Mal klappt's wieder.
+                </div>
+              ) : (
+                <div style={{ textAlign: "center" }}>
+                  {autoResult.state === "new" ? (
+                    <div style={{ fontSize: 15, color: "#fcd34d", fontWeight: 700, marginBottom: 6 }}>
+                      ✅ Eingetragen als <span style={{ color: "#e8f4f8" }}>{playerName}</span>
+                    </div>
+                  ) : (
+                    <div style={{ fontSize: 14, color: "#94c8d8", marginBottom: 6 }}>
+                      Dein Bestwert ({autoResult.best}) bleibt bestehen.
+                    </div>
+                  )}
+                  {autoResult.rank && (
+                    <div style={{
+                      display: "inline-block", margin: "4px 0 12px",
+                      background: autoResult.rank <= 3 ? "rgba(251,191,36,0.18)" : "rgba(100,216,255,0.12)",
+                      border: "1px solid " + (autoResult.rank <= 3 ? "rgba(251,191,36,0.5)" : "rgba(100,216,255,0.3)"),
+                      borderRadius: 20, padding: "6px 18px",
+                      fontSize: 16, fontWeight: 800,
+                      color: autoResult.rank <= 3 ? "#fbbf24" : "#64d8ff",
+                    }}>
+                      {autoResult.rank === 1 ? "🥇 Platz 1!" : autoResult.rank === 2 ? "🥈 Platz 2!" : autoResult.rank === 3 ? "🥉 Platz 3!" : `Platz ${autoResult.rank}`}
+                      {autoResult.total > 1 ? ` von ${autoResult.total}` : ""}
+                    </div>
+                  )}
                   <button onClick={() => openLeaderboard(gameMode === "daily" ? "daily" : gameMode === "ironman" ? "ironman" : "solo")} style={{
-                    display: "block", margin: "10px auto 0", padding: "8px 16px",
+                    display: "block", margin: "0 auto", padding: "9px 18px",
                     background: "rgba(251,191,36,0.15)", border: "1px solid rgba(251,191,36,0.4)",
                     borderRadius: 10, color: "#fbbf24", fontSize: 13, fontWeight: 600, cursor: "pointer",
                   }}>🏆 Rangliste ansehen</button>
-                </div>
-              ) : (
-                <div>
-                  <div style={{ fontSize: 13, color: "#fcd34d", marginBottom: 10, fontWeight: 600, textAlign: "center" }}>
-                    {gameMode === "daily" ? "🏆 In die Tages-Rangliste eintragen" : gameMode === "ironman" ? "🛡️ In die Iron-Man-Rangliste eintragen" : "🏆 In die Rangliste eintragen"}
-                  </div>
-                  {playerName.trim() && (
-                    <div style={{ fontSize: 13, color: "#94c8d8", marginBottom: 10, textAlign: "center" }}>
-                      als <strong style={{ color: "#e8f4f8" }}>{playerName}</strong>
-                      <button onClick={() => { setNameInput(playerName); setShowNamePrompt(true); }} style={{
-                        marginLeft: 8, background: "none", border: "none", color: "#64d8ff",
-                        fontSize: 12, cursor: "pointer", textDecoration: "underline",
-                      }}>ändern</button>
+                  {gameMode === "daily" && autoResult.state === "new" && (
+                    <div style={{ fontSize: 11, color: "#fb923c", marginTop: 8 }}>
+                      🔥 Streak {dailyStreak} mit eingetragen
                     </div>
                   )}
-                  <button
-                    onClick={handleSubmitScore}
-                    disabled={submitting}
-                    style={{
-                      width: "100%", padding: "13px", fontSize: 15, fontWeight: 700,
-                      background: submitting ? "rgba(255,255,255,0.08)" : "linear-gradient(135deg, #fbbf24, #f59e0b)",
-                      color: submitting ? "#5a7a8a" : "#1a1a1a",
-                      border: "none", borderRadius: 12,
-                      cursor: submitting ? "not-allowed" : "pointer",
-                    }}
-                  >{submitting ? "…" : (playerName.trim() ? "Eintragen" : "Namen festlegen & eintragen")}</button>
-                  {gameMode === "daily" && (
-                    <div style={{ fontSize: 11, color: "#fb923c", marginTop: 8, textAlign: "center" }}>
-                      🔥 Deine Streak ({dailyStreak}) wird mit eingetragen
-                    </div>
-                  )}
-                  {lbError && <div style={{ fontSize: 12, color: "#fca5a5", marginTop: 8, textAlign: "center" }}>{lbError}</div>}
                 </div>
               )}
             </div>
@@ -3519,6 +3612,8 @@ export default function LaenderDuell() {
                     const oppDone = isP1 ? d.p2_done : d.p1_done;
                     const myScore = isP1 ? d.p1_score : d.p2_score;
                     const oppScore = isP1 ? d.p2_score : d.p1_score;
+                    const h2h = headToHead(onlineDuels, me, opponent);
+                    const when = relativeTime(d.created_at);
                     let status, statusColor, action = null;
                     if (!myDone) {
                       status = "Du bist dran!"; statusColor = "#4ade80";
@@ -3536,6 +3631,7 @@ export default function LaenderDuell() {
                       status = draw ? "Unentschieden" : won ? "🏆 Gewonnen!" : "Verloren";
                       statusColor = draw ? "#94c8d8" : won ? "#4ade80" : "#fca5a5";
                     }
+                    const hasH2H = h2h.wins + h2h.losses + h2h.draws > 0;
                     return (
                       <div key={d.id} style={{
                         display: "flex", alignItems: "center", gap: 12, padding: "12px 14px",
@@ -3543,11 +3639,25 @@ export default function LaenderDuell() {
                         borderRadius: 12, marginBottom: 8,
                       }}>
                         <div style={{ flex: 1, textAlign: "left", minWidth: 0 }}>
-                          <div style={{ fontSize: 15, fontWeight: 700, color: "#e8f4f8" }}>vs. {opponent}</div>
-                          <div style={{ fontSize: 12, color: statusColor, fontWeight: 600 }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                            <span style={{ fontSize: 15, fontWeight: 700, color: "#e8f4f8" }}>vs. {opponent}</span>
+                            {hasH2H && (
+                              <span style={{
+                                fontSize: 11, fontWeight: 700, color: "#c4b5fd",
+                                background: "rgba(139,92,246,0.15)", border: "1px solid rgba(139,92,246,0.3)",
+                                borderRadius: 6, padding: "1px 7px", whiteSpace: "nowrap",
+                              }}>
+                                Bilanz {h2h.wins}:{h2h.losses}{h2h.draws > 0 ? ` · ${h2h.draws} ✕` : ""}
+                              </span>
+                            )}
+                          </div>
+                          <div style={{ fontSize: 12, color: statusColor, fontWeight: 600, marginTop: 2 }}>
                             {status}
                             {myDone && oppDone ? `  (${myScore} : ${oppScore})` : ""}
                           </div>
+                          {when && (
+                            <div style={{ fontSize: 11, color: "#6a9aaa", marginTop: 1 }}>{when}</div>
+                          )}
                         </div>
                         {action}
                       </div>
